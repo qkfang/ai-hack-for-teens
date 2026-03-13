@@ -83,7 +83,7 @@ export function GalleryPage() {
                 </div>
                 <div className="gallery-card-body">
                   <div className="gallery-card-author">
-                    <span className="gallery-author-avatar">{comic.username[0].toUpperCase()}</span>
+                    <span className="gallery-author-avatar">{(comic.username[0] ?? '?').toUpperCase()}</span>
                     <span className="gallery-author-name">{comic.username}</span>
                     <span className="gallery-author-id">#{comic.userId}</span>
                   </div>
@@ -130,7 +130,7 @@ export function GalleryPage() {
             <img src={selected.imageUrl} alt={selected.description} className="gallery-lightbox-img" />
             <div className="gallery-lightbox-info">
               <div className="gallery-lightbox-author">
-                <span className="gallery-author-avatar">{selected.username[0].toUpperCase()}</span>
+                <span className="gallery-author-avatar">{(selected.username[0] ?? '?').toUpperCase()}</span>
                 <strong>{selected.username}</strong>
                 <span className="gallery-author-id">#{selected.userId}</span>
               </div>

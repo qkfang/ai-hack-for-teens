@@ -284,7 +284,7 @@ function agentApiPlugin(): Plugin {
           const imageUrl = (result.data ?? [])[0]?.url ?? ''
           if (!imageUrl) {
             res.writeHead(500, { 'Content-Type': 'application/json' })
-            res.end(JSON.stringify({ error: 'No image URL returned' })); return
+            res.end(JSON.stringify({ error: 'DALL-E did not return an image. Please check your API configuration or try again later.' })); return
           }
           // Save comic to user session if userId provided
           if (userId !== undefined) {

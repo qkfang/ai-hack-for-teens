@@ -59,7 +59,7 @@ export function Layout() {
         </nav>
         {user && (
           <div className="header-user">
-            <span className="user-avatar">{user.username[0].toUpperCase()}</span>
+            <span className="user-avatar">{(user.username[0] ?? '?').toUpperCase()}</span>
             <span className="user-name">{user.username}</span>
             <span className="user-id">#{user.id}</span>
             <button className="logout-btn" onClick={handleLogout} title="Log out">
