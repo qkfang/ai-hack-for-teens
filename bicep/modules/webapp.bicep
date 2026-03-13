@@ -2,8 +2,8 @@ param name string
 param location string
 param appServicePlanName string
 param appInsightsConnectionString string
-param skuName string = 'B1'
-param skuTier string = 'Basic'
+param skuName string = 'S1'
+param skuTier string = 'Standard'
 param linuxFxVersion string = 'NODE|20-lts'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
