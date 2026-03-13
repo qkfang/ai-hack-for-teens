@@ -1,21 +1,17 @@
 @description('Base name used to derive all resource names')
-param baseName string = 'aihack2026'
+param baseName string = 'aihack26'
 
 @description('Azure region for all resources')
 param location string = 'eastus2'
 
-@description('Environment suffix (e.g. dev, staging, prod)')
-@allowed(['dev', 'staging', 'prod'])
-param environment string = 'dev'
-
 var uniqueSuffix = uniqueString(resourceGroup().id)
-var keyVaultName = 'kv-${baseName}-${environment}-${take(uniqueSuffix, 6)}'
-var storageAccountName = 'st${baseName}${environment}${take(uniqueSuffix, 6)}'
-var appInsightsName = 'appi-${baseName}-${environment}'
-var logAnalyticsWorkspaceName = 'log-${baseName}-${environment}'
-var webAppName = 'app-${baseName}-${environment}'
-var appServicePlanName = 'asp-${baseName}-${environment}'
-var staticWebAppName = 'swa-${baseName}-${environment}'
+var keyVaultName = '${baseName}-kv-${take(uniqueSuffix, 6)}'
+var storageAccountName = '${baseName}st${take(uniqueSuffix, 6)}'
+var appInsightsName = '${baseName}-appi'
+var logAnalyticsWorkspaceName = '${baseName}-log'
+var webAppName = '${baseName}-app'
+var appServicePlanName = '${baseName}-asp'
+var staticWebAppName = '${baseName}-swa'
 
 module keyVault 'modules/keyvault.bicep' = {
   name: 'keyVaultDeployment'
