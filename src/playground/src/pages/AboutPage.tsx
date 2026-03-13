@@ -92,13 +92,17 @@ export function AboutPage() {
             </div>
           </div>
           <p className="env-note">
-            💡 You can also set defaults using environment variables. Create a{' '}
-            <code>.env.local</code> file in the <code>src/playground</code> directory:
+            💡 You can set defaults using environment variables. Create a{' '}
+            <code>.env.local</code> file in the <code>src/playground</code> directory.
+            Use variables <strong>without</strong> the <code>VITE_</code> prefix so that
+            secrets stay on the server and are never embedded in the browser bundle:
           </p>
           <div className="code-block">
-            <pre>{`VITE_AZURE_FOUNDRY_ENDPOINT=https://your-project.services.ai.azure.com
-VITE_AZURE_FOUNDRY_API_KEY=your-api-key-here
-VITE_AZURE_FOUNDRY_DEPLOYMENT=gpt-4o`}</pre>
+            <pre>{`AZURE_FOUNDRY_ENDPOINT=https://your-project.services.ai.azure.com
+AZURE_FOUNDRY_API_KEY=your-api-key-here
+AZURE_FOUNDRY_DEPLOYMENT=gpt-4o
+AZURE_DALLE_DEPLOYMENT=dall-e-3
+CHATKIT_WORKFLOW_ID=your-workflow-id-here`}</pre>
           </div>
         </section>
 
