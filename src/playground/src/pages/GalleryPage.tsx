@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { API_BASE } from '../config'
 import './GalleryPage.css'
 
 interface ComicEntry {
@@ -22,7 +23,7 @@ export function GalleryPage() {
     setLoading(true)
     setError('')
     try {
-      const res = await fetch('/api/comics')
+      const res = await fetch(`${API_BASE}/api/comics`)
       if (!res.ok) throw new Error('Failed to fetch gallery')
       const data = await res.json() as ComicEntry[]
       setComics(data)

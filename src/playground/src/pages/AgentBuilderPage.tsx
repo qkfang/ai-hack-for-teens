@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { API_BASE } from '../config'
 import './AgentBuilderPage.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -372,7 +373,7 @@ export function AgentBuilderPage() {
       .map((a) => ({ role: a.msg.role, content: a.msg.content }))
 
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

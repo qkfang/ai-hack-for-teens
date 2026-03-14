@@ -1,11 +1,12 @@
 import { ChatKit, useChatKit } from '@openai/chatkit-react'
+import { API_BASE } from '../config'
 import './ChatPage.css'
 
 export function ChatPage() {
   const chatkit = useChatKit({
     api: {
       async getClientSecret() {
-        const res = await fetch('/api/chatkit/session', { method: 'POST' })
+        const res = await fetch(`${API_BASE}/api/chatkit/session`, { method: 'POST' })
         if (!res.ok) {
           const { error } = await res.json().catch(() => ({ error: res.statusText }))
           throw new Error(error ?? 'Failed to create ChatKit session')

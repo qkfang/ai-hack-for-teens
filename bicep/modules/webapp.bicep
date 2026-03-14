@@ -30,6 +30,9 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
       linuxFxVersion: linuxFxVersion
       appCommandLine: 'dotnet api.dll'
       minTlsVersion: '1.2'
+      cors: {
+        allowedOrigins: ['*']
+      }
       appSettings: [
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'

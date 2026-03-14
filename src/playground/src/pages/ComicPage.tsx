@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { API_BASE } from '../config'
 import './ComicPage.css'
 
 interface ComicItem {
@@ -25,7 +26,7 @@ export function ComicPage() {
     setLoading(true)
     setLatestImageUrl('')
     try {
-      const res = await fetch('/api/dalle', {
+      const res = await fetch(`${API_BASE}/api/dalle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description: desc, userId: user?.id }),

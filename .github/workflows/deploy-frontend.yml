@@ -23,11 +23,15 @@ jobs:
         working-directory: src/playground
         run: npm ci --legacy-peer-deps
 
+      - name: Create .env file
+        working-directory: src/playground
+        run: |
+          cp .env.example .env
+          sed -i 's|^VITE_API_BASE_URL=.*|VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}|' .env
+
       - name: Build playground
         working-directory: src/playground
         run: npm run build
-        env:
-          API_URL: ${{ vars.API_URL }}
 
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1

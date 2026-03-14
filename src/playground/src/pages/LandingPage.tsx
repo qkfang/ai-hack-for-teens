@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
+import { API_BASE } from '../config'
 import './LandingPage.css'
 
 type Mode = 'choose' | 'create' | 'continue'
@@ -21,7 +22,7 @@ export function LandingPage() {
     if (!name) { setError('Please enter a username.'); return }
     setLoading(true)
     try {
-      const res = await fetch('/api/users', {
+      const res = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: name }),
@@ -47,7 +48,7 @@ export function LandingPage() {
     if (isNaN(id) || id < 1) { setError('Please enter a valid user ID.'); return }
     setLoading(true)
     try {
-      const res = await fetch(`/api/users/${id}`)
+      const res = await fetch(`${API_BASE}/api/users/${id}`)
       if (res.status === 404) throw new Error(`No user found with ID ${id}`)
       if (!res.ok) throw new Error('Failed to fetch user')
       const data = await res.json() as { id: number; username: string }
