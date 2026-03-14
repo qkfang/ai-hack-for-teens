@@ -4,6 +4,11 @@ param baseName string = 'aihack26'
 @description('Azure region for all resources')
 param location string = 'eastus2'
 
+param azureAIFoundryEndpoint string = 'https://fsi-foundry.openai.azure.com'
+param azureAIFoundryDeployment string = 'gpt-4o'
+param azureAIFoundryDalleDeployment string = 'gpt-image-1'
+param azureAIFoundryTenantId string = '9d2116ce-afe6-4ce8-8bc3-c7c7b69856c2'
+
 var uniqueSuffix = uniqueString(resourceGroup().id)
 var keyVaultName = '${baseName}-kv-${take(uniqueSuffix, 6)}'
 var storageAccountName = '${baseName}st${take(uniqueSuffix, 6)}'
@@ -45,6 +50,10 @@ module webApp 'modules/webapp.bicep' = {
     location: location
     appServicePlanName: appServicePlanName
     appInsightsConnectionString: appInsights.outputs.connectionString
+    azureAIFoundryEndpoint: azureAIFoundryEndpoint
+    azureAIFoundryDeployment: azureAIFoundryDeployment
+    azureAIFoundryDalleDeployment: azureAIFoundryDalleDeployment
+    azureAIFoundryTenantId: azureAIFoundryTenantId
   }
 }
 

@@ -2,6 +2,10 @@ param name string
 param location string
 param appServicePlanName string
 param appInsightsConnectionString string
+param azureAIFoundryEndpoint string
+param azureAIFoundryDeployment string
+param azureAIFoundryDalleDeployment string
+param azureAIFoundryTenantId string
 param skuName string = 'S1'
 param skuTier string = 'Standard'
 param linuxFxVersion string = 'DOTNETCORE|9.0'
@@ -44,6 +48,22 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
           value: '~3'
+        }
+        {
+          name: 'AzureAIFoundry__Endpoint'
+          value: azureAIFoundryEndpoint
+        }
+        {
+          name: 'AzureAIFoundry__Deployment'
+          value: azureAIFoundryDeployment
+        }
+        {
+          name: 'AzureAIFoundry__DalleDeployment'
+          value: azureAIFoundryDalleDeployment
+        }
+        {
+          name: 'AzureAIFoundry__TenantId'
+          value: azureAIFoundryTenantId
         }
       ]
     }
