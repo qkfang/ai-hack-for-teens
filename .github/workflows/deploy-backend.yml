@@ -56,4 +56,5 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: aihack26-app
+          resource-group-name: rg-ai-hack-2026
           package: dist
