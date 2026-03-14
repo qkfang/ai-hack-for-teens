@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
-using Azure;
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
 
@@ -128,14 +128,13 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
     private ChatClient? BuildChatClient(string model)
     {
         var endpoint = config["AzureAIFoundry:Endpoint"] ?? "";
-        var apiKey = config["AzureAIFoundry:ApiKey"] ?? "";
         var defaultDeployment = config["AzureAIFoundry:Deployment"] ?? "gpt-4o";
         var deployment = string.IsNullOrEmpty(model) ? defaultDeployment : model;
         var openAiKey = config["OpenAI:ApiKey"] ?? "";
 
-        if (!string.IsNullOrEmpty(endpoint) && !string.IsNullOrEmpty(apiKey))
+        if (!string.IsNullOrEmpty(endpoint))
         {
-            var azureClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+            var azureClient = new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
             return azureClient.GetChatClient(deployment);
         }
 

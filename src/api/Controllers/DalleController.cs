@@ -1,5 +1,5 @@
-using Azure;
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Images;
 using api.Services;
@@ -18,14 +18,13 @@ public class DalleController(UserStore store, IConfiguration config) : Controlle
             return BadRequest(new { error = "description is required" });
 
         var endpoint = config["AzureAIFoundry:Endpoint"] ?? "";
-        var apiKey = config["AzureAIFoundry:ApiKey"] ?? "";
         var dalleDeployment = config["AzureAIFoundry:DalleDeployment"] ?? "dall-e-3";
         var openAiKey = config["OpenAI:ApiKey"] ?? "";
 
         ImageClient imageClient;
-        if (!string.IsNullOrEmpty(endpoint) && !string.IsNullOrEmpty(apiKey))
+        if (!string.IsNullOrEmpty(endpoint))
         {
-            var azureClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+            var azureClient = new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
             imageClient = azureClient.GetImageClient(dalleDeployment);
         }
         else if (!string.IsNullOrEmpty(openAiKey))
