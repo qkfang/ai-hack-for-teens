@@ -4,7 +4,7 @@ param appServicePlanName string
 param appInsightsConnectionString string
 param skuName string = 'S1'
 param skuTier string = 'Standard'
-param linuxFxVersion string = 'NODE|20-lts'
+param linuxFxVersion string = 'DOTNETCORE|9.0'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: appServicePlanName
@@ -28,6 +28,7 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
     httpsOnly: true
     siteConfig: {
       linuxFxVersion: linuxFxVersion
+      appCommandLine: 'dotnet api.dll'
       minTlsVersion: '1.2'
       appSettings: [
         {
