@@ -55,5 +55,5 @@ jobs:
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: ghcsdk-dev-api
+          app-name: aihack26-app
           package: dist
