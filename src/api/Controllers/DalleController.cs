@@ -24,7 +24,11 @@ public class DalleController(UserStore store, IConfiguration config) : Controlle
         ImageClient imageClient;
         if (!string.IsNullOrEmpty(endpoint))
         {
-            var azureClient = new AzureOpenAIClient(new Uri(endpoint), new DefaultAzureCredential());
+            var tenantId = config["AzureAIFoundry:TenantId"] ?? "";
+            var credential = string.IsNullOrEmpty(tenantId)
+                ? new DefaultAzureCredential()
+                : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = tenantId });
+            var azureClient = new AzureOpenAIClient(new Uri(endpoint), credential);
             imageClient = azureClient.GetImageClient(dalleDeployment);
         }
         else if (!string.IsNullOrEmpty(openAiKey))
