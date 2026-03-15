@@ -66,6 +66,43 @@ const GUIDE_SECTIONS = [
       'Step 3: "Write the opening paragraph."',
     ],
   },
+  {
+    emoji: '🌟',
+    title: 'Practical Examples by Output Type',
+    tip: 'Try these real prompts — each produces a different kind of output. Copy and paste them into the chat!',
+    examples: [
+      {
+        label: '📊 Table',
+        prompt: 'Compare Python, JavaScript, and Scratch in a table. Columns: difficulty (1–5 stars), best use, and one fun project idea.',
+        output: 'Language | Difficulty | Best Use | Fun Project\nPython   | ⭐⭐       | Data & AI  | Weather bot\nJS       | ⭐⭐⭐     | Websites   | Browser game\nScratch  | ⭐         | Beginners  | Animated story',
+      },
+      {
+        label: '💻 Code',
+        prompt: 'Write a Python function that takes a list of numbers and returns only the even ones. Add a comment on each line.',
+        output: 'def get_evens(nums):\n    # Keep only numbers divisible by 2\n    return [n for n in nums\n            if n % 2 == 0]',
+      },
+      {
+        label: '✍️ Story opening',
+        prompt: 'Write a 3-sentence story opening about a teen who discovers their pet robot has started dreaming. Use vivid, exciting language.',
+        output: 'The blinking red light on BYTE\'s chest was new.\nMaya leaned in — the robot\'s fingers were\ntwitching, drawing shapes in the air. Whatever\nBYTE was dreaming about, it looked like an\nadventure.',
+      },
+      {
+        label: '❓ Quiz',
+        prompt: 'Create a 3-question multiple choice quiz about the solar system for Year 7. Include correct answers at the end.',
+        output: '1. Which planet has the most moons?\n   A) Jupiter  B) Saturn ✓  C) Mars\n2. What is the hottest planet?\n   A) Mercury  B) Venus ✓  C) Earth\nAnswers: 1-B, 2-B, ...',
+      },
+      {
+        label: '📝 Step-by-step',
+        prompt: 'Give me step-by-step instructions for making a paper crane. Number each step. Keep it to 6 steps or fewer.',
+        output: '1. Start with a square sheet of paper.\n2. Fold diagonally both ways, unfold.\n3. Fold in half both ways, unfold.\n4. Collapse into a small square.\n5. Fold edges to the centre crease.\n6. Shape the wings and pull open.',
+      },
+      {
+        label: '🔍 Summary',
+        prompt: 'Summarise the causes of World War 1 in exactly 3 bullet points, each no longer than 15 words.',
+        output: '• Assassination of Archduke Franz Ferdinand\n  triggered a chain of alliances.\n• Imperial rivalry between European powers\n  created dangerous tensions.\n• Massive military build-up made nations\n  ready and eager to fight.',
+      },
+    ],
+  },
 ]
 
 interface ChatMessage {
@@ -303,6 +340,17 @@ export function ChatPage() {
                 <ol className="guide-list">
                   {s.steps.map((st, j) => <li key={j}>{st}</li>)}
                 </ol>
+              )}
+              {s.examples && (
+                <div className="guide-output-examples">
+                  {s.examples.map((ex, j) => (
+                    <div key={j} className="guide-output-example">
+                      <span className="guide-output-label">{ex.label}</span>
+                      <div className="guide-output-prompt"><code>{ex.prompt}</code></div>
+                      <div className="guide-output-preview"><pre>{ex.output}</pre></div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           ))}
