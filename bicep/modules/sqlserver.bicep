@@ -3,10 +3,10 @@ param location string
 param adminLogin string
 @secure()
 param adminPassword string
-param databaseName string = 'weatherdb'
-param skuName string = 'Basic'
-param skuTier string = 'Basic'
-param capacity int = 5
+param databaseName string = 'ai-hack-db-dev'
+param skuName string = 'Standard'
+param skuTier string = 'Standard'
+param capacity int = 20
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: name
