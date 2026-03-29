@@ -9,8 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<WeatherDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// In-memory user/comic store (singleton so state persists across requests)
-builder.Services.AddSingleton<UserStore>();
+// In-memory quiz store (singleton so state persists across requests)
 builder.Services.AddSingleton<QuizStore>();
 
 // HttpClient for ChatKit session creation

@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
 using api.Services;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/quiz")]
-public class QuizController(QuizStore quiz, UserStore users) : ControllerBase
+public class QuizController(QuizStore quiz, WeatherDbContext db) : ControllerBase
 {
     private const string AdminPassword = "9999";
 
@@ -47,9 +49,9 @@ public class QuizController(QuizStore quiz, UserStore users) : ControllerBase
     }
 
     [HttpGet("leaderboard")]
-    public IActionResult GetLeaderboard()
+    public async Task<IActionResult> GetLeaderboard()
     {
-        var allUsers = users.GetUsers();
+        var allUsers = await db.AppUsers.ToListAsync();
         var board = allUsers
             .Select(u => new { userId = u.Id, username = u.Username, score = quiz.GetScore(u.Id) })
             .OrderByDescending(x => x.score)

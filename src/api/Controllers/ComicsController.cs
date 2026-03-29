@@ -1,12 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
-using api.Services;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/comics")]
-public class ComicsController(UserStore store) : ControllerBase
+public class ComicsController(WeatherDbContext db) : ControllerBase
 {
     [HttpGet]
-    public IActionResult GetAllComics() => Ok(store.GetAllComics());
+    public async Task<IActionResult> GetAllComics()
+    {
+        var comics = await db.Comics
+            .Include(c => c.User)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt, userId = c.UserId, username = c.User.Username })
+            .ToListAsync();
+        return Ok(comics);
+    }
 }

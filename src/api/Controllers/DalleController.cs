@@ -2,13 +2,14 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Images;
-using api.Services;
+using api.Data;
+using api.Models;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/dalle")]
-public class DalleController(UserStore store, IConfiguration config) : ControllerBase
+public class DalleController(WeatherDbContext db, IConfiguration config) : ControllerBase
 {
     private ImageClient CreateImageClient()
     {
@@ -60,7 +61,10 @@ public class DalleController(UserStore store, IConfiguration config) : Controlle
                 return StatusCode(500, new { error = "DALL-E did not return an image. Please check your API configuration or try again later." });
 
             if (request.UserId.HasValue)
-                store.AddComic(request.UserId.Value, description, imageUrl);
+            {
+                db.Comics.Add(new Comic { UserId = request.UserId.Value, Description = description, ImageUrl = imageUrl });
+                await db.SaveChangesAsync();
+            }
 
             return Ok(new { imageUrl });
         }
