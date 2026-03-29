@@ -1,87 +1,102 @@
 using Microsoft.AspNetCore.Mvc;
-using api.Services;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
+using api.Models;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController(UserStore store) : ControllerBase
+public class UsersController(WeatherDbContext db) : ControllerBase
 {
     [HttpPost]
-    public IActionResult CreateUser([FromBody] CreateUserRequest request)
+    public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
         var username = request.Username?.Trim() ?? "";
         if (string.IsNullOrEmpty(username))
             return BadRequest(new { error = "username is required" });
 
-        var user = store.CreateUser(username);
+        var user = new AppUser { Username = username };
+        db.AppUsers.Add(user);
+        await db.SaveChangesAsync();
         return StatusCode(201, new { id = user.Id, username = user.Username, createdAt = user.CreatedAt });
     }
 
     [HttpGet]
-    public IActionResult GetUsers()
+    public async Task<IActionResult> GetUsers()
     {
-        var users = store.GetUsers().Select(u => new
-        {
-            id = u.Id,
-            username = u.Username,
-            createdAt = u.CreatedAt,
-            comicCount = u.Comics.Count,
-        });
+        var users = await db.AppUsers
+            .Select(u => new { id = u.Id, username = u.Username, createdAt = u.CreatedAt, comicCount = u.Comics.Count })
+            .ToListAsync();
         return Ok(users);
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetUser(int id)
+    public async Task<IActionResult> GetUser(int id)
     {
-        var user = store.GetUser(id);
+        var user = await db.AppUsers.FindAsync(id);
         if (user == null) return NotFound(new { error = "User not found" });
         return Ok(new { id = user.Id, username = user.Username, createdAt = user.CreatedAt });
     }
 
     [HttpGet("{id:int}/comics")]
-    public IActionResult GetUserComics(int id)
+    public async Task<IActionResult> GetUserComics(int id)
     {
-        var user = store.GetUser(id);
-        if (user == null) return NotFound(new { error = "User not found" });
-        return Ok(user.Comics);
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
+        var comics = await db.Comics
+            .Where(c => c.UserId == id)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
+            .ToListAsync();
+        return Ok(comics);
     }
 
     [HttpPost("{id:int}/comics")]
-    public IActionResult AddUserComic(int id, [FromBody] AddComicRequest request)
+    public async Task<IActionResult> AddUserComic(int id, [FromBody] AddComicRequest request)
     {
-        var user = store.GetUser(id);
-        if (user == null) return NotFound(new { error = "User not found" });
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
 
         var description = request.Description?.Trim() ?? "";
         var imageUrl = request.ImageUrl?.Trim() ?? "";
         if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(imageUrl))
             return BadRequest(new { error = "description and imageUrl are required" });
 
-        var comic = store.AddComic(id, description, imageUrl);
-        return StatusCode(201, comic);
+        var comic = new Comic { UserId = id, Description = description, ImageUrl = imageUrl };
+        db.Comics.Add(comic);
+        await db.SaveChangesAsync();
+        return StatusCode(201, new { id = comic.Id, description = comic.Description, imageUrl = comic.ImageUrl, createdAt = comic.CreatedAt });
     }
+
     [HttpGet("{id:int}/stories")]
-    public IActionResult GetUserStories(int id)
+    public async Task<IActionResult> GetUserStories(int id)
     {
-        var user = store.GetUser(id);
-        if (user == null) return NotFound(new { error = "User not found" });
-        return Ok(user.Stories);
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
+        var stories = await db.Stories
+            .Where(s => s.UserId == id)
+            .OrderByDescending(s => s.CreatedAt)
+            .Select(s => new { id = s.Id, title = s.Title, body = s.Body, coverImageUrl = s.CoverImageUrl, createdAt = s.CreatedAt })
+            .ToListAsync();
+        return Ok(stories);
     }
 
     [HttpPost("{id:int}/stories")]
-    public IActionResult AddUserStory(int id, [FromBody] AddStoryRequest request)
+    public async Task<IActionResult> AddUserStory(int id, [FromBody] AddStoryRequest request)
     {
-        var user = store.GetUser(id);
-        if (user == null) return NotFound(new { error = "User not found" });
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
 
         var title = request.Title?.Trim() ?? "";
         var body = request.Body?.Trim() ?? "";
         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(body))
             return BadRequest(new { error = "title and body are required" });
 
-        var story = store.AddStory(id, title, body, request.CoverImageUrl?.Trim() ?? "");
-        return StatusCode(201, story);
+        var story = new Story { UserId = id, Title = title, Body = body, CoverImageUrl = request.CoverImageUrl?.Trim() ?? "" };
+        db.Stories.Add(story);
+        await db.SaveChangesAsync();
+        return StatusCode(201, new { id = story.Id, title = story.Title, body = story.Body, coverImageUrl = story.CoverImageUrl, createdAt = story.CreatedAt });
     }
 }
 

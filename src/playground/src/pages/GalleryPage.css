@@ -345,3 +345,285 @@
   max-height: 50vh;
   overflow-y: auto;
 }
+
+/* New Idea button */
+.gallery-new-idea-btn {
+  background: linear-gradient(135deg, #0078d4, #00b4ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.gallery-new-idea-btn:hover {
+  opacity: 0.9;
+}
+
+/* Idea card */
+.gallery-card--idea .gallery-idea-card-cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #fff8e1, #fff3cd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-idea-card-placeholder {
+  font-size: 3.5rem;
+}
+
+.gallery-idea-badges {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.gallery-idea-badge {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+}
+
+/* Idea detail modal */
+.gallery-idea-modal {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.gallery-idea-cover-placeholder {
+  width: 100%;
+  background: linear-gradient(135deg, #fff8e1, #fff3cd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  padding: 2rem;
+}
+
+.gallery-idea-modal-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 1rem;
+}
+
+.gallery-idea-section {
+  margin-bottom: 0.75rem;
+}
+
+.gallery-idea-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0078d4;
+  margin-bottom: 0.25rem;
+}
+
+.gallery-idea-section p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.gallery-idea-link {
+  font-size: 0.9rem;
+  color: #0078d4;
+  word-break: break-all;
+}
+
+.gallery-idea-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e0e6ed;
+}
+
+.gallery-idea-edit-btn {
+  background: #f0f4ff;
+  color: #0078d4;
+  border: 1px solid #c0d4f5;
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.gallery-idea-delete-btn {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #f5c0c0;
+  border-radius: 6px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Idea form modal */
+.gallery-idea-form-modal {
+  background: white;
+  border-radius: 16px;
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-idea-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e0e6ed;
+}
+
+.gallery-idea-form-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a2e;
+}
+
+.gallery-idea-form-body {
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.gallery-idea-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.gallery-idea-form-section h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0078d4;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e8f0fe;
+}
+
+.gallery-idea-form-section label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.gallery-idea-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid #d0d7de;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.gallery-idea-input:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+.gallery-idea-textarea {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid #d0d7de;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.gallery-idea-textarea:focus {
+  outline: none;
+  border-color: #0078d4;
+}
+
+.gallery-idea-import-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gallery-idea-import-btn {
+  background: #f0f4ff;
+  color: #0078d4;
+  border: 1px solid #c0d4f5;
+  border-radius: 6px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.gallery-idea-import-btn:hover {
+  background: #e0edff;
+}
+
+.gallery-idea-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e0e6ed;
+}
+
+.gallery-idea-cancel-btn {
+  background: white;
+  border: 1.5px solid #d0d7de;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.gallery-idea-save-btn {
+  background: linear-gradient(135deg, #0078d4, #00b4ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.gallery-idea-save-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.gallery-idea-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

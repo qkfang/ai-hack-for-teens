@@ -3,7 +3,8 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Images;
-using api.Services;
+using api.Data;
+using api.Models;
 
 namespace api.Controllers;
 
@@ -88,7 +89,10 @@ public class DalleController(UserStore store, IConfiguration config, AzureKeyPoo
                 return StatusCode(500, new { error = "DALL-E did not return an image. Please check your API configuration or try again later." });
 
             if (request.UserId.HasValue)
-                store.AddComic(request.UserId.Value, description, imageUrl);
+            {
+                db.Comics.Add(new Comic { UserId = request.UserId.Value, Description = description, ImageUrl = imageUrl });
+                await db.SaveChangesAsync();
+            }
 
             return Ok(new { imageUrl });
         }
