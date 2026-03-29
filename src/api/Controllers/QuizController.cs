@@ -7,7 +7,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/quiz")]
-public class QuizController(QuizStore quiz, WeatherDbContext db) : ControllerBase
+public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
 {
     private const string AdminPassword = "9999";
 

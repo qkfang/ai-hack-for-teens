@@ -7,7 +7,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController(WeatherDbContext db) : ControllerBase
+public class UsersController(AIHackDbContext db) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)

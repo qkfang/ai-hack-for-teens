@@ -6,7 +6,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/stories")]
-public class StoriesController(WeatherDbContext db) : ControllerBase
+public class StoriesController(AIHackDbContext db) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAllStories()

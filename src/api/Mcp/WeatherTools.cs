@@ -8,9 +8,9 @@ namespace api.Mcp;
 [McpServerToolType]
 public class WeatherTools
 {
-    private readonly WeatherDbContext _db;
+    private readonly AIHackDbContext _db;
 
-    public WeatherTools(WeatherDbContext db)
+    public WeatherTools(AIHackDbContext db)
     {
         _db = db;
     }

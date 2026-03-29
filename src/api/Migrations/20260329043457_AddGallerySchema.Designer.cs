@@ -11,7 +11,7 @@ using api.Data;
 
 namespace api.Migrations
 {
-    [DbContext(typeof(WeatherDbContext))]
+    [DbContext(typeof(AIHackDbContext))]
     [Migration("20260329043457_AddGallerySchema")]
     partial class AddGallerySchema
     {

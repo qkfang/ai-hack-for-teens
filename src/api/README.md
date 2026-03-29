@@ -16,7 +16,7 @@ src/api/
 ├── Controllers/
 │   └── WeatherController.cs    # REST API endpoints
 ├── Data/
-│   └── WeatherDbContext.cs     # EF Core in-memory DB context + seed data
+│   └── AIHackDbContext.cs     # EF Core in-memory DB context + seed data
 ├── Mcp/
 │   └── WeatherTools.cs         # MCP server tools
 ├── Models/

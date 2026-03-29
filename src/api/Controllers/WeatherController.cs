@@ -10,9 +10,9 @@ namespace api.Controllers;
 [Produces("application/json")]
 public class WeatherController : ControllerBase
 {
-    private readonly WeatherDbContext _db;
+    private readonly AIHackDbContext _db;
 
-    public WeatherController(WeatherDbContext db)
+    public WeatherController(AIHackDbContext db)
     {
         _db = db;
     }

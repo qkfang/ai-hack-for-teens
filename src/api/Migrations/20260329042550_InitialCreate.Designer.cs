@@ -11,7 +11,7 @@ using api.Data;
 
 namespace api.Migrations
 {
-    [DbContext(typeof(WeatherDbContext))]
+    [DbContext(typeof(AIHackDbContext))]
     [Migration("20260329042550_InitialCreate")]
     partial class InitialCreate
     {

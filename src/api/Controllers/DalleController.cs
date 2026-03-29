@@ -5,12 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using OpenAI.Images;
 using api.Data;
 using api.Models;
+using api.Services;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/dalle")]
-public class DalleController(UserStore store, IConfiguration config, AzureKeyPoolService keyPool) : ControllerBase
+public class DalleController(AIHackDbContext db, IConfiguration config, AzureKeyPoolService keyPool) : ControllerBase
 {
     private ImageClient CreateImageClient(FoundryEntry entry)
     {

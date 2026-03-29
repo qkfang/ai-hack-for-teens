@@ -10,8 +10,8 @@ using api.Data;
 
 namespace api.Migrations
 {
-    [DbContext(typeof(WeatherDbContext))]
-    partial class WeatherDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(AIHackDbContext))]
+    partial class AIHackDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {

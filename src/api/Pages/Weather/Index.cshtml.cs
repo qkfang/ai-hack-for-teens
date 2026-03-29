@@ -7,9 +7,9 @@ namespace api.Pages.Weather;
 
 public class IndexModel : PageModel
 {
-    private readonly WeatherDbContext _db;
+    private readonly AIHackDbContext _db;
 
-    public IndexModel(WeatherDbContext db) => _db = db;
+    public IndexModel(AIHackDbContext db) => _db = db;
 
     public List<WeatherRecord> Records { get; private set; } = [];
     public string? SearchCity { get; private set; }

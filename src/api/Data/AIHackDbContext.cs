@@ -3,9 +3,9 @@ using api.Models;
 
 namespace api.Data;
 
-public class WeatherDbContext : DbContext
+public class AIHackDbContext : DbContext
 {
-    public WeatherDbContext(DbContextOptions<WeatherDbContext> options) : base(options) { }
+    public AIHackDbContext(DbContextOptions<AIHackDbContext> options) : base(options) { }
 
     public DbSet<WeatherRecord> WeatherRecords => Set<WeatherRecord>();
     public DbSet<AppUser> AppUsers => Set<AppUser>();

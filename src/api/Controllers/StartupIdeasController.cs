@@ -7,7 +7,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/ideas")]
-public class StartupIdeasController(WeatherDbContext db) : ControllerBase
+public class StartupIdeasController(AIHackDbContext db) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll()
