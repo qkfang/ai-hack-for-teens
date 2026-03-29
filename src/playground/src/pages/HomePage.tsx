@@ -1,9 +1,22 @@
 import { Link } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
+import { WEBBUILDER_URL } from '../config'
 import './HomePage.css'
 
 export function HomePage() {
   const { user } = useUser()
+
+  function openWebBuilder() {
+    if (!user) return
+    const params = new URLSearchParams({ userId: String(user.id), userName: user.username })
+    window.open(`${WEBBUILDER_URL}?${params.toString()}`, '_blank')
+  }
+
+  function viewWebsite() {
+    if (!user) return
+    window.open(`${WEBBUILDER_URL}/gallery/${user.id}`, '_blank')
+  }
+
   return (
     <div className="home-page">
       <section className="hero-section">
@@ -26,6 +39,11 @@ export function HomePage() {
             <Link to="/gallery" className="btn btn-secondary">
               🌟 Browse Gallery
             </Link>
+            {user && (
+              <button onClick={openWebBuilder} className="btn btn-primary">
+                🌐 Web Builder →
+              </button>
+            )}
           </div>
         </div>
         <div className="hero-visual">
@@ -81,6 +99,26 @@ export function HomePage() {
             <Link to="/agent" className="feature-link">
               Build Agents →
             </Link>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">🌐</div>
+            <h3>Web Builder</h3>
+            <p>
+              Build your own million-dollar startup website with GitHub Copilot.
+              Use AI to generate and modify your HTML page in real time.
+            </p>
+            {user ? (
+              <span style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <button onClick={openWebBuilder} className="feature-link">
+                  Open Web Builder →
+                </button>
+                <button onClick={viewWebsite} className="feature-link">
+                  View My Website →
+                </button>
+              </span>
+            ) : (
+              <span className="feature-link">Log in to use →</span>
+            )}
           </div>
         </div>
       </section>
