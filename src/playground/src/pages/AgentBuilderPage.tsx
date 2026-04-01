@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { API_BASE } from '../config'
+import { useUser } from '../contexts/UserContext'
+import { useIdeas } from '../hooks/useIdeas'
+import { IdeaSelector } from '../components/IdeaSelector'
 import './AgentBuilderPage.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -293,6 +296,10 @@ function ToolCallBlock({ name, args, result }: { name: string; args: string; res
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export function AgentBuilderPage() {
+  const { user } = useUser()
+  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
+  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [activeTab, setActiveTab] = useState<'designer' | 'use' | 'code'>('designer')
   const [config, setConfig] = useState<AgentConfig>(loadConfig)
   const [activity, setActivity] = useState<ActivityItem[]>([])
@@ -321,6 +328,19 @@ export function AgentBuilderPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
     setSaveState('saved')
     setTimeout(() => setSaveState('idle'), 2000)
+  }
+
+  async function handleSaveToIdea() {
+    if (!selectedIdeaId) return
+    setSaveToIdeaState('saving')
+    const ok = await updateIdea(selectedIdeaId, {
+      agentName: config.name,
+      agentSystemPrompt: config.systemPrompt,
+      agentModel: config.model,
+      agentTemperature: config.temperature,
+    })
+    setSaveToIdeaState(ok ? 'saved' : 'error')
+    setTimeout(() => setSaveToIdeaState('idle'), 2500)
   }
 
   function handleReset() {
@@ -487,6 +507,15 @@ export function AgentBuilderPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="ab-page">
+      {/* Idea Selector bar */}
+      <div style={{ padding: '0.5rem 1rem 0' }}>
+        <IdeaSelector
+          ideas={ideas}
+          selectedId={selectedIdeaId}
+          onSelect={setSelectedIdeaId}
+          onCreate={createIdea}
+        />
+      </div>
       {/* Tab bar */}
       <div className="ab-tabbar">
         <div className="ab-tabbar-left">
@@ -516,6 +545,15 @@ export function AgentBuilderPage() {
           <button className="ab-btn ab-btn-ghost" onClick={handleReset} title="Reset to defaults">
             ↺ Reset
           </button>
+          {selectedIdeaId && (
+            <button
+              className={`ab-btn ${saveToIdeaState === 'saved' ? 'ab-btn-success' : 'ab-btn-ghost'}`}
+              onClick={handleSaveToIdea}
+              disabled={saveToIdeaState === 'saving'}
+            >
+              {saveToIdeaState === 'saving' ? '⏳…' : saveToIdeaState === 'saved' ? '✓ Saved to Idea' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save to Idea'}
+            </button>
+          )}
           <button
             className={`ab-btn ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
             onClick={handleSave}

@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useUser } from '../contexts/UserContext'
 import { API_BASE } from '../config'
 import { useRateLimit } from '../hooks/useRateLimit'
+import { useIdeas } from '../hooks/useIdeas'
+import { IdeaSelector } from '../components/IdeaSelector'
 import './ComicPage.css'
 
 interface ComicItem {
@@ -15,6 +17,9 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function ComicPage() {
   const { user } = useUser()
+  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
+  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const [ideaCoverState, setIdeaCoverState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -107,6 +112,18 @@ export function ComicPage() {
     setCoverSet(true)
   }
 
+  async function handleSetIdeaCover() {
+    if (!selectedImageUrl || !selectedIdeaId) return
+    setIdeaCoverState('saving')
+    const currentDesc = comics.find(c => c.imageUrl === selectedImageUrl)?.description ?? ''
+    const ok = await updateIdea(selectedIdeaId, {
+      coverImageUrl: selectedImageUrl,
+      coverImagePrompt: currentDesc || undefined,
+    })
+    setIdeaCoverState(ok ? 'saved' : 'error')
+    setTimeout(() => setIdeaCoverState('idle'), 2500)
+  }
+
   function handleSelectComic(imageUrl: string) {
     setSelectedImageUrl(imageUrl)
     setEditPrompt('')
@@ -128,6 +145,12 @@ export function ComicPage() {
         <h1>🎨 Comic Book Studio</h1>
         <p>Describe your scene and DALL-E will bring it to life!</p>
         {user && <p className="comic-user">Creating as <strong>{user.username}</strong> (ID: {user.id})</p>}
+        <IdeaSelector
+          ideas={ideas}
+          selectedId={selectedIdeaId}
+          onSelect={setSelectedIdeaId}
+          onCreate={createIdea}
+        />
       </div>
 
       <div className="comic-layout">
@@ -202,6 +225,16 @@ export function ComicPage() {
               >
                 {coverSet ? '✅ Set as Story Book Cover!' : '📚 Use as Story Book Cover'}
               </button>
+              {selectedIdeaId && (
+                <button
+                  className={`comic-cover-btn${ideaCoverState === 'saved' ? ' cover-set' : ''}`}
+                  onClick={handleSetIdeaCover}
+                  disabled={ideaCoverState === 'saving'}
+                  style={{ marginTop: '0.5rem', background: ideaCoverState === 'saved' ? '#107c10' : ideaCoverState === 'error' ? '#c0392b' : undefined }}
+                >
+                  {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover'}
+                </button>
+              )}
             </div>
           )}
         </div>

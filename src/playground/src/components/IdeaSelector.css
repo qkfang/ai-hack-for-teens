@@ -1,0 +1,101 @@
+.idea-selector {
+  background: #f0f7ff;
+  border: 1px solid #c0d8f0;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.idea-selector-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.idea-selector-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0078d4;
+  white-space: nowrap;
+}
+
+.idea-selector-select {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #c0d8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+}
+
+.idea-selector-new-btn {
+  padding: 0.3rem 0.7rem;
+  background: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.idea-selector-new-btn:hover {
+  background: #005fa3;
+}
+
+.idea-selector-current {
+  font-size: 0.78rem;
+  color: #555;
+}
+
+.idea-selector-create {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.idea-selector-input {
+  flex: 1;
+  min-width: 160px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #0078d4;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+}
+
+.idea-selector-create-btn {
+  padding: 0.3rem 0.7rem;
+  background: #107c10;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.idea-selector-create-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.idea-selector-cancel-btn {
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: #555;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+}

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUser } from '../contexts/UserContext'
 import { API_BASE } from '../config'
+import { useIdeas } from '../hooks/useIdeas'
+import { IdeaSelector } from '../components/IdeaSelector'
 import './StoryBookPage.css'
 
 interface ChatMessage {
@@ -12,6 +14,9 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function StoryBookPage() {
   const { user } = useUser()
+  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
+  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit')
@@ -103,6 +108,17 @@ When the user asks for changes or suggestions, provide the updated story text or
     }
   }
 
+  async function handleSaveToIdea() {
+    if (!selectedIdeaId) return
+    setSaveToIdeaState('saving')
+    const ok = await updateIdea(selectedIdeaId, {
+      ideaDescription: body.trim(),
+      title: title.trim() || undefined,
+    })
+    setSaveToIdeaState(ok ? 'saved' : 'error')
+    setTimeout(() => setSaveToIdeaState('idle'), 2500)
+  }
+
   async function handlePublish() {
     if (!user) return
     const t = title.trim()
@@ -137,6 +153,13 @@ When the user asks for changes or suggestions, provide the updated story text or
           <h1>📖 Story Book</h1>
           {user && <span className="storybook-user">Writing as <strong>{user.username}</strong></span>}
         </div>
+
+        <IdeaSelector
+          ideas={ideas}
+          selectedId={selectedIdeaId}
+          onSelect={setSelectedIdeaId}
+          onCreate={createIdea}
+        />
 
         <input
           className="storybook-title-input"
@@ -191,6 +214,16 @@ When the user asks for changes or suggestions, provide the updated story text or
         <div className="storybook-publish-row">
           {publishError && <span className="storybook-publish-error">{publishError}</span>}
           {publishSuccess && <span className="storybook-publish-success">✅ Published to Gallery!</span>}
+          {selectedIdeaId && (
+            <button
+              className="storybook-publish-btn"
+              style={{ background: saveToIdeaState === 'saved' ? '#107c10' : saveToIdeaState === 'error' ? '#c0392b' : '#6b46c1' }}
+              onClick={handleSaveToIdea}
+              disabled={saveToIdeaState === 'saving' || !body.trim()}
+            >
+              {saveToIdeaState === 'saving' ? '⏳ Saving…' : saveToIdeaState === 'saved' ? '✅ Saved to Idea!' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save to Idea'}
+            </button>
+          )}
           <button
             className="storybook-publish-btn"
             onClick={handlePublish}
