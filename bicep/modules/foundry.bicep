@@ -8,9 +8,10 @@ param deploymentName string = 'gpt-4o'
 param deploymentSkuName string = 'Standard'
 param deploymentCapacity int = 1
 
+var normalizedBase = toLower(replace(replace(baseName, '-', ''), '_', ''))
 var locationTag = toLower(replace(location, ' ', ''))
 var uniqueFragment = toLower(substring(uniqueString(resourceGroup().id, location), 0, 6))
-var accountName = toLower('${baseName}${locationTag}${uniqueFragment}')
+var accountName = '${normalizedBase}${locationTag}${uniqueFragment}'
 
 resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: accountName
