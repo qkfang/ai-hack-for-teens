@@ -27,6 +27,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
                 businessModel = i.BusinessModel,
                 coverImageUrl = i.CoverImageUrl,
                 coverImagePrompt = i.CoverImagePrompt,
+                storyTitle = i.StoryTitle,
+                storyBody = i.StoryBody,
                 agentName = i.AgentName,
                 agentSystemPrompt = i.AgentSystemPrompt,
                 agentModel = i.AgentModel,
@@ -56,6 +58,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
             businessModel = i.BusinessModel,
             coverImageUrl = i.CoverImageUrl,
             coverImagePrompt = i.CoverImagePrompt,
+            storyTitle = i.StoryTitle,
+            storyBody = i.StoryBody,
             agentName = i.AgentName,
             agentSystemPrompt = i.AgentSystemPrompt,
             agentModel = i.AgentModel,
@@ -84,6 +88,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
             BusinessModel = request.BusinessModel,
             CoverImageUrl = request.CoverImageUrl,
             CoverImagePrompt = request.CoverImagePrompt,
+            StoryTitle = request.StoryTitle,
+            StoryBody = request.StoryBody,
             AgentName = request.AgentName,
             AgentSystemPrompt = request.AgentSystemPrompt,
             AgentModel = request.AgentModel,
@@ -110,6 +116,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         idea.BusinessModel = request.BusinessModel;
         idea.CoverImageUrl = request.CoverImageUrl;
         idea.CoverImagePrompt = request.CoverImagePrompt;
+        idea.StoryTitle = request.StoryTitle;
+        idea.StoryBody = request.StoryBody;
         idea.AgentName = request.AgentName;
         idea.AgentSystemPrompt = request.AgentSystemPrompt;
         idea.AgentModel = request.AgentModel;
@@ -140,6 +148,8 @@ public record IdeaRequest(
     string? BusinessModel,
     string? CoverImageUrl,
     string? CoverImagePrompt,
+    string? StoryTitle,
+    string? StoryBody,
     string? AgentName,
     string? AgentSystemPrompt,
     string? AgentModel,

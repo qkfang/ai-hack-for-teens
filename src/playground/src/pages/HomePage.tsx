@@ -1,20 +1,25 @@
 import { Link } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
+import { useIdeas } from '../contexts/IdeaContext'
+import { IdeaSelector } from '../components/IdeaSelector/IdeaSelector'
 import { WEBBUILDER_URL } from '../config'
 import './HomePage.css'
 
 export function HomePage() {
   const { user } = useUser()
+  const { selectedIdea } = useIdeas()
 
   function openWebBuilder() {
     if (!user) return
     const params = new URLSearchParams({ userId: String(user.id), userName: user.username })
+    if (selectedIdea) params.set('ideaId', String(selectedIdea.id))
     window.open(`${WEBBUILDER_URL}?${params.toString()}`, '_blank')
   }
 
   function viewWebsite() {
     if (!user) return
-    window.open(`${WEBBUILDER_URL}/gallery/${user.id}`, '_blank')
+    const suffix = selectedIdea ? `?ideaId=${selectedIdea.id}` : ''
+    window.open(`${WEBBUILDER_URL}/gallery/${user.id}${suffix}`, '_blank')
   }
 
   return (
@@ -45,6 +50,14 @@ export function HomePage() {
               </button>
             )}
           </div>
+          {user && (
+            <div className="home-idea-selector">
+              <IdeaSelector />
+              {selectedIdea && (
+                <p className="home-idea-note">Working on “{selectedIdea.title}”.</p>
+              )}
+            </div>
+          )}
         </div>
         <div className="hero-visual">
           <div className="ai-orb">

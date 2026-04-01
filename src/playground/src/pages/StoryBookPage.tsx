@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { useIdeas } from '../contexts/IdeaContext'
+import { IdeaSelector } from '../components/IdeaSelector/IdeaSelector'
 import { API_BASE } from '../config'
 import './StoryBookPage.css'
 
@@ -12,6 +14,7 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function StoryBookPage() {
   const { user } = useUser()
+  const { selectedIdea, updateIdea } = useIdeas()
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit')
@@ -105,6 +108,7 @@ When the user asks for changes or suggestions, provide the updated story text or
 
   async function handlePublish() {
     if (!user) return
+    if (!selectedIdea) { setPublishError('Select or create an idea first.'); return }
     const t = title.trim()
     const b = body.trim()
     if (!t || !b) { setPublishError('Please add a title and story body before publishing.'); return }
@@ -113,6 +117,11 @@ When the user asks for changes or suggestions, provide the updated story text or
     setPublishError('')
     setPublishSuccess(false)
     try {
+      await updateIdea(selectedIdea.id, {
+        storyTitle: t,
+        storyBody: b,
+        coverImageUrl,
+      })
       const res = await fetch(`${API_BASE}/api/users/${user.id}/stories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,6 +145,13 @@ When the user asks for changes or suggestions, provide the updated story text or
         <div className="storybook-editor-header">
           <h1>📖 Story Book</h1>
           {user && <span className="storybook-user">Writing as <strong>{user.username}</strong></span>}
+        </div>
+
+        <div className="storybook-idea-picker">
+          <IdeaSelector />
+          {selectedIdea && (
+            <span className="storybook-idea-linked">Linked to “{selectedIdea.title}”</span>
+          )}
         </div>
 
         <input
@@ -194,7 +210,7 @@ When the user asks for changes or suggestions, provide the updated story text or
           <button
             className="storybook-publish-btn"
             onClick={handlePublish}
-            disabled={publishing || !title.trim() || !body.trim()}
+            disabled={publishing || !title.trim() || !body.trim() || !selectedIdea}
           >
             {publishing ? '⏳ Publishing…' : '🌟 Publish to Gallery'}
           </button>

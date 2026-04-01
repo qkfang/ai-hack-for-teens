@@ -1,26 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { IDEA_STORAGE_KEY } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
 import './GalleryPage.css'
-
-interface ComicEntry {
-  id: number
-  description: string
-  imageUrl: string
-  createdAt: string
-  userId: number
-  username: string
-}
-
-interface StoryEntry {
-  id: number
-  title: string
-  body: string
-  coverImageUrl: string
-  createdAt: string
-  userId: number
-  username: string
-}
 
 interface StartupIdeaEntry {
   id: number
@@ -33,6 +15,8 @@ interface StartupIdeaEntry {
   businessModel?: string
   coverImageUrl?: string
   coverImagePrompt?: string
+  storyTitle?: string
+  storyBody?: string
   agentName?: string
   agentSystemPrompt?: string
   agentModel?: string
@@ -50,6 +34,8 @@ interface IdeaForm {
   businessModel: string
   coverImageUrl: string
   coverImagePrompt: string
+  storyTitle: string
+  storyBody: string
   agentName: string
   agentSystemPrompt: string
   agentModel: string
@@ -59,19 +45,19 @@ interface IdeaForm {
 
 const emptyForm = (): IdeaForm => ({
   title: '', ideaDescription: '', problemStatement: '', targetAudience: '',
-  businessModel: '', coverImageUrl: '', coverImagePrompt: '',
+  businessModel: '', coverImageUrl: '', coverImagePrompt: '', storyTitle: '', storyBody: '',
   agentName: '', agentSystemPrompt: '', agentModel: '', agentTemperature: '', websiteUrl: '',
 })
 
+const rememberIdeaSelection = (id: number) => {
+  try { localStorage.setItem(IDEA_STORAGE_KEY, String(id)) } catch { /* ignore */ }
+}
+
 export function GalleryPage() {
   const { user } = useUser()
-  const [comics, setComics] = useState<ComicEntry[]>([])
-  const [stories, setStories] = useState<StoryEntry[]>([])
   const [ideas, setIdeas] = useState<StartupIdeaEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selected, setSelected] = useState<ComicEntry | null>(null)
-  const [selectedStory, setSelectedStory] = useState<StoryEntry | null>(null)
   const [selectedIdea, setSelectedIdea] = useState<StartupIdeaEntry | null>(null)
   const [showIdeaForm, setShowIdeaForm] = useState(false)
   const [editingIdea, setEditingIdea] = useState<StartupIdeaEntry | null>(null)
@@ -83,16 +69,8 @@ export function GalleryPage() {
     setLoading(true)
     setError('')
     try {
-      const [comicsRes, storiesRes, ideasRes] = await Promise.all([
-        fetch(`${API_BASE}/api/comics`),
-        fetch(`${API_BASE}/api/stories`),
-        fetch(`${API_BASE}/api/ideas`),
-      ])
-      if (!comicsRes.ok) throw new Error('Failed to fetch comics')
-      if (!storiesRes.ok) throw new Error('Failed to fetch stories')
+      const ideasRes = await fetch(`${API_BASE}/api/ideas`)
       if (!ideasRes.ok) throw new Error('Failed to fetch startup ideas')
-      setComics(await comicsRes.json() as ComicEntry[])
-      setStories(await storiesRes.json() as StoryEntry[])
       setIdeas(await ideasRes.json() as StartupIdeaEntry[])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load gallery')
@@ -120,6 +98,8 @@ export function GalleryPage() {
       businessModel: idea.businessModel ?? '',
       coverImageUrl: idea.coverImageUrl ?? '',
       coverImagePrompt: idea.coverImagePrompt ?? '',
+      storyTitle: idea.storyTitle ?? '',
+      storyBody: idea.storyBody ?? '',
       agentName: idea.agentName ?? '',
       agentSystemPrompt: idea.agentSystemPrompt ?? '',
       agentModel: idea.agentModel ?? '',
@@ -162,19 +142,23 @@ export function GalleryPage() {
         ideaDescription: ideaForm.ideaDescription || null,
         problemStatement: ideaForm.problemStatement || null,
         targetAudience: ideaForm.targetAudience || null,
-        businessModel: ideaForm.businessModel || null,
-        coverImageUrl: ideaForm.coverImageUrl || null,
-        coverImagePrompt: ideaForm.coverImagePrompt || null,
-        agentName: ideaForm.agentName || null,
-        agentSystemPrompt: ideaForm.agentSystemPrompt || null,
-        agentModel: ideaForm.agentModel || null,
-        agentTemperature: ideaForm.agentTemperature ? parseFloat(ideaForm.agentTemperature) : null,
-        websiteUrl: ideaForm.websiteUrl || null,
+      businessModel: ideaForm.businessModel || null,
+      coverImageUrl: ideaForm.coverImageUrl || null,
+      coverImagePrompt: ideaForm.coverImagePrompt || null,
+      storyTitle: ideaForm.storyTitle || null,
+      storyBody: ideaForm.storyBody || null,
+      agentName: ideaForm.agentName || null,
+      agentSystemPrompt: ideaForm.agentSystemPrompt || null,
+      agentModel: ideaForm.agentModel || null,
+      agentTemperature: ideaForm.agentTemperature ? parseFloat(ideaForm.agentTemperature) : null,
+      websiteUrl: ideaForm.websiteUrl || null,
       }
       const url = editingIdea ? `${API_BASE}/api/ideas/${editingIdea.id}` : `${API_BASE}/api/ideas`
       const method = editingIdea ? 'PUT' : 'POST'
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       if (!res.ok) throw new Error('Failed to save idea')
+      const data = await res.json().catch(() => null) as { id?: number } | null
+      if (data?.id) rememberIdeaSelection(data.id)
       setShowIdeaForm(false)
       await fetchAll()
     } catch (err) {
@@ -193,17 +177,13 @@ export function GalleryPage() {
 
   const othersIdeas = ideas.filter(i => i.userId !== user?.id)
   const myIdeas = ideas.filter(i => i.userId === user?.id)
-  const othersComics = comics.filter(c => c.userId !== user?.id)
-  const myComics = comics.filter(c => c.userId === user?.id)
-  const othersStories = stories.filter(s => s.userId !== user?.id)
-  const myStories = stories.filter(s => s.userId === user?.id)
 
   return (
     <div className="gallery-page">
       <div className="gallery-header">
         <div className="gallery-header-text">
           <h1>🌟 Community Gallery</h1>
-          <p>Startup ideas, AI-generated comics and stories from all users</p>
+          <p>Each idea bundles story text, comic art, agent links, and websites.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <button className="gallery-new-idea-btn" onClick={openNewIdeaForm}>💡 New Idea</button>
@@ -228,7 +208,7 @@ export function GalleryPage() {
           <h2 className="gallery-section-title">💡 Startup Ideas</h2>
           <div className="gallery-grid">
             {othersIdeas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />
+              <IdeaCard key={idea.id} idea={idea} onClick={() => { rememberIdeaSelection(idea.id); setSelectedIdea(idea) }} />
             ))}
           </div>
         </section>
@@ -240,144 +220,17 @@ export function GalleryPage() {
           <h2 className="gallery-section-title">💡 My Startup Ideas</h2>
           <div className="gallery-grid">
             {myIdeas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} mine onClick={() => setSelectedIdea(idea)} />
+              <IdeaCard key={idea.id} idea={idea} mine onClick={() => { rememberIdeaSelection(idea.id); setSelectedIdea(idea) }} />
             ))}
           </div>
         </section>
       )}
 
-      {/* Others' comics & stories */}
-      {!loading && (othersComics.length > 0 || othersStories.length > 0) && (
-        <section className="gallery-section">
-          <h2 className="gallery-section-title">👥 Others' Work</h2>
-          <div className="gallery-grid">
-            {othersComics.map(comic => (
-              <div key={`comic-${comic.id}`} className="gallery-card" onClick={() => setSelected(comic)}>
-                <div className="gallery-card-img-wrapper">
-                  <img src={comic.imageUrl} alt={comic.description} className="gallery-card-img" />
-                  <div className="gallery-card-overlay"><span>🔍 View</span></div>
-                </div>
-                <div className="gallery-card-body">
-                  <div className="gallery-card-author">
-                    <span className="gallery-author-avatar">{(comic.username[0] ?? '?').toUpperCase()}</span>
-                    <span className="gallery-author-name">{comic.username}</span>
-                    <span className="gallery-author-id">#{comic.userId}</span>
-                  </div>
-                  <p className="gallery-card-desc">{comic.description}</p>
-                  <span className="gallery-card-time">{new Date(comic.createdAt).toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-            {othersStories.map(story => (
-              <div key={`story-${story.id}`} className="gallery-card gallery-card--story" onClick={() => setSelectedStory(story)}>
-                <div className="gallery-story-cover">
-                  {story.coverImageUrl ? (
-                    <img src={story.coverImageUrl} alt={story.title} className="gallery-card-img" />
-                  ) : (
-                    <div className="gallery-story-cover-placeholder">📖</div>
-                  )}
-                  <div className="gallery-card-overlay"><span>📖 Read</span></div>
-                </div>
-                <div className="gallery-card-body">
-                  <div className="gallery-card-author">
-                    <span className="gallery-author-avatar">{(story.username[0] ?? '?').toUpperCase()}</span>
-                    <span className="gallery-author-name">{story.username}</span>
-                    <span className="gallery-author-id">#{story.userId}</span>
-                  </div>
-                  <p className="gallery-card-title">{story.title}</p>
-                  <p className="gallery-card-desc">{story.body}</p>
-                  <span className="gallery-card-time">{new Date(story.createdAt).toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* My comics & stories */}
-      {!loading && (myComics.length > 0 || myStories.length > 0) && (
-        <section className="gallery-section">
-          <h2 className="gallery-section-title">🎨 My Work</h2>
-          <div className="gallery-grid">
-            {myComics.map(comic => (
-              <div key={`comic-${comic.id}`} className="gallery-card gallery-card--mine" onClick={() => setSelected(comic)}>
-                <div className="gallery-card-img-wrapper">
-                  <img src={comic.imageUrl} alt={comic.description} className="gallery-card-img" />
-                  <div className="gallery-card-overlay"><span>🔍 View</span></div>
-                </div>
-                <div className="gallery-card-body">
-                  <p className="gallery-card-desc">{comic.description}</p>
-                  <span className="gallery-card-time">{new Date(comic.createdAt).toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-            {myStories.map(story => (
-              <div key={`story-${story.id}`} className="gallery-card gallery-card--mine gallery-card--story" onClick={() => setSelectedStory(story)}>
-                <div className="gallery-story-cover">
-                  {story.coverImageUrl ? (
-                    <img src={story.coverImageUrl} alt={story.title} className="gallery-card-img" />
-                  ) : (
-                    <div className="gallery-story-cover-placeholder">📖</div>
-                  )}
-                  <div className="gallery-card-overlay"><span>📖 Read</span></div>
-                </div>
-                <div className="gallery-card-body">
-                  <p className="gallery-card-title">{story.title}</p>
-                  <p className="gallery-card-desc">{story.body}</p>
-                  <span className="gallery-card-time">{new Date(story.createdAt).toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {!loading && ideas.length === 0 && comics.length === 0 && stories.length === 0 && (
+      {!loading && ideas.length === 0 && (
         <div className="gallery-empty">
           <span className="gallery-empty-icon">💡</span>
           <h2>Nothing here yet!</h2>
           <p>Be the first to publish a startup idea.</p>
-        </div>
-      )}
-
-      {/* Comic lightbox */}
-      {selected && (
-        <div className="gallery-lightbox" onClick={() => setSelected(null)}>
-          <div className="gallery-lightbox-content" onClick={e => e.stopPropagation()}>
-            <button className="gallery-lightbox-close" onClick={() => setSelected(null)}>✕</button>
-            <img src={selected.imageUrl} alt={selected.description} className="gallery-lightbox-img" />
-            <div className="gallery-lightbox-info">
-              <div className="gallery-lightbox-author">
-                <span className="gallery-author-avatar">{(selected.username[0] ?? '?').toUpperCase()}</span>
-                <strong>{selected.username}</strong>
-                <span className="gallery-author-id">#{selected.userId}</span>
-              </div>
-              <p className="gallery-lightbox-desc">{selected.description}</p>
-              <span className="gallery-lightbox-time">{new Date(selected.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Story lightbox */}
-      {selectedStory && (
-        <div className="gallery-lightbox" onClick={() => setSelectedStory(null)}>
-          <div className="gallery-lightbox-content gallery-story-modal" onClick={e => e.stopPropagation()}>
-            <button className="gallery-lightbox-close" onClick={() => setSelectedStory(null)}>✕</button>
-            {selectedStory.coverImageUrl && (
-              <img src={selectedStory.coverImageUrl} alt={selectedStory.title} className="gallery-lightbox-img" />
-            )}
-            <div className="gallery-lightbox-info">
-              <div className="gallery-lightbox-author">
-                <span className="gallery-author-avatar">{(selectedStory.username[0] ?? '?').toUpperCase()}</span>
-                <strong>{selectedStory.username}</strong>
-                <span className="gallery-author-id">#{selectedStory.userId}</span>
-              </div>
-              <h3 className="gallery-story-modal-title">{selectedStory.title}</h3>
-              <pre className="gallery-story-modal-body">{selectedStory.body}</pre>
-              <span className="gallery-lightbox-time">{new Date(selectedStory.createdAt).toLocaleString()}</span>
-            </div>
-          </div>
         </div>
       )}
 
@@ -423,6 +276,13 @@ export function GalleryPage() {
                   <p>{selectedIdea.businessModel}</p>
                 </div>
               )}
+              {(selectedIdea.storyTitle || selectedIdea.storyBody) && (
+                <div className="gallery-idea-section">
+                  <span className="gallery-idea-label">📖 Story</span>
+                  {selectedIdea.storyTitle && <p><strong>{selectedIdea.storyTitle}</strong></p>}
+                  {selectedIdea.storyBody && <pre className="gallery-idea-story">{selectedIdea.storyBody}</pre>}
+                </div>
+              )}
               {selectedIdea.agentName && (
                 <div className="gallery-idea-section">
                   <span className="gallery-idea-label">🤖 AI Agent</span>
@@ -435,6 +295,14 @@ export function GalleryPage() {
                   <a href={selectedIdea.websiteUrl} target="_blank" rel="noopener noreferrer" className="gallery-idea-link">{selectedIdea.websiteUrl}</a>
                 </div>
               )}
+              <div className="gallery-idea-links">
+                <a href="/storybook" onClick={() => rememberIdeaSelection(selectedIdea.id)}>📖 Story Book</a>
+                <a href="/comic" onClick={() => rememberIdeaSelection(selectedIdea.id)}>🎨 Comic Studio</a>
+                <a href="/agent" onClick={() => rememberIdeaSelection(selectedIdea.id)}>🤖 Agent Builder</a>
+                {selectedIdea.websiteUrl && (
+                  <a href={selectedIdea.websiteUrl} target="_blank" rel="noopener noreferrer">🌐 View Site</a>
+                )}
+              </div>
               <div className="gallery-idea-footer">
                 <span className="gallery-lightbox-time">{new Date(selectedIdea.createdAt).toLocaleString()}</span>
                 {selectedIdea.userId === user?.id && (
@@ -481,6 +349,14 @@ export function GalleryPage() {
                 <input className="gallery-idea-input" value={ideaForm.coverImageUrl} onChange={e => setIdeaForm(f => ({ ...f, coverImageUrl: e.target.value }))} placeholder="Paste image URL or generate one in the Design module" />
                 <label>Image Prompt</label>
                 <input className="gallery-idea-input" value={ideaForm.coverImagePrompt} onChange={e => setIdeaForm(f => ({ ...f, coverImagePrompt: e.target.value }))} placeholder="Prompt used to generate the cover image" />
+              </div>
+
+              <div className="gallery-idea-form-section">
+                <h3>📖 From Story Book</h3>
+                <label>Story Title</label>
+                <input className="gallery-idea-input" value={ideaForm.storyTitle} onChange={e => setIdeaForm(f => ({ ...f, storyTitle: e.target.value }))} placeholder="Story title" />
+                <label>Story Body</label>
+                <textarea className="gallery-idea-textarea" rows={4} value={ideaForm.storyBody} onChange={e => setIdeaForm(f => ({ ...f, storyBody: e.target.value }))} placeholder="Story text saved from Story Book" />
               </div>
 
               <div className="gallery-idea-form-section">
@@ -535,6 +411,8 @@ function IdeaCard({ idea, mine, onClick }: { idea: StartupIdeaEntry; mine?: bool
         )}
         <div className="gallery-card-overlay"><span>🔍 View</span></div>
         <div className="gallery-idea-badges">
+          {idea.storyBody && <span className="gallery-idea-badge">📖 Story</span>}
+          {idea.coverImageUrl && <span className="gallery-idea-badge">🖼️ Art</span>}
           {idea.agentName && <span className="gallery-idea-badge">🤖 Agent</span>}
           {idea.websiteUrl && <span className="gallery-idea-badge">🌐 Website</span>}
         </div>
@@ -546,7 +424,13 @@ function IdeaCard({ idea, mine, onClick }: { idea: StartupIdeaEntry; mine?: bool
           <span className="gallery-author-id">#{idea.userId}</span>
         </div>
         <p className="gallery-card-title">{idea.title}</p>
-        {idea.ideaDescription && <p className="gallery-card-desc">{idea.ideaDescription}</p>}
+        {idea.storyTitle && <p className="gallery-card-desc">{idea.storyTitle}</p>}
+        {!idea.storyTitle && idea.ideaDescription && <p className="gallery-card-desc">{idea.ideaDescription}</p>}
+        {idea.storyBody && (
+          <p className="gallery-card-desc gallery-card-desc--small">
+            {idea.storyBody.length > 140 ? `${idea.storyBody.slice(0, 140)}…` : idea.storyBody}
+          </p>
+        )}
         <span className="gallery-card-time">{new Date(idea.createdAt).toLocaleString()}</span>
       </div>
     </div>

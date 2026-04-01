@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { API_BASE } from '../config'
+import { useIdeas } from '../contexts/IdeaContext'
+import { IdeaSelector } from '../components/IdeaSelector/IdeaSelector'
 import './AgentBuilderPage.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -300,6 +302,8 @@ export function AgentBuilderPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [saveState, setSaveState] = useState<'idle' | 'saved'>('idle')
   const [showTemplates, setShowTemplates] = useState(false)
+  const { selectedIdea, updateIdea } = useIdeas()
+  const [ideaError, setIdeaError] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -317,8 +321,21 @@ export function AgentBuilderPage() {
     setConfig((prev) => ({ ...prev, ...updates }))
   }, [])
 
-  function handleSave() {
+  async function handleSave() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    setIdeaError('')
+    if (selectedIdea) {
+      try {
+        await updateIdea(selectedIdea.id, {
+          agentName: config.name,
+          agentSystemPrompt: config.systemPrompt,
+          agentModel: config.model,
+          agentTemperature: config.temperature,
+        })
+      } catch (err) {
+        setIdeaError(err instanceof Error ? err.message : 'Could not link agent to idea')
+      }
+    }
     setSaveState('saved')
     setTimeout(() => setSaveState('idle'), 2000)
   }
@@ -518,12 +535,18 @@ export function AgentBuilderPage() {
           </button>
           <button
             className={`ab-btn ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
-            onClick={handleSave}
+            onClick={() => { void handleSave() }}
           >
             {saveState === 'saved' ? '✓ Saved' : '💾 Save'}
           </button>
         </div>
       </div>
+
+      <div className="ab-idea-bar">
+        <IdeaSelector />
+        {selectedIdea && <span className="ab-idea-pill">Linked to “{selectedIdea.title}”</span>}
+      </div>
+      {ideaError && <div className="ab-idea-error">{ideaError}</div>}
 
       {/* ── DESIGNER TAB ──────────────────────────────────────────────────── */}
       {activeTab === 'designer' && (

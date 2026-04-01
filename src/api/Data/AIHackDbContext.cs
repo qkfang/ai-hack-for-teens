@@ -32,5 +32,6 @@ public class AIHackDbContext : DbContext
         modelBuilder.Entity<StartupIdea>().Property(x => x.ProblemStatement).HasColumnType("nvarchar(max)");
         modelBuilder.Entity<StartupIdea>().Property(x => x.AgentSystemPrompt).HasColumnType("nvarchar(max)");
         modelBuilder.Entity<StartupIdea>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
+        modelBuilder.Entity<StartupIdea>().Property(x => x.StoryBody).HasColumnType("nvarchar(max)");
     }
 }

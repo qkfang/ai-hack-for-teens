@@ -19,6 +19,10 @@ public class StartupIdea
     public string? CoverImageUrl { get; set; }
     [MaxLength(500)] public string? CoverImagePrompt { get; set; }
 
+    // From story book
+    [MaxLength(200)] public string? StoryTitle { get; set; }
+    public string? StoryBody { get; set; }
+
     // From agent builder
     [MaxLength(200)] public string? AgentName { get; set; }
     public string? AgentSystemPrompt { get; set; }

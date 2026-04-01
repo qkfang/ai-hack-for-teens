@@ -218,6 +218,11 @@
   line-height: 1.5;
 }
 
+.gallery-card-desc--small {
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
 .gallery-card-time {
   font-size: 0.75rem;
   color: #aaa;
@@ -439,10 +444,35 @@
   line-height: 1.5;
 }
 
+.gallery-idea-story {
+  background: #f6f7fb;
+  padding: 0.75rem;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  color: #2f3948;
+  font-family: inherit;
+}
+
 .gallery-idea-link {
   font-size: 0.9rem;
   color: #0078d4;
   word-break: break-all;
+}
+
+.gallery-idea-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+
+.gallery-idea-links a {
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #1f2937;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
 }
 
 .gallery-idea-footer {

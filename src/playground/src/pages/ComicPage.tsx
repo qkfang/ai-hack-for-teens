@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { useIdeas } from '../contexts/IdeaContext'
+import { IdeaSelector } from '../components/IdeaSelector/IdeaSelector'
 import { API_BASE } from '../config'
 import { useRateLimit } from '../hooks/useRateLimit'
 import './ComicPage.css'
@@ -15,6 +17,7 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function ComicPage() {
   const { user } = useUser()
+  const { selectedIdea, updateIdea } = useIdeas()
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -57,6 +60,13 @@ export function ComicPage() {
       }
       setComics(prev => [newComic, ...prev])
       setDescription('')
+      if (selectedIdea) {
+        try {
+          await updateIdea(selectedIdea.id, { coverImageUrl: imageUrl, coverImagePrompt: desc })
+        } catch (err) {
+          setError(err instanceof Error ? `Saved image, but linking failed: ${err.message}` : 'Saved image, but linking failed')
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -94,6 +104,13 @@ export function ComicPage() {
       }
       setComics(prev => [newComic, ...prev])
       setEditPrompt('')
+      if (selectedIdea) {
+        try {
+          await updateIdea(selectedIdea.id, { coverImageUrl: newUrl, coverImagePrompt: prompt })
+        } catch (err) {
+          setEditError(err instanceof Error ? `Updated image, but linking failed: ${err.message}` : 'Updated image, but linking failed')
+        }
+      }
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -121,6 +138,7 @@ export function ComicPage() {
     'A superhero cat saving the city from yarn monsters…',
   ]
   const placeholder = placeholders[Math.floor(Date.now() / 10000) % placeholders.length]
+  const ideaRequired = !selectedIdea
 
   return (
     <div className="comic-page">
@@ -128,6 +146,10 @@ export function ComicPage() {
         <h1>🎨 Comic Book Studio</h1>
         <p>Describe your scene and DALL-E will bring it to life!</p>
         {user && <p className="comic-user">Creating as <strong>{user.username}</strong> (ID: {user.id})</p>}
+        <div style={{ marginTop: '0.5rem', width: '100%' }}>
+          <IdeaSelector />
+          {ideaRequired && <p className="comic-idea-hint">Select an idea to link your designs.</p>}
+        </div>
       </div>
 
       <div className="comic-layout">
@@ -153,7 +175,7 @@ export function ComicPage() {
             <button
               type="submit"
               className="comic-generate-btn"
-              disabled={loading || isRateLimited || !description.trim()}
+              disabled={loading || isRateLimited || !description.trim() || ideaRequired}
             >
               {loading ? (
                 <>
@@ -189,7 +211,7 @@ export function ComicPage() {
                 <button
                   type="submit"
                   className="comic-edit-btn"
-                  disabled={editLoading || isRateLimited || !editPrompt.trim()}
+                  disabled={editLoading || isRateLimited || !editPrompt.trim() || ideaRequired}
                 >
                   {editLoading ? (
                     <><span className="spinner" />Applying changes…</>

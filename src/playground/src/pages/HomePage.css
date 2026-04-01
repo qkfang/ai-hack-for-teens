@@ -56,6 +56,16 @@
   flex-wrap: wrap;
 }
 
+.home-idea-selector {
+  margin-top: 1rem;
+  max-width: 420px;
+}
+
+.home-idea-note {
+  margin: 0.25rem 0 0;
+  color: #475569;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

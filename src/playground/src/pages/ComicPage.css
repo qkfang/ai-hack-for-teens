@@ -27,6 +27,11 @@
   margin-top: 0.5rem !important;
 }
 
+.comic-idea-hint {
+  color: #475569;
+  margin: 0.25rem 0 0;
+}
+
 /* Two-column layout */
 .comic-layout {
   display: grid;

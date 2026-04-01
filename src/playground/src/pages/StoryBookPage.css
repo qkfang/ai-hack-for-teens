@@ -82,6 +82,18 @@
   color: #e53e3e;
 }
 
+.storybook-idea-picker {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin: 0.5rem 0;
+}
+
+.storybook-idea-linked {
+  font-size: 0.95rem;
+  color: #444;
+}
+
 .storybook-title-input {
   width: 100%;
   padding: 0.75rem 1rem;

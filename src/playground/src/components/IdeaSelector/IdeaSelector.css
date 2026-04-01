@@ -1,0 +1,75 @@
+.idea-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.5rem 0;
+}
+
+.idea-selector-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.idea-selector-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.idea-selector-refresh {
+  border: 1px solid #d0d0d5;
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.idea-selector-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.idea-selector-control {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d0d0d5;
+  background: #fff;
+}
+
+.idea-selector-create {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.idea-selector-input {
+  flex: 1;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #d0d0d5;
+}
+
+.idea-selector-add {
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #3b82f6;
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
+}
+
+.idea-selector-add:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.idea-selector-empty {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+.idea-selector-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0;
+}

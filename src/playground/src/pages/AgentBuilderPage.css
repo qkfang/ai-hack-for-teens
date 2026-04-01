@@ -73,6 +73,28 @@
   gap: 0.5rem;
 }
 
+.ab-idea-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem 0.5rem;
+  background: #f8fafc;
+}
+
+.ab-idea-pill {
+  background: #e5edff;
+  color: #1a3a6b;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.ab-idea-error {
+  color: #b91c1c;
+  padding: 0 1.5rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
 /* ─── Buttons ───────────────────────────────────────────────────────────── */
 .ab-btn {
   display: inline-flex;
