@@ -99,3 +99,28 @@
   font-family: inherit;
   cursor: pointer;
 }
+
+.idea-save-btn {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: #6b46c1;
+  color: white;
+  transition: background 0.2s;
+}
+
+.idea-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.idea-save-btn--saved {
+  background: #107c10;
+}
+
+.idea-save-btn--error {
+  background: #c0392b;
+}

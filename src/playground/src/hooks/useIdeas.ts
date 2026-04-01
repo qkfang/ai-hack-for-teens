@@ -53,20 +53,22 @@ export function useIdeas(userId: number | undefined) {
     const idea = ideas.find(i => i.id === id)
     if (!idea) return false
     try {
+      const merge = <T>(updated: T | undefined, existing: T | undefined): T | null =>
+        (updated !== undefined ? updated : existing) as T | null ?? null
       const body = {
         userId,
         title: fields.title ?? idea.title,
-        ideaDescription: fields.ideaDescription !== undefined ? fields.ideaDescription : (idea.ideaDescription ?? null),
-        problemStatement: fields.problemStatement !== undefined ? fields.problemStatement : (idea.problemStatement ?? null),
-        targetAudience: fields.targetAudience !== undefined ? fields.targetAudience : (idea.targetAudience ?? null),
-        businessModel: fields.businessModel !== undefined ? fields.businessModel : (idea.businessModel ?? null),
-        coverImageUrl: fields.coverImageUrl !== undefined ? fields.coverImageUrl : (idea.coverImageUrl ?? null),
-        coverImagePrompt: fields.coverImagePrompt !== undefined ? fields.coverImagePrompt : (idea.coverImagePrompt ?? null),
-        agentName: fields.agentName !== undefined ? fields.agentName : (idea.agentName ?? null),
-        agentSystemPrompt: fields.agentSystemPrompt !== undefined ? fields.agentSystemPrompt : (idea.agentSystemPrompt ?? null),
-        agentModel: fields.agentModel !== undefined ? fields.agentModel : (idea.agentModel ?? null),
-        agentTemperature: fields.agentTemperature !== undefined ? fields.agentTemperature : (idea.agentTemperature ?? null),
-        websiteUrl: fields.websiteUrl !== undefined ? fields.websiteUrl : (idea.websiteUrl ?? null),
+        ideaDescription: merge(fields.ideaDescription, idea.ideaDescription),
+        problemStatement: merge(fields.problemStatement, idea.problemStatement),
+        targetAudience: merge(fields.targetAudience, idea.targetAudience),
+        businessModel: merge(fields.businessModel, idea.businessModel),
+        coverImageUrl: merge(fields.coverImageUrl, idea.coverImageUrl),
+        coverImagePrompt: merge(fields.coverImagePrompt, idea.coverImagePrompt),
+        agentName: merge(fields.agentName, idea.agentName),
+        agentSystemPrompt: merge(fields.agentSystemPrompt, idea.agentSystemPrompt),
+        agentModel: merge(fields.agentModel, idea.agentModel),
+        agentTemperature: merge(fields.agentTemperature, idea.agentTemperature),
+        websiteUrl: merge(fields.websiteUrl, idea.websiteUrl),
       }
       const res = await fetch(`${API_BASE}/api/ideas/${id}`, {
         method: 'PUT',

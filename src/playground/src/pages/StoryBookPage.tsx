@@ -216,8 +216,7 @@ When the user asks for changes or suggestions, provide the updated story text or
           {publishSuccess && <span className="storybook-publish-success">✅ Published to Gallery!</span>}
           {selectedIdeaId && (
             <button
-              className="storybook-publish-btn"
-              style={{ background: saveToIdeaState === 'saved' ? '#107c10' : saveToIdeaState === 'error' ? '#c0392b' : '#6b46c1' }}
+              className={`storybook-publish-btn idea-save-btn${saveToIdeaState === 'saved' ? ' idea-save-btn--saved' : saveToIdeaState === 'error' ? ' idea-save-btn--error' : ''}`}
               onClick={handleSaveToIdea}
               disabled={saveToIdeaState === 'saving' || !body.trim()}
             >

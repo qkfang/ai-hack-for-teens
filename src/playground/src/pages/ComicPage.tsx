@@ -227,10 +227,10 @@ export function ComicPage() {
               </button>
               {selectedIdeaId && (
                 <button
-                  className={`comic-cover-btn${ideaCoverState === 'saved' ? ' cover-set' : ''}`}
+                  className={`comic-cover-btn idea-save-btn${ideaCoverState === 'saved' ? ' idea-save-btn--saved' : ideaCoverState === 'error' ? ' idea-save-btn--error' : ''}`}
                   onClick={handleSetIdeaCover}
                   disabled={ideaCoverState === 'saving'}
-                  style={{ marginTop: '0.5rem', background: ideaCoverState === 'saved' ? '#107c10' : ideaCoverState === 'error' ? '#c0392b' : undefined }}
+                  style={{ marginTop: '0.5rem' }}
                 >
                   {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover'}
                 </button>
