@@ -8,6 +8,13 @@ param azureAIFoundryEndpoint string = 'https://fsi-foundry.openai.azure.com'
 param azureAIFoundryDeployment string = 'gpt-4o'
 param azureAIFoundryDalleDeployment string = 'gpt-image-1'
 param azureAIFoundryTenantId string = '9d2116ce-afe6-4ce8-8bc3-c7c7b69856c2'
+param foundryLocations array = [
+  'eastus'
+  'westus'
+  'francecentral'
+  'swedencentral'
+  'japaneast'
+]
 
 @description('Azure AD admin login name (UPN) for SQL Server')
 param sqlAadAdminLogin string
@@ -24,6 +31,16 @@ var webAppName = '${baseName}-app'
 var appServicePlanName = '${baseName}-asp'
 var staticWebAppName = '${baseName}-swa'
 var sqlServerName = '${baseName}-sql'
+
+module azureFoundry 'modules/foundry.bicep' = [for foundryLocation in foundryLocations: {
+  name: 'foundry-${foundryLocation}'
+  params: {
+    baseName: baseName
+    location: foundryLocation
+    modelName: azureAIFoundryDeployment
+    deploymentName: azureAIFoundryDeployment
+  }
+}]
 
 module keyVault 'modules/keyvault.bicep' = {
   name: 'keyVaultDeployment'
@@ -94,3 +111,9 @@ output staticWebAppName string = staticWebApp.outputs.name
 output staticWebAppHostName string = staticWebApp.outputs.defaultHostName
 output sqlServerName string = sqlServer.outputs.serverName
 output sqlServerFqdn string = sqlServer.outputs.serverFqdn
+output foundryDeployments array = [for foundry in azureFoundry: {
+  location: foundry.outputs.location
+  accountName: foundry.outputs.accountName
+  endpoint: foundry.outputs.endpoint
+  deploymentName: foundry.outputs.deploymentName
+}]
