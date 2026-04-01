@@ -41,6 +41,7 @@
 .app-nav {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .nav-link {
@@ -50,6 +51,10 @@
   border-radius: 6px;
   font-weight: 500;
   transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
 }
 
 .nav-link:hover {
@@ -60,6 +65,60 @@
 .nav-link.active {
   color: white;
   background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dropdown-caret {
+  font-size: 0.75rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  background: #112447;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  min-width: 220px;
+  padding: 0.35rem 0;
+  display: none;
+  flex-direction: column;
+  z-index: 200;
+}
+
+.dropdown-menu.show {
+  display: flex;
+}
+
+.dropdown-item {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 0.6rem 0.9rem;
+  background: transparent;
+  border: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.dropdown-item.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
 }
 
 .app-main {
