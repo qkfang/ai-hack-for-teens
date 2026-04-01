@@ -171,6 +171,7 @@ export function IdeaProvider({ children }: { children: ReactNode }) {
   return <IdeaContext.Provider value={value}>{children}</IdeaContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useIdeas(): IdeaContextValue {
   const ctx = useContext(IdeaContext)
   if (!ctx) throw new Error('useIdeas must be used inside IdeaProvider')
