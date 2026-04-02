@@ -10,12 +10,14 @@ export function Layout() {
   const { config } = useNavVisibility()
   const navigate = useNavigate()
   const location = useLocation()
-  const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | null>(null)
+  const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | 'quiz' | null>(null)
   const [isMaxLayout, setIsMaxLayout] = useState(false)
   const genAiPaths = ['/chat', '/translation', '/speech', '/realtime']
   const startupPaths = ['/ideas', '/typewriter', '/comic', '/agent']
+  const quizPaths = ['/quiz', '/leaderboard']
   const isGenAiActive = genAiPaths.some((path) => location.pathname.startsWith(path))
   const isStartupActive = startupPaths.some((path) => location.pathname.startsWith(path))
+  const isQuizActive = quizPaths.some((path) => location.pathname.startsWith(path))
 
   const genaiVisible = config.genai.chat || config.genai.translation || config.genai.speech || config.genai.realtime
   const startupVisible = config.startup.ideas || config.startup.storybook || config.startup.comic || config.startup.agent || config.startup.webbuilder
@@ -25,7 +27,7 @@ export function Layout() {
     navigate('/login')
   }
 
-  function toggleMenu(name: 'genai' | 'startup') {
+  function toggleMenu(name: 'genai' | 'startup' | 'quiz') {
     setOpenMenu((current) => (current === name ? null : name))
   }
 
@@ -171,12 +173,36 @@ export function Layout() {
               </NavLink>
             )}
             {config.quiz && (
-              <NavLink
-                to="/quiz"
-                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              <div
+                className="nav-dropdown"
+                onMouseEnter={() => setOpenMenu('quiz')}
+                onMouseLeave={closeMenu}
               >
-                🧠 Quiz
-              </NavLink>
+                <button
+                  type="button"
+                  className={`nav-link dropdown-toggle${isQuizActive || openMenu === 'quiz' ? ' active' : ''}`}
+                  onClick={() => toggleMenu('quiz')}
+                >
+                  🧠 Quiz
+                  <span className="dropdown-caret">▾</span>
+                </button>
+                <div className={`dropdown-menu${openMenu === 'quiz' ? ' show' : ''}`}>
+                  <NavLink
+                    to="/quiz"
+                    className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                    onClick={closeMenu}
+                  >
+                    🧠 AI Quiz
+                  </NavLink>
+                  <NavLink
+                    to="/leaderboard"
+                    className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                    onClick={closeMenu}
+                  >
+                    🏆 Leaderboard
+                  </NavLink>
+                </div>
+              </div>
             )}
           </nav>
           {user && (
