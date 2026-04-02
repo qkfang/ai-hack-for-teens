@@ -9,7 +9,7 @@ param capacity int = 20
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: name
-  location: 'eastus'
+  location: 'AustraliaEast'
   properties: {
     publicNetworkAccess: 'Enabled'
     administrators: {
@@ -25,7 +25,7 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
   parent: sqlServer
   name: databaseName
-  location: 'eastus'
+  location: 'AustraliaEast'
   sku: {
     name: skuName
     tier: skuTier
