@@ -18,7 +18,7 @@ export function Layout() {
   const isStartupActive = startupPaths.some((path) => location.pathname.startsWith(path))
 
   const genaiVisible = config.genai.chat || config.genai.translation || config.genai.speech || config.genai.realtime
-  const startupVisible = config.startup.storybook || config.startup.comic || config.startup.agent || config.startup.webbuilder
+  const startupVisible = config.startup.ideas || config.startup.storybook || config.startup.comic || config.startup.agent || config.startup.webbuilder
 
   function handleLogout() {
     logout()
@@ -118,6 +118,15 @@ export function Layout() {
                   <span className="dropdown-caret">▾</span>
                 </button>
                 <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
+                  {config.startup.ideas && (
+                    <NavLink
+                      to="/ideas"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      💡 Ideas
+                    </NavLink>
+                  )}
                   {config.startup.storybook && (
                     <NavLink
                       to="/typewriter"

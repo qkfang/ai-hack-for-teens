@@ -8,6 +8,7 @@ export interface NavConfig {
     realtime: boolean
   }
   startup: {
+    ideas: boolean
     storybook: boolean
     comic: boolean
     agent: boolean
@@ -19,7 +20,7 @@ export interface NavConfig {
 
 const DEFAULT_CONFIG: NavConfig = {
   genai: { chat: false, translation: false, speech: false, realtime: false },
-  startup: { storybook: false, comic: false, agent: false, webbuilder: false },
+  startup: { ideas: false, storybook: false, comic: false, agent: false, webbuilder: false },
   gallery: false,
   quiz: false,
 }
