@@ -87,7 +87,7 @@ export function HomePage() {
       </section>
 
       <section className="features-section">
-        <h2 className="section-title">Start-up Idea</h2>
+        <h2 className="section-title">Idea Spark</h2>
         <div className="features-grid">
           <Link to="/typewriter" className="feature-card feature-card-link">
             <div className="feature-icon">✍️</div>

@@ -5,7 +5,7 @@ param tags object = {}
 var resourcePrefix = toLower(baseName)
 
 resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
-  name: '${resourcePrefix}-foundry'
+  name: 'foundry-${resourcePrefix}'
   location: location
   tags: tags
   identity: {

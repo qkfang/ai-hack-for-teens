@@ -116,7 +116,7 @@ export function Layout() {
                   className={`nav-link dropdown-toggle${isStartupActive || openMenu === 'startup' ? ' active' : ''}`}
                   onClick={() => toggleMenu('startup')}
                 >
-                  Start-up Idea
+                  Idea Spark
                   <span className="dropdown-caret">▾</span>
                 </button>
                 <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
