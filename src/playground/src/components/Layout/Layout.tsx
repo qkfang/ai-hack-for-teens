@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { NavLink, Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useUser } from '../../contexts/UserContext'
+import { useNavVisibility } from '../../contexts/NavVisibilityContext'
 import { WEBBUILDER_URL } from '../../config'
 import './Layout.css'
 
 export function Layout() {
   const { user, logout } = useUser()
+  const { config } = useNavVisibility()
   const navigate = useNavigate()
   const location = useLocation()
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | null>(null)
@@ -14,6 +16,9 @@ export function Layout() {
   const startupPaths = ['/storybook', '/comic', '/agent']
   const isGenAiActive = genAiPaths.some((path) => location.pathname.startsWith(path))
   const isStartupActive = startupPaths.some((path) => location.pathname.startsWith(path))
+
+  const genaiVisible = config.genai.chat || config.genai.translation || config.genai.speech || config.genai.realtime
+  const startupVisible = config.startup.storybook || config.startup.comic || config.startup.agent || config.startup.webbuilder
 
   function handleLogout() {
     logout()
@@ -44,102 +49,126 @@ export function Layout() {
             <span className="brand-name">AI Playground</span>
           </Link>
           <nav className="app-nav">
-            <div
-              className="nav-dropdown"
-              onMouseEnter={() => setOpenMenu('genai')}
-              onMouseLeave={closeMenu}
-            >
-              <button
-                type="button"
-                className={`nav-link dropdown-toggle${isGenAiActive || openMenu === 'genai' ? ' active' : ''}`}
-                onClick={() => toggleMenu('genai')}
+            {genaiVisible && (
+              <div
+                className="nav-dropdown"
+                onMouseEnter={() => setOpenMenu('genai')}
+                onMouseLeave={closeMenu}
               >
-                GenAI 101
-                <span className="dropdown-caret">▾</span>
-              </button>
-              <div className={`dropdown-menu${openMenu === 'genai' ? ' show' : ''}`}>
-                <NavLink
-                  to="/chat"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
+                <button
+                  type="button"
+                  className={`nav-link dropdown-toggle${isGenAiActive || openMenu === 'genai' ? ' active' : ''}`}
+                  onClick={() => toggleMenu('genai')}
                 >
-                  💬 Chat
-                </NavLink>
-                <NavLink
-                  to="/translation"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  🌐 Translation
-                </NavLink>
-                <NavLink
-                  to="/speech"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  🎙️ Speech
-                </NavLink>
-                <NavLink
-                  to="/realtime"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  ⚡ Realtime
-                </NavLink>
-              </div>
-            </div>
-            <div
-              className="nav-dropdown"
-              onMouseEnter={() => setOpenMenu('startup')}
-              onMouseLeave={closeMenu}
-            >
-              <button
-                type="button"
-                className={`nav-link dropdown-toggle${isStartupActive || openMenu === 'startup' ? ' active' : ''}`}
-                onClick={() => toggleMenu('startup')}
-              >
-                Start-up Idea
-                <span className="dropdown-caret">▾</span>
-              </button>
-              <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
-                <NavLink
-                  to="/storybook"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  📖 Story Book
-                </NavLink>
-                <NavLink
-                  to="/comic"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  🎨 Comic Studio
-                </NavLink>
-                <NavLink
-                  to="/agent"
-                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
-                  onClick={closeMenu}
-                >
-                  🤖 Agent Builder
-                </NavLink>
-                <button type="button" className="dropdown-item" onClick={openWebBuilder}>
-                  🌐 Web Builder
+                  GenAI 101
+                  <span className="dropdown-caret">▾</span>
                 </button>
+                <div className={`dropdown-menu${openMenu === 'genai' ? ' show' : ''}`}>
+                  {config.genai.chat && (
+                    <NavLink
+                      to="/chat"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      💬 Chat
+                    </NavLink>
+                  )}
+                  {config.genai.translation && (
+                    <NavLink
+                      to="/translation"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      🌐 Translation
+                    </NavLink>
+                  )}
+                  {config.genai.speech && (
+                    <NavLink
+                      to="/speech"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      🎙️ Speech
+                    </NavLink>
+                  )}
+                  {config.genai.realtime && (
+                    <NavLink
+                      to="/realtime"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      ⚡ Realtime
+                    </NavLink>
+                  )}
+                </div>
               </div>
-            </div>
-            <NavLink
-              to="/gallery"
-              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-            >
-              🌟 Gallery
-            </NavLink>
-            <NavLink
-              to="/quiz"
-              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-            >
-              🧠 Quiz
-            </NavLink>
+            )}
+            {startupVisible && (
+              <div
+                className="nav-dropdown"
+                onMouseEnter={() => setOpenMenu('startup')}
+                onMouseLeave={closeMenu}
+              >
+                <button
+                  type="button"
+                  className={`nav-link dropdown-toggle${isStartupActive || openMenu === 'startup' ? ' active' : ''}`}
+                  onClick={() => toggleMenu('startup')}
+                >
+                  Start-up Idea
+                  <span className="dropdown-caret">▾</span>
+                </button>
+                <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
+                  {config.startup.storybook && (
+                    <NavLink
+                      to="/storybook"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      📖 Story Book
+                    </NavLink>
+                  )}
+                  {config.startup.comic && (
+                    <NavLink
+                      to="/comic"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      🎨 Comic Studio
+                    </NavLink>
+                  )}
+                  {config.startup.agent && (
+                    <NavLink
+                      to="/agent"
+                      className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                      onClick={closeMenu}
+                    >
+                      🤖 Agent Builder
+                    </NavLink>
+                  )}
+                  {config.startup.webbuilder && (
+                    <button type="button" className="dropdown-item" onClick={openWebBuilder}>
+                      🌐 Web Builder
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+            {config.gallery && (
+              <NavLink
+                to="/gallery"
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              >
+                🌟 Gallery
+              </NavLink>
+            )}
+            {config.quiz && (
+              <NavLink
+                to="/quiz"
+                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+              >
+                🧠 Quiz
+              </NavLink>
+            )}
             <NavLink
               to="/admin"
               className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
