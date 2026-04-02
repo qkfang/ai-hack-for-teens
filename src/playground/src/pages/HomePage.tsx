@@ -30,11 +30,11 @@ export function HomePage() {
           )}
           <p className="hero-subtitle">
             Explore AI capabilities powered by Azure AI Foundry. Chat with intelligent
-            assistants, create AI comic art, and discover the power of modern AI.
+            assistants, create AI art, write startup stories, and discover the power of modern AI.
           </p>
           <div className="hero-actions">
-            <Link to="/comic" className="btn btn-primary">
-              🎨 Create Comics →
+            <Link to="/typewriter" className="btn btn-primary">
+              ✍️ Start Writing →
             </Link>
             <Link to="/gallery" className="btn btn-secondary">
               🌟 Browse Gallery
@@ -49,41 +49,71 @@ export function HomePage() {
       </section>
 
       <section className="features-section">
-        <h2 className="section-title">Features</h2>
+        <h2 className="section-title">GenAI 101</h2>
         <div className="features-grid">
-          <div className="feature-card">
+          <Link to="/chat" className="feature-card feature-card-link">
             <div className="feature-icon">💬</div>
             <h3>AI Chat</h3>
             <p>
               Engage in natural conversations with an AI assistant powered by Azure AI
               Foundry. Ask questions, get help with tasks, and more.
             </p>
-          </div>
-          <div className="feature-card">
+          </Link>
+          <Link to="/translation" className="feature-card feature-card-link">
+            <div className="feature-icon">🌐</div>
+            <h3>Translation</h3>
+            <p>
+              Translate text between dozens of languages instantly using Azure AI.
+              Swap source and target languages with a single click.
+            </p>
+          </Link>
+          <Link to="/speech" className="feature-card feature-card-link">
+            <div className="feature-icon">🎙️</div>
+            <h3>Speech</h3>
+            <p>
+              Dictate with your voice using speech-to-text, then convert AI responses
+              back to audio with text-to-speech.
+            </p>
+          </Link>
+          <Link to="/realtime" className="feature-card feature-card-link">
+            <div className="feature-icon">⚡</div>
+            <h3>Realtime</h3>
+            <p>
+              Have a live voice conversation with GPT Realtime. Speak naturally and
+              get instant AI responses with low-latency streaming.
+            </p>
+          </Link>
+        </div>
+      </section>
+
+      <section className="features-section">
+        <h2 className="section-title">Start-up Idea</h2>
+        <div className="features-grid">
+          <Link to="/typewriter" className="feature-card feature-card-link">
+            <div className="feature-icon">✍️</div>
+            <h3>Type Writer</h3>
+            <p>
+              Use AI to co-write your startup story. Draft a compelling narrative for
+              your idea with an AI writing assistant by your side.
+            </p>
+          </Link>
+          <Link to="/comic" className="feature-card feature-card-link">
             <div className="feature-icon">🎨</div>
-            <h3>Comic Book Studio</h3>
+            <h3>Design Studio</h3>
             <p>
               Describe any scene and DALL-E will generate stunning comic-style artwork.
               Your creations are saved to your account.
             </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🌟</div>
-            <h3>Community Gallery</h3>
-            <p>
-              Browse AI-generated comics from all users. Get inspired by others'
-              creations and share your own artwork with the community.
-            </p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">⚡</div>
+          </Link>
+          <Link to="/agent" className="feature-card feature-card-link">
+            <div className="feature-icon">🤖</div>
             <h3>Agent Builder</h3>
             <p>
               Configure and test custom AI agents with tools, system prompts, and
               real-time streaming responses via MCP.
             </p>
-          </div>
-          <div className="feature-card">
+          </Link>
+          <div className="feature-card feature-card-link" onClick={openWebBuilder} style={{ cursor: 'pointer' }}>
             <div className="feature-icon">🌐</div>
             <h3>Web Builder</h3>
             <p>
@@ -91,6 +121,28 @@ export function HomePage() {
               Use AI to generate and modify your HTML page in real time.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section className="features-section">
+        <h2 className="section-title">More</h2>
+        <div className="features-grid">
+          <Link to="/gallery" className="feature-card feature-card-link">
+            <div className="feature-icon">🌟</div>
+            <h3>Community Gallery</h3>
+            <p>
+              Browse AI-generated comics from all users. Get inspired by others'
+              creations and share your own artwork with the community.
+            </p>
+          </Link>
+          <Link to="/quiz" className="feature-card feature-card-link">
+            <div className="feature-icon">🧠</div>
+            <h3>AI Quiz</h3>
+            <p>
+              Test your AI knowledge with a live interactive quiz. Compete with others
+              on the leaderboard in real time.
+            </p>
+          </Link>
         </div>
       </section>
 

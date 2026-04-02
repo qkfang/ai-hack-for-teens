@@ -13,7 +13,7 @@ export function Layout() {
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | null>(null)
   const [isMaxLayout, setIsMaxLayout] = useState(false)
   const genAiPaths = ['/chat', '/translation', '/speech', '/realtime']
-  const startupPaths = ['/ideas', '/storybook', '/comic', '/agent']
+  const startupPaths = ['/ideas', '/typewriter', '/comic', '/agent']
   const isGenAiActive = genAiPaths.some((path) => location.pathname.startsWith(path))
   const isStartupActive = startupPaths.some((path) => location.pathname.startsWith(path))
 
@@ -120,11 +120,11 @@ export function Layout() {
                 <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
                   {config.startup.storybook && (
                     <NavLink
-                      to="/storybook"
+                      to="/typewriter"
                       className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
                       onClick={closeMenu}
                     >
-                      📖 Story Book
+                      ✍️ Type Writer
                     </NavLink>
                   )}
                   {config.startup.comic && (
@@ -133,7 +133,7 @@ export function Layout() {
                       className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
                       onClick={closeMenu}
                     >
-                      🎨 Comic Studio
+                      🎨 Design Studio
                     </NavLink>
                   )}
                   {config.startup.agent && (

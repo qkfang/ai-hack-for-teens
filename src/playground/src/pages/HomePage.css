@@ -149,6 +149,17 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
+.feature-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.feature-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
 .feature-icon {
   font-size: 2.5rem;
   margin-bottom: 1rem;

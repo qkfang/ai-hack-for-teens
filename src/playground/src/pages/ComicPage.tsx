@@ -150,7 +150,7 @@ export function ComicPage() {
   return (
     <div className="comic-page">
       <div className="comic-header">
-        <h1>🎨 Comic Book Studio</h1>
+        <h1>🎨 Design Studio</h1>
         <p>Describe your scene and DALL-E will bring it to life!</p>
         {user && <p className="comic-user">Creating as <strong>{user.username}</strong> (ID: {user.id})</p>}
         {currentIdea && <p className="comic-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></p>}
@@ -227,7 +227,7 @@ export function ComicPage() {
                 className={`comic-cover-btn${coverSet ? ' cover-set' : ''}`}
                 onClick={handleSetCover}
               >
-                {coverSet ? '✅ Set as Story Book Cover!' : '📚 Use as Story Book Cover'}
+                {coverSet ? '✅ Set as Type Writer Cover!' : '📚 Use as Type Writer Cover'}
               </button>
               {selectedIdeaId && (
                 <button
