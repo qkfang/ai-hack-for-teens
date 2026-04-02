@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
-import { API_BASE } from '../config'
+import { API_BASE, WEBBUILDER_URL } from '../config'
 import './GalleryPage.css'
 
 interface StartupIdeaEntry {
@@ -46,6 +47,7 @@ const emptyForm = (): IdeaForm => ({
 
 export function GalleryPage() {
   const { user } = useUser()
+  const navigate = useNavigate()
   const [ideas, setIdeas] = useState<StartupIdeaEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -158,6 +160,19 @@ export function GalleryPage() {
     await fetch(`${API_BASE}/api/ideas/${id}`, { method: 'DELETE' })
     setSelectedIdea(null)
     await fetchAll()
+  }
+
+  const openAgentView = (idea: StartupIdeaEntry) => {
+    navigate('/agent', {
+      state: {
+        ideaAgentConfig: {
+          name: idea.agentName,
+          systemPrompt: idea.agentSystemPrompt,
+          model: idea.agentModel,
+          temperature: idea.agentTemperature,
+        },
+      },
+    })
   }
 
   const othersIdeas = ideas.filter(i => i.userId !== user?.id)
@@ -275,12 +290,18 @@ export function GalleryPage() {
               )}
               <div className="gallery-idea-footer">
                 <span className="gallery-lightbox-time">{new Date(selectedIdea.createdAt).toLocaleString()}</span>
-                {selectedIdea.userId === user?.id && (
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="gallery-idea-edit-btn" onClick={() => openEditIdeaForm(selectedIdea)}>✏️ Edit</button>
-                    <button className="gallery-idea-delete-btn" onClick={() => deleteIdea(selectedIdea.id)}>🗑️ Delete</button>
-                  </div>
-                )}
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {selectedIdea.agentName && (
+                    <button className="gallery-idea-edit-btn" onClick={() => openAgentView(selectedIdea)}>🤖 Chat with Agent</button>
+                  )}
+                  <a
+                    className="gallery-idea-edit-btn"
+                    href={`${WEBBUILDER_URL}/gallery/${selectedIdea.userId}?ideaId=${selectedIdea.id}&title=${encodeURIComponent(selectedIdea.title)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none' }}
+                  >🌐 View in Web Builder</a>
+                </div>
               </div>
             </div>
           </div>

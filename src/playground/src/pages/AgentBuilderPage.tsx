@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
 import { useIdeas } from '../hooks/useIdeas'
@@ -297,6 +298,7 @@ function ToolCallBlock({ name, args, result }: { name: string; args: string; res
 
 export function AgentBuilderPage() {
   const { user } = useUser()
+  const location = useLocation()
   const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
   const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
   const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -309,6 +311,21 @@ export function AgentBuilderPage() {
   const [showTemplates, setShowTemplates] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  // Pre-load agent config from gallery navigation state
+  useEffect(() => {
+    const ideaConfig = (location.state as { ideaAgentConfig?: { name?: string; systemPrompt?: string; model?: string; temperature?: number } } | null)?.ideaAgentConfig
+    if (ideaConfig) {
+      setConfig(prev => ({
+        ...prev,
+        ...(ideaConfig.name != null && { name: ideaConfig.name }),
+        ...(ideaConfig.systemPrompt != null && { systemPrompt: ideaConfig.systemPrompt }),
+        ...(ideaConfig.model != null && { model: ideaConfig.model }),
+        ...(ideaConfig.temperature != null && { temperature: ideaConfig.temperature }),
+      }))
+      setActiveTab('use')
+    }
+  }, [location.state])
 
   // Persist config on every change
   useEffect(() => {
