@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
@@ -15,6 +16,7 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 export function StoryBookPage() {
   const { user } = useUser()
   const { selectedIdeaId } = useIdea()
+  const navigate = useNavigate()
   const { ideas, updateIdea } = useIdeas(user?.id)
   const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [title, setTitle] = useState('')
@@ -28,6 +30,10 @@ export function StoryBookPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  useEffect(() => {
+    if (selectedIdeaId === null) navigate('/ideas', { replace: true })
+  }, [selectedIdeaId, navigate])
 
   useEffect(() => {
     if (!currentIdea) return
