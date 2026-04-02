@@ -25,6 +25,22 @@
   margin: 0;
 }
 
+.gallery-sort-select {
+  background: white;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.gallery-sort-select:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
 .gallery-refresh-btn {
   background: white;
   border: 2px solid #e0e6ed;
