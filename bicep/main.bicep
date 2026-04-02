@@ -11,9 +11,9 @@ param azureAIFoundryTenantId string = '9d2116ce-afe6-4ce8-8bc3-c7c7b69856c2'
 param foundryLocations array = [
   { region: 'eastus2', suffix: 'eus2' }
   { region: 'westus', suffix: 'wus' }
-  // { region: 'francecentral', suffix: 'frc' }
-  // { region: 'swedencentral', suffix: 'swc' }
-  // { region: 'japaneast', suffix: 'jpe' }
+  { region: 'francecentral', suffix: 'frc' }
+  { region: 'swedencentral', suffix: 'swc' }
+  { region: 'japaneast', suffix: 'jpe' }
 ]
 
 @description('Azure AD admin login name (UPN) for SQL Server')

@@ -41,7 +41,7 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-
   name: 'gpt-4o'
   sku: {
     name: 'GlobalStandard'
-    capacity: 100
+    capacity: 1800
   }
   properties: {
     model: {

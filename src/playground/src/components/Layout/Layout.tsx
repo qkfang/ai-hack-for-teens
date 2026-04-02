@@ -194,13 +194,13 @@ export function Layout() {
                   >
                     🧠 AI Quiz
                   </NavLink>
-                  <NavLink
+                  {/* <NavLink
                     to="/leaderboard"
                     className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
                     onClick={closeMenu}
                   >
                     🏆 Leaderboard
-                  </NavLink>
+                  </NavLink> */}
                 </div>
               </div>
             )}
