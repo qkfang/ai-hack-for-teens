@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { API_BASE } from '../config'
 import { useRateLimit } from '../hooks/useRateLimit'
 import './SpeechPage.css'
@@ -30,6 +30,12 @@ export function SpeechPage() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const { isRateLimited, countdown, triggerRateLimit } = useRateLimit()
+
+  useEffect(() => {
+    if (audioUrl) {
+      audioRef.current?.play()
+    }
+  }, [audioUrl])
 
   // Speech-to-text state
   const [isRecording, setIsRecording] = useState(false)
@@ -63,7 +69,6 @@ export function SpeechPage() {
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       setAudioUrl(url)
-      setTimeout(() => audioRef.current?.play(), 100)
     } catch {
       setError('Speech synthesis request failed')
     } finally {
