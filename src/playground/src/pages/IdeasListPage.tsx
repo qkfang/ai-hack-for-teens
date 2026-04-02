@@ -119,11 +119,11 @@ export function IdeasListPage() {
                 >
                   {publishingId === idea.id ? '⏳' : idea.isPublished ? '🌟 Unpublish' : '🚀 Publish'}
                 </button>
-                <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/storybook')}>
-                  📖 Story Book
+                <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/typewriter')}>
+                  ✍️ Type Writer
                 </button>
                 <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/comic')}>
-                  🎨 Comic Studio
+                  🎨 Design Studio
                 </button>
                 <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/agent')}>
                   🤖 Agent Builder

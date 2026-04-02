@@ -142,7 +142,7 @@ export function AdminPage() {
         <div className="admin-nav-group">
           <div className="admin-nav-group-label">Start-up Idea</div>
           {(['storybook', 'comic', 'agent', 'webbuilder'] as const).map((key) => {
-            const labels = { storybook: '📖 Story Book', comic: '🎨 Comic Studio', agent: '🤖 Agent Builder', webbuilder: '🌐 Web Builder' }
+            const labels = { storybook: '✍️ Type Writer', comic: '🎨 Design Studio', agent: '🤖 Agent Builder', webbuilder: '🌐 Web Builder' }
             return (
               <label key={key} className="admin-toggle-row">
                 <span className="admin-toggle-label">{labels[key]}</span>

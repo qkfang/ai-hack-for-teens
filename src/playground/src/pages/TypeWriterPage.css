@@ -1,11 +1,11 @@
-.storybook-page {
+.typewriter-page {
   display: flex;
   height: calc(100vh - 64px - 48px);
   overflow: hidden;
 }
 
 /* Editor panel (left) */
-.storybook-editor-panel {
+.typewriter-editor-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -16,25 +16,25 @@
   border-right: 1px solid #e0e6ed;
 }
 
-.storybook-editor-header {
+.typewriter-editor-header {
   display: flex;
   align-items: baseline;
   gap: 1rem;
 }
 
-.storybook-editor-header h1 {
+.typewriter-editor-header h1 {
   font-size: 1.5rem;
   font-weight: 800;
   color: #1a1a2e;
   margin: 0;
 }
 
-.storybook-user {
+.typewriter-user {
   font-size: 0.85rem;
   color: #0078d4;
 }
 
-.storybook-idea-banner {
+.typewriter-idea-banner {
   font-size: 0.85rem;
   color: #107c10;
   background: #e6f4ea;
@@ -43,17 +43,17 @@
   padding: 0.25rem 0.6rem;
 }
 
-.storybook-idea-banner--none {
+.typewriter-idea-banner--none {
   color: #805000;
   background: #fff4e5;
   border-color: #e8d5a0;
 }
 
-.storybook-idea-banner--none a {
+.typewriter-idea-banner--none a {
   color: #0078d4;
 }
 
-.storybook-cover-preview {
+.typewriter-cover-preview {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -63,7 +63,7 @@
   border-radius: 10px;
 }
 
-.storybook-cover-img {
+.typewriter-cover-img {
   width: 72px;
   height: 72px;
   object-fit: cover;
@@ -71,20 +71,20 @@
   flex-shrink: 0;
 }
 
-.storybook-cover-info {
+.typewriter-cover-info {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
   flex: 1;
 }
 
-.storybook-cover-info span {
+.typewriter-cover-info span {
   font-size: 0.85rem;
   font-weight: 600;
   color: #6366f1;
 }
 
-.storybook-cover-clear {
+.typewriter-cover-clear {
   align-self: flex-start;
   background: none;
   border: 1px solid #e0e6ed;
@@ -96,12 +96,12 @@
   font-family: inherit;
 }
 
-.storybook-cover-clear:hover {
+.typewriter-cover-clear:hover {
   border-color: #e53e3e;
   color: #e53e3e;
 }
 
-.storybook-title-input {
+.typewriter-title-input {
   width: 100%;
   padding: 0.75rem 1rem;
   font-size: 1.25rem;
@@ -115,11 +115,11 @@
   transition: border-color 0.2s;
 }
 
-.storybook-title-input:focus {
+.typewriter-title-input:focus {
   border-color: #6366f1;
 }
 
-.storybook-view-toggle {
+.typewriter-view-toggle {
   display: flex;
   gap: 0.5rem;
 }
@@ -148,7 +148,7 @@
   color: #6366f1;
 }
 
-.storybook-body-textarea {
+.typewriter-body-textarea {
   flex: 1;
   min-height: 350px;
   padding: 1rem;
@@ -164,11 +164,11 @@
   transition: border-color 0.2s;
 }
 
-.storybook-body-textarea:focus {
+.typewriter-body-textarea:focus {
   border-color: #6366f1;
 }
 
-.storybook-preview {
+.typewriter-preview {
   flex: 1;
   min-height: 350px;
   background: white;
@@ -178,7 +178,7 @@
   overflow-y: auto;
 }
 
-.storybook-preview-text {
+.typewriter-preview-text {
   white-space: pre-wrap;
   font-family: 'Georgia', serif;
   font-size: 1rem;
@@ -187,19 +187,19 @@
   margin: 0;
 }
 
-.storybook-preview-empty {
+.typewriter-preview-empty {
   color: #aaa;
   font-style: italic;
 }
 
-.storybook-publish-row {
+.typewriter-publish-row {
   display: flex;
   align-items: center;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.storybook-publish-error {
+.typewriter-publish-error {
   color: #e53e3e;
   font-size: 0.875rem;
   background: #fff5f5;
@@ -207,7 +207,7 @@
   border-radius: 6px;
 }
 
-.storybook-publish-success {
+.typewriter-publish-success {
   color: #2f855a;
   font-size: 0.875rem;
   background: #f0fff4;
@@ -215,7 +215,7 @@
   border-radius: 6px;
 }
 
-.storybook-publish-btn {
+.typewriter-publish-btn {
   margin-left: auto;
   padding: 0.65rem 1.5rem;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -229,18 +229,18 @@
   transition: all 0.2s ease;
 }
 
-.storybook-publish-btn:hover:not(:disabled) {
+.typewriter-publish-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
 }
 
-.storybook-publish-btn:disabled {
+.typewriter-publish-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 /* Chat panel (right) */
-.storybook-chat-panel {
+.typewriter-chat-panel {
   width: 360px;
   flex-shrink: 0;
   display: flex;
@@ -249,25 +249,25 @@
   border-left: 1px solid #e0e6ed;
 }
 
-.storybook-chat-header {
+.typewriter-chat-header {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid #e0e6ed;
 }
 
-.storybook-chat-header h2 {
+.typewriter-chat-header h2 {
   font-size: 1rem;
   font-weight: 700;
   color: #1a1a2e;
   margin: 0 0 0.25rem;
 }
 
-.storybook-chat-header p {
+.typewriter-chat-header p {
   font-size: 0.8rem;
   color: #888;
   margin: 0;
 }
 
-.storybook-chat-messages {
+.typewriter-chat-messages {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
@@ -276,7 +276,7 @@
   gap: 0.75rem;
 }
 
-.storybook-chat-empty {
+.typewriter-chat-empty {
   margin: auto;
   color: #aaa;
   font-size: 0.85rem;
@@ -285,7 +285,7 @@
   padding: 1rem;
 }
 
-.storybook-bubble {
+.typewriter-bubble {
   max-width: 90%;
   padding: 0.6rem 0.875rem;
   border-radius: 10px;
@@ -294,19 +294,19 @@
   word-break: break-word;
 }
 
-.storybook-bubble.user {
+.typewriter-bubble.user {
   align-self: flex-end;
   background: #6366f1;
   color: white;
 }
 
-.storybook-bubble.assistant {
+.typewriter-bubble.assistant {
   align-self: flex-start;
   background: #f1f5f9;
   color: #1a1a2e;
 }
 
-.storybook-bubble-role {
+.typewriter-bubble-role {
   font-size: 0.65rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -314,18 +314,18 @@
   opacity: 0.7;
 }
 
-.storybook-bubble-content {
+.typewriter-bubble-content {
   font-size: 0.875rem;
 }
 
-.storybook-chat-input {
+.typewriter-chat-input {
   display: flex;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid #e0e6ed;
 }
 
-.storybook-chat-input input {
+.typewriter-chat-input input {
   flex: 1;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
@@ -335,11 +335,11 @@
   outline: none;
 }
 
-.storybook-chat-input input:focus {
+.typewriter-chat-input input:focus {
   border-color: #6366f1;
 }
 
-.storybook-chat-input button {
+.typewriter-chat-input button {
   padding: 0.5rem 1rem;
   background: #6366f1;
   color: white;
@@ -351,18 +351,18 @@
   font-size: 0.875rem;
 }
 
-.storybook-chat-input button:disabled {
+.typewriter-chat-input button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-  .storybook-page {
+  .typewriter-page {
     flex-direction: column;
     height: auto;
   }
 
-  .storybook-chat-panel {
+  .typewriter-chat-panel {
     width: 100%;
     height: 400px;
   }

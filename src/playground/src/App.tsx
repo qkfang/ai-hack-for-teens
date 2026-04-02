@@ -7,7 +7,7 @@ import { AgentBuilderPage } from './pages/AgentBuilderPage'
 import { LandingPage } from './pages/LandingPage'
 import { ComicPage } from './pages/ComicPage'
 import { GalleryPage } from './pages/GalleryPage'
-import { StoryBookPage } from './pages/StoryBookPage'
+import { TypeWriterPage } from './pages/TypeWriterPage'
 import { TranslationPage } from './pages/TranslationPage'
 import { SpeechPage } from './pages/SpeechPage'
 import { RealtimePage } from './pages/RealtimePage'
@@ -34,7 +34,7 @@ function AppRoutes() {
         <Route path="chat" element={<ChatPage />} />
         <Route path="agent" element={<AgentBuilderPage />} />
         <Route path="comic" element={<ComicPage />} />
-        <Route path="storybook" element={<StoryBookPage />} />
+        <Route path="typewriter" element={<TypeWriterPage />} />
         <Route path="gallery" element={<GalleryPage />} />
         <Route path="translation" element={<TranslationPage />} />
         <Route path="speech" element={<SpeechPage />} />
