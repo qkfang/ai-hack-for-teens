@@ -373,7 +373,7 @@ export function GalleryPage() {
             <div className="gallery-idea-form-footer">
               <button className="gallery-idea-cancel-btn" onClick={() => setShowIdeaForm(false)}>Cancel</button>
               <button className="gallery-idea-save-btn" onClick={saveIdea} disabled={saving}>
-                {saving ? '⏳ Saving…' : (editingIdea ? '💾 Save Changes' : '🚀 Publish Idea')}
+                {saving ? '⏳ Saving…' : '💾 Save'}
               </button>
             </div>
           </div>
