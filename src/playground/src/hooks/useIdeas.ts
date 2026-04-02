@@ -21,15 +21,17 @@ export interface IdeaEntry {
 
 export function useIdeas(userId: number | undefined) {
   const [ideas, setIdeas] = useState<IdeaEntry[]>([])
+  const [loaded, setLoaded] = useState(false)
 
   const refresh = useCallback(async () => {
-    if (!userId) return
+    if (!userId) { setLoaded(true); return }
     try {
       const res = await fetch(`${API_BASE}/api/ideas`)
-      if (!res.ok) return
+      if (!res.ok) { setLoaded(true); return }
       const all = (await res.json()) as IdeaEntry[]
       setIdeas(all.filter(i => i.userId === userId))
     } catch { /* ignore */ }
+    setLoaded(true)
   }, [userId])
 
   useEffect(() => { refresh() }, [refresh])
@@ -102,5 +104,5 @@ export function useIdeas(userId: number | undefined) {
     } catch { return false }
   }, [userId, refresh])
 
-  return { ideas, createIdea, updateIdea, publishIdea, unpublishIdea, refresh }
+  return { ideas, loaded, createIdea, updateIdea, publishIdea, unpublishIdea, refresh }
 }

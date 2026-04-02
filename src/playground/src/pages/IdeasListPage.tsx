@@ -2,13 +2,15 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
+import { useNavVisibility } from '../contexts/NavVisibilityContext'
 import { useIdeas } from '../hooks/useIdeas'
 import { WEBBUILDER_URL } from '../config'
 import './IdeasListPage.css'
 
 export function IdeasListPage() {
   const { user } = useUser()
-  const { setSelectedIdeaId } = useIdea()
+  const { selectedIdeaId, setSelectedIdeaId } = useIdea()
+  const { config } = useNavVisibility()
   const { ideas, createIdea, publishIdea, unpublishIdea } = useIdeas(user?.id)
   const navigate = useNavigate()
   const [newTitle, setNewTitle] = useState('')
@@ -100,12 +102,17 @@ export function IdeasListPage() {
       ) : (
         <ul className="ideas-list">
           {ideas.map(idea => (
-            <li key={idea.id} className="idea-item">
+            <li key={idea.id} className={`idea-item${selectedIdeaId === idea.id ? ' idea-item--selected' : ''}`}>
               {idea.coverImageUrl && (
                 <img src={idea.coverImageUrl} alt={idea.title} className="idea-item-cover" />
               )}
-              <div className="idea-item-body">
-                <span className="idea-item-title">{idea.title}</span>
+              <div className="idea-item-body" onClick={() => setSelectedIdeaId(idea.id)} style={{ cursor: 'pointer' }}>
+                <div className="idea-item-title-row">
+                  <span className="idea-item-title">{idea.title}</span>
+                  <span className={`idea-status-badge${idea.isPublished ? ' idea-status-badge--published' : ''}`}>
+                    {idea.isPublished ? '✅ Published' : '📝 Draft'}
+                  </span>
+                </div>
                 {idea.ideaDescription && (
                   <span className="idea-item-desc">{idea.ideaDescription.slice(0, 120)}{idea.ideaDescription.length > 120 ? '…' : ''}</span>
                 )}
@@ -119,18 +126,26 @@ export function IdeasListPage() {
                 >
                   {publishingId === idea.id ? '⏳' : idea.isPublished ? '🌟 Unpublish' : '🚀 Publish'}
                 </button>
-                <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/typewriter')}>
-                  ✍️ Type Writer
-                </button>
-                <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/comic')}>
-                  🎨 Design Studio
-                </button>
-                <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/agent')}>
-                  🤖 Agent Builder
-                </button>
-                <button className="idea-tool-btn" onClick={() => openWebBuilder(idea.id)}>
-                  🌐 Web Builder
-                </button>
+                {config.startup.storybook && (
+                  <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/typewriter')}>
+                    ✍️ Type Writer
+                  </button>
+                )}
+                {config.startup.comic && (
+                  <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/comic')}>
+                    🎨 Design Studio
+                  </button>
+                )}
+                {config.startup.agent && (
+                  <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/agent')}>
+                    🤖 Agent Builder
+                  </button>
+                )}
+                {config.startup.webbuilder && (
+                  <button className="idea-tool-btn" onClick={() => openWebBuilder(idea.id)}>
+                    🌐 Web Builder
+                  </button>
+                )}
               </div>
             </li>
           ))}

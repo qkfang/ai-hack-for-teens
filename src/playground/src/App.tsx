@@ -53,9 +53,11 @@ function App() {
   return (
     <BrowserRouter>
       <UserProvider>
-        <NavVisibilityProvider>
-          <AppRoutes />
-        </NavVisibilityProvider>
+        <IdeaProvider>
+          <NavVisibilityProvider>
+            <AppRoutes />
+          </NavVisibilityProvider>
+        </IdeaProvider>
       </UserProvider>
     </BrowserRouter>
   )

@@ -205,3 +205,31 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.idea-item--selected {
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+}
+
+.idea-item-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.idea-status-badge {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  background: #f0f0f0;
+  color: #666;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.idea-status-badge--published {
+  background: #e6f4ea;
+  color: #107c10;
+  border-color: #a8d5b0;
+}
