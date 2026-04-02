@@ -199,6 +199,9 @@ export function Layout() {
           <NavLink to="/admin" className={({ isActive }) => (isActive ? 'footer-nav-link active' : 'footer-nav-link')}>
             🎛️ Admin
           </NavLink>
+          <NavLink to="/quiz-control" className={({ isActive }) => (isActive ? 'footer-nav-link active' : 'footer-nav-link')}>
+            🧠 Quiz Control
+          </NavLink>
         </footer>
       )}
     </div>
