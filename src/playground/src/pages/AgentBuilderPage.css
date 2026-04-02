@@ -126,6 +126,13 @@
   flex: 1;
 }
 
+.ab-designer-toolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -0.5rem;
+}
+
 .ab-col {
   display: flex;
   flex-direction: column;

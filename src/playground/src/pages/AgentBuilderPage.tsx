@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
-import { useIdea } from '../contexts/IdeaContext'
 import { useIdeas } from '../hooks/useIdeas'
 import './AgentBuilderPage.css'
 
@@ -299,12 +298,9 @@ function ToolCallBlock({ name, args, result }: { name: string; args: string; res
 export function AgentBuilderPage() {
   const { user } = useUser()
   const location = useLocation()
-  const { selectedIdeaId } = useIdea()
-  const { ideas, updateIdea } = useIdeas(user?.id)
-  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [activeTab, setActiveTab] = useState<'designer' | 'use' | 'code'>('designer')
   const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
   const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
   const [config, setConfig] = useState<AgentConfig>(loadConfig)
   const [activity, setActivity] = useState<ActivityItem[]>([])
@@ -568,9 +564,6 @@ export function AgentBuilderPage() {
           </button>
         </div>
         <div className="ab-tabbar-right">
-          <button className="ab-btn ab-btn-ghost" onClick={handleReset} title="Reset to defaults">
-            ↺ Reset
-          </button>
           <button
             className={`ab-btn ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
             onClick={handleSave}
@@ -583,6 +576,11 @@ export function AgentBuilderPage() {
       {/* ── BUILDER TAB ───────────────────────────────────────────────────── */}
       {activeTab === 'builder' && (
         <div className="ab-designer">
+          <div className="ab-designer-toolbar">
+            <button className="ab-btn ab-btn-ghost" onClick={handleReset} title="Reset to defaults">
+              ↺ Reset
+            </button>
+          </div>
           {/* LEFT COLUMN */}
           <div className="ab-col">
             {/* Identity */}
