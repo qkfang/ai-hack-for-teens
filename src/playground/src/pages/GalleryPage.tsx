@@ -58,6 +58,7 @@ export function GalleryPage() {
   const [ideaForm, setIdeaForm] = useState<IdeaForm>(emptyForm())
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
+  const [sort, setSort] = useState<'latest' | 'oldest'>('latest')
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -176,8 +177,12 @@ export function GalleryPage() {
     })
   }
 
-  const othersIdeas = ideas.filter(i => i.userId !== user?.id && i.isPublished)
-  const myIdeas = ideas.filter(i => i.userId === user?.id)
+  const publishedIdeas = ideas
+    .filter(i => i.isPublished)
+    .sort((a, b) => sort === 'latest'
+      ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    )
 
   return (
     <div className="gallery-page">
@@ -186,7 +191,15 @@ export function GalleryPage() {
           <h1>🌟 Idea Gallery</h1>
           <p>Startup ideas from everyone!</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as 'latest' | 'oldest')}
+            className="gallery-sort-select"
+          >
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+          </select>
           <button className="gallery-refresh-btn" onClick={fetchAll} disabled={loading}>
             {loading ? '⏳' : '🔄'} Refresh
           </button>
@@ -202,31 +215,19 @@ export function GalleryPage() {
         </div>
       )}
 
-      {/* My Startup Ideas */}
-      {!loading && myIdeas.length > 0 && (
-        <section className="gallery-section">
-          <h2 className="gallery-section-title">💡 My Startup Ideas</h2>
-          <div className="gallery-grid">
-            {myIdeas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} mine onClick={() => setSelectedIdea(idea)} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Startup Ideas – others */}
-      {!loading && othersIdeas.length > 0 && (
+      {/* All Published Startup Ideas */}
+      {!loading && publishedIdeas.length > 0 && (
         <section className="gallery-section">
           <h2 className="gallery-section-title">💡 Startup Ideas</h2>
           <div className="gallery-grid">
-            {othersIdeas.map(idea => (
+            {publishedIdeas.map(idea => (
               <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />
             ))}
           </div>
         </section>
       )}
 
-      {!loading && ideas.length === 0 && (
+      {!loading && publishedIdeas.length === 0 && (
         <div className="gallery-empty">
           <span className="gallery-empty-icon">💡</span>
           <h2>Nothing here yet!</h2>
@@ -383,9 +384,9 @@ export function GalleryPage() {
   )
 }
 
-function IdeaCard({ idea, mine, onClick }: { idea: StartupIdeaEntry; mine?: boolean; onClick: () => void }) {
+function IdeaCard({ idea, onClick }: { idea: StartupIdeaEntry; onClick: () => void }) {
   return (
-    <div className={`gallery-card gallery-card--idea${mine ? ' gallery-card--mine' : ''}`} onClick={onClick}>
+    <div className="gallery-card gallery-card--idea" onClick={onClick}>
       <div className="gallery-idea-card-cover">
         {idea.coverImageUrl ? (
           <img src={idea.coverImageUrl} alt={idea.title} className="gallery-card-img" />
