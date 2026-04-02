@@ -47,12 +47,8 @@ export function NavVisibilityProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
   }, [config])
 
-  function setConfig(c: NavConfig) {
-    setConfigState(c)
-  }
-
   return (
-    <NavVisibilityContext.Provider value={{ config, setConfig }}>
+    <NavVisibilityContext.Provider value={{ config, setConfig: setConfigState }}>
       {children}
     </NavVisibilityContext.Provider>
   )

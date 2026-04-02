@@ -123,36 +123,38 @@ export function AdminPage() {
 
         <div className="admin-nav-group">
           <div className="admin-nav-group-label">GenAI 101</div>
-          {(['chat', 'translation', 'speech', 'realtime'] as const).map((key) => (
-            <label key={key} className="admin-toggle-row">
-              <span className="admin-toggle-label">
-                {key === 'chat' ? '💬 Chat' : key === 'translation' ? '🌐 Translation' : key === 'speech' ? '🎙️ Speech' : '⚡ Realtime'}
-              </span>
-              <input
-                type="checkbox"
-                className="admin-toggle"
-                checked={config.genai[key]}
-                onChange={() => toggleGenai(key)}
-              />
-            </label>
-          ))}
+          {(['chat', 'translation', 'speech', 'realtime'] as const).map((key) => {
+            const labels = { chat: '💬 Chat', translation: '🌐 Translation', speech: '🎙️ Speech', realtime: '⚡ Realtime' }
+            return (
+              <label key={key} className="admin-toggle-row">
+                <span className="admin-toggle-label">{labels[key]}</span>
+                <input
+                  type="checkbox"
+                  className="admin-toggle"
+                  checked={config.genai[key]}
+                  onChange={() => toggleGenai(key)}
+                />
+              </label>
+            )
+          })}
         </div>
 
         <div className="admin-nav-group">
           <div className="admin-nav-group-label">Start-up Idea</div>
-          {(['storybook', 'comic', 'agent', 'webbuilder'] as const).map((key) => (
-            <label key={key} className="admin-toggle-row">
-              <span className="admin-toggle-label">
-                {key === 'storybook' ? '📖 Story Book' : key === 'comic' ? '🎨 Comic Studio' : key === 'agent' ? '🤖 Agent Builder' : '🌐 Web Builder'}
-              </span>
-              <input
-                type="checkbox"
-                className="admin-toggle"
-                checked={config.startup[key]}
-                onChange={() => toggleStartup(key)}
-              />
-            </label>
-          ))}
+          {(['storybook', 'comic', 'agent', 'webbuilder'] as const).map((key) => {
+            const labels = { storybook: '📖 Story Book', comic: '🎨 Comic Studio', agent: '🤖 Agent Builder', webbuilder: '🌐 Web Builder' }
+            return (
+              <label key={key} className="admin-toggle-row">
+                <span className="admin-toggle-label">{labels[key]}</span>
+                <input
+                  type="checkbox"
+                  className="admin-toggle"
+                  checked={config.startup[key]}
+                  onChange={() => toggleStartup(key)}
+                />
+              </label>
+            )
+          })}
         </div>
 
         <div className="admin-nav-group">
