@@ -54,9 +54,11 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
     [HttpGet("leaderboard")]
     public async Task<IActionResult> GetLeaderboard()
     {
-        var allUsers = await db.AppUsers.ToListAsync();
-        var board = allUsers
-            .Select(u => new { userId = u.Id, username = u.Username, score = quiz.GetScore(u.Id) })
+        var users = await db.AppUsers
+            .Select(u => new { userId = u.Id, username = u.Username })
+            .ToListAsync();
+        var board = users
+            .Select(u => new { u.userId, u.username, score = quiz.GetScore(u.userId) })
             .OrderByDescending(x => x.score)
             .ToList();
         return Ok(board);

@@ -11,7 +11,7 @@ export function IdeasListPage() {
   const { user } = useUser()
   const { selectedIdeaId, setSelectedIdeaId } = useIdea()
   const { config } = useNavVisibility()
-  const { ideas, createIdea, publishIdea, unpublishIdea } = useIdeas(user?.id)
+  const { ideas, loaded, createIdea, publishIdea, unpublishIdea } = useIdeas(user?.id)
   const navigate = useNavigate()
   const [newTitle, setNewTitle] = useState('')
   const [creating, setCreating] = useState(false)
@@ -94,7 +94,12 @@ export function IdeasListPage() {
         </div>
       )}
 
-      {ideas.length === 0 ? (
+      {!loaded ? (
+        <div className="ideas-loading">
+          <span className="ideas-loading-spinner" />
+          <p>Loading ideas…</p>
+        </div>
+      ) : ideas.length === 0 ? (
         <div className="ideas-empty">
           <span className="ideas-empty-icon">🌱</span>
           <p>No ideas yet — create your first one above!</p>
