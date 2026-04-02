@@ -301,8 +301,7 @@ export function AgentBuilderPage() {
   const location = useLocation()
   const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
   const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
-  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
-  const [activeTab, setActiveTab] = useState<'designer' | 'use' | 'code'>('designer')
+  const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
   const [config, setConfig] = useState<AgentConfig>(loadConfig)
   const [activity, setActivity] = useState<ActivityItem[]>([])
   const [input, setInput] = useState('')
@@ -341,23 +340,18 @@ export function AgentBuilderPage() {
     setConfig((prev) => ({ ...prev, ...updates }))
   }, [])
 
-  function handleSave() {
+  async function handleSave() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    if (selectedIdeaId) {
+      await updateIdea(selectedIdeaId, {
+        agentName: config.name,
+        agentSystemPrompt: config.systemPrompt,
+        agentModel: config.model,
+        agentTemperature: config.temperature,
+      })
+    }
     setSaveState('saved')
     setTimeout(() => setSaveState('idle'), 2000)
-  }
-
-  async function handleSaveToIdea() {
-    if (!selectedIdeaId) return
-    setSaveToIdeaState('saving')
-    const ok = await updateIdea(selectedIdeaId, {
-      agentName: config.name,
-      agentSystemPrompt: config.systemPrompt,
-      agentModel: config.model,
-      agentTemperature: config.temperature,
-    })
-    setSaveToIdeaState(ok ? 'saved' : 'error')
-    setTimeout(() => setSaveToIdeaState('idle'), 2500)
   }
 
   function handleReset() {
@@ -540,10 +534,10 @@ export function AgentBuilderPage() {
         </div>
         <div className="ab-tabbar-center">
           <button
-            className={`ab-tab ${activeTab === 'designer' ? 'ab-tab-active' : ''}`}
-            onClick={() => setActiveTab('designer')}
+            className={`ab-tab ${activeTab === 'builder' ? 'ab-tab-active' : ''}`}
+            onClick={() => setActiveTab('builder')}
           >
-            🎨 Designer
+            🎨 Builder
           </button>
           <button
             className={`ab-tab ${activeTab === 'use' ? 'ab-tab-active' : ''}`}
@@ -551,26 +545,11 @@ export function AgentBuilderPage() {
           >
             💬 Use
           </button>
-          <button
-            className={`ab-tab ${activeTab === 'code' ? 'ab-tab-active' : ''}`}
-            onClick={() => setActiveTab('code')}
-          >
-            💻 Code
-          </button>
         </div>
         <div className="ab-tabbar-right">
           <button className="ab-btn ab-btn-ghost" onClick={handleReset} title="Reset to defaults">
             ↺ Reset
           </button>
-          {selectedIdeaId && (
-            <button
-              className={`ab-btn ${saveToIdeaState === 'saved' ? 'ab-btn-success' : 'ab-btn-ghost'}`}
-              onClick={handleSaveToIdea}
-              disabled={saveToIdeaState === 'saving'}
-            >
-              {saveToIdeaState === 'saving' ? '⏳…' : saveToIdeaState === 'saved' ? '✓ Saved to Idea' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save to Idea'}
-            </button>
-          )}
           <button
             className={`ab-btn ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
             onClick={handleSave}
@@ -580,8 +559,8 @@ export function AgentBuilderPage() {
         </div>
       </div>
 
-      {/* ── DESIGNER TAB ──────────────────────────────────────────────────── */}
-      {activeTab === 'designer' && (
+      {/* ── BUILDER TAB ───────────────────────────────────────────────────── */}
+      {activeTab === 'builder' && (
         <div className="ab-designer">
           {/* LEFT COLUMN */}
           <div className="ab-col">
@@ -853,7 +832,7 @@ export function AgentBuilderPage() {
               </button>
               <button
                 className="ab-btn ab-btn-ghost ab-btn-full"
-                onClick={() => setActiveTab('designer')}
+                onClick={() => setActiveTab('builder')}
               >
                 🎨 Edit Agent
               </button>
@@ -959,15 +938,6 @@ export function AgentBuilderPage() {
         </div>
       )}
 
-      {/* ── CODE TAB ──────────────────────────────────────────────────────── */}
-      {activeTab === 'code' && (
-        <div className="ab-code">
-          <div className="ab-code-header">
-            <h2>💻 Code</h2>
-            <p>Copilot SDK integration coming soon — prompt driver code UI will appear here.</p>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
