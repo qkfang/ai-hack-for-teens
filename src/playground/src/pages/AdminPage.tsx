@@ -11,6 +11,8 @@ interface QuizState {
   currentQuestion: number
   totalQuestions: number
   question: { text: string; options: string[] } | null
+  showAnswer: boolean
+  correctIndex: number | null
 }
 
 interface LeaderboardEntry {
@@ -196,6 +198,9 @@ export function AdminPage() {
         <button className="admin-btn danger" onClick={() => control('reset')}>
           🔄 Reset
         </button>
+        <button className="admin-btn" onClick={() => control('showAnswer')} disabled={status !== 'inprogress'}>
+          {quizState?.showAnswer ? '🙈 Hide Answer' : '👁 Show Answer'}
+        </button>
       </div>
 
       {status === 'inprogress' && quizState?.question && (
@@ -206,7 +211,7 @@ export function AdminPage() {
           <p className="admin-q-text">{quizState.question.text}</p>
           <ul className="admin-q-options">
             {quizState.question.options.map((opt, i) => (
-              <li key={i} className="admin-q-option">{String.fromCharCode(65 + i)}. {opt}</li>
+              <li key={i} className={`admin-q-option${quizState.showAnswer && i === quizState.correctIndex ? ' correct' : ''}`}>{String.fromCharCode(65 + i)}. {opt}</li>
             ))}
           </ul>
         </div>

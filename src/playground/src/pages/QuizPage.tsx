@@ -9,6 +9,8 @@ interface QuizState {
   totalQuestions: number
   question: { text: string; options: string[] } | null
   hasAnswered: boolean
+  showAnswer: boolean
+  correctIndex: number | null
 }
 
 interface LeaderboardEntry {
@@ -102,7 +104,8 @@ export function QuizPage() {
           <div className="quiz-options">
             {state.question.options.map((opt, i) => {
               let cls = 'quiz-option'
-              if (state.hasAnswered || result !== null) {
+              if (state.showAnswer && i === state.correctIndex) cls += ' correct'
+              else if (state.hasAnswered || result !== null) {
                 if (selected === i && result === true) cls += ' correct'
                 else if (selected === i && result === false) cls += ' incorrect'
               }
