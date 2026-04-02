@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
+import { useIdea } from '../contexts/IdeaContext'
 import { useIdeas } from '../hooks/useIdeas'
 import './AgentBuilderPage.css'
 
@@ -298,9 +299,9 @@ function ToolCallBlock({ name, args, result }: { name: string; args: string; res
 export function AgentBuilderPage() {
   const { user } = useUser()
   const location = useLocation()
-  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
-  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
-  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const navigate = useNavigate()
+  const { selectedIdeaId } = useIdea()
+  const { ideas, loaded, updateIdea } = useIdeas(user?.id)
   const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
   const [config, setConfig] = useState<AgentConfig>(loadConfig)
   const [activity, setActivity] = useState<ActivityItem[]>([])
@@ -312,6 +313,11 @@ export function AgentBuilderPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  // Redirect to ideas list if no idea is selected after load
+  useEffect(() => {
+    if (loaded && !currentIdea && !(location.state as { ideaAgentConfig?: unknown } | null)?.ideaAgentConfig) navigate('/ideas')
+  }, [loaded, currentIdea, location.state, navigate])
 
   // Auto-load agent config from the selected idea
   useEffect(() => {
