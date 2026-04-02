@@ -33,7 +33,7 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
             question,
             hasAnswered = userId.HasValue && quiz.HasAnswered(userId.Value, q),
             showAnswer,
-            correctIndex = status == QuizStore.QuizStatus.InProgress ? QuizStore.Questions[q].CorrectIndex : (int?)null,
+            correctIndex = (status == QuizStore.QuizStatus.InProgress && quiz.IsShowingAnswer) ? QuizStore.Questions[q].CorrectIndex : (int?)null,
         });
     }
 

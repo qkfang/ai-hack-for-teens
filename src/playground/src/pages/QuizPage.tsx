@@ -109,7 +109,7 @@ export function QuizPage() {
                 if (selected === i && result === true) cls += ' correct'
                 else if (selected === i && result === false) cls += ' incorrect'
               }
-              if (selected === i && result === null && !state.showAnswer) cls += ' selected'
+              if (selected === i && result === null) cls += ' selected'
               return (
                 <button
                   key={i}
