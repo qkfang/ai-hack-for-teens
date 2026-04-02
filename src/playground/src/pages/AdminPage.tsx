@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { API_BASE } from '../config'
+import { useNavVisibility, type NavConfig } from '../contexts/NavVisibilityContext'
 import './AdminPage.css'
 
 const ADMIN_PASSWORD = '9999'
@@ -24,6 +25,7 @@ export function AdminPage() {
   const [pwError, setPwError] = useState(false)
   const [quizState, setQuizState] = useState<QuizState | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const { config, setConfig } = useNavVisibility()
 
   function login() {
     if (pw === ADMIN_PASSWORD) {
@@ -72,6 +74,18 @@ export function AdminPage() {
     } catch { /* ignore */ }
   }
 
+  function toggleGenai(key: keyof NavConfig['genai']) {
+    setConfig({ ...config, genai: { ...config.genai, [key]: !config.genai[key] } })
+  }
+
+  function toggleStartup(key: keyof NavConfig['startup']) {
+    setConfig({ ...config, startup: { ...config.startup, [key]: !config.startup[key] } })
+  }
+
+  function toggleTop(key: 'gallery' | 'quiz') {
+    setConfig({ ...config, [key]: !config[key] })
+  }
+
   if (!authed) {
     return (
       <div className="admin-page">
@@ -101,7 +115,68 @@ export function AdminPage() {
   return (
     <div className="admin-page">
       <div className="admin-header">
-        <h1>🎛️ Quiz Admin</h1>
+        <h1>🎛️ Admin</h1>
+      </div>
+
+      <div className="admin-section">
+        <h2 className="admin-section-title">📋 Nav Modules</h2>
+
+        <div className="admin-nav-group">
+          <div className="admin-nav-group-label">GenAI 101</div>
+          {(['chat', 'translation', 'speech', 'realtime'] as const).map((key) => {
+            const labels = { chat: '💬 Chat', translation: '🌐 Translation', speech: '🎙️ Speech', realtime: '⚡ Realtime' }
+            return (
+              <label key={key} className="admin-toggle-row">
+                <span className="admin-toggle-label">{labels[key]}</span>
+                <input
+                  type="checkbox"
+                  className="admin-toggle"
+                  checked={config.genai[key]}
+                  onChange={() => toggleGenai(key)}
+                />
+              </label>
+            )
+          })}
+        </div>
+
+        <div className="admin-nav-group">
+          <div className="admin-nav-group-label">Start-up Idea</div>
+          {(['storybook', 'comic', 'agent', 'webbuilder'] as const).map((key) => {
+            const labels = { storybook: '📖 Story Book', comic: '🎨 Comic Studio', agent: '🤖 Agent Builder', webbuilder: '🌐 Web Builder' }
+            return (
+              <label key={key} className="admin-toggle-row">
+                <span className="admin-toggle-label">{labels[key]}</span>
+                <input
+                  type="checkbox"
+                  className="admin-toggle"
+                  checked={config.startup[key]}
+                  onChange={() => toggleStartup(key)}
+                />
+              </label>
+            )
+          })}
+        </div>
+
+        <div className="admin-nav-group">
+          <div className="admin-nav-group-label">Direct Links</div>
+          {(['gallery', 'quiz'] as const).map((key) => (
+            <label key={key} className="admin-toggle-row">
+              <span className="admin-toggle-label">
+                {key === 'gallery' ? '🌟 Gallery' : '🧠 Quiz'}
+              </span>
+              <input
+                type="checkbox"
+                className="admin-toggle"
+                checked={config[key]}
+                onChange={() => toggleTop(key)}
+              />
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="admin-header">
+        <h2 className="admin-section-title">🧠 Quiz Control</h2>
         <span className={`admin-status-badge ${status}`}>{status === 'inprogress' ? 'In Progress' : status === 'finished' ? 'Finished' : 'Waiting'}</span>
       </div>
 

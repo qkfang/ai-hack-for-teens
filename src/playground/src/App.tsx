@@ -14,6 +14,7 @@ import { RealtimePage } from './pages/RealtimePage'
 import { QuizPage } from './pages/QuizPage'
 import { AdminPage } from './pages/AdminPage'
 import { UserProvider, useUser } from './contexts/UserContext'
+import { NavVisibilityProvider } from './contexts/NavVisibilityContext'
 import './App.css'
 
 function RequireUser({ children }: { children: React.ReactNode }) {
@@ -49,7 +50,9 @@ function App() {
   return (
     <BrowserRouter>
       <UserProvider>
-        <AppRoutes />
+        <NavVisibilityProvider>
+          <AppRoutes />
+        </NavVisibilityProvider>
       </UserProvider>
     </BrowserRouter>
   )
