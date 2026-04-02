@@ -103,6 +103,13 @@ export function Layout() {
               </button>
               <div className={`dropdown-menu${openMenu === 'startup' ? ' show' : ''}`}>
                 <NavLink
+                  to="/ideas"
+                  className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
+                  onClick={closeMenu}
+                >
+                  💡 Your Ideas
+                </NavLink>
+                <NavLink
                   to="/storybook"
                   className={({ isActive }) => (isActive ? 'dropdown-item active' : 'dropdown-item')}
                   onClick={closeMenu}

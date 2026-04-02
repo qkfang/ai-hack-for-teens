@@ -16,6 +16,7 @@ export interface IdeaEntry {
   agentModel?: string
   agentTemperature?: number
   websiteUrl?: string
+  isPublished?: boolean
 }
 
 export function useIdeas(userId: number | undefined) {
@@ -81,5 +82,25 @@ export function useIdeas(userId: number | undefined) {
     } catch { return false }
   }, [userId, ideas, refresh])
 
-  return { ideas, createIdea, updateIdea, refresh }
+  const publishIdea = useCallback(async (id: number): Promise<boolean> => {
+    if (!userId) return false
+    try {
+      const res = await fetch(`${API_BASE}/api/ideas/${id}/publish`, { method: 'PATCH' })
+      if (!res.ok) return false
+      await refresh()
+      return true
+    } catch { return false }
+  }, [userId, refresh])
+
+  const unpublishIdea = useCallback(async (id: number): Promise<boolean> => {
+    if (!userId) return false
+    try {
+      const res = await fetch(`${API_BASE}/api/ideas/${id}/unpublish`, { method: 'PATCH' })
+      if (!res.ok) return false
+      await refresh()
+      return true
+    } catch { return false }
+  }, [userId, refresh])
+
+  return { ideas, createIdea, updateIdea, publishIdea, unpublishIdea, refresh }
 }

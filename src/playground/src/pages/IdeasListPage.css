@@ -176,3 +176,32 @@
   color: white;
   border-color: #0078d4;
 }
+
+.idea-publish-btn {
+  background: #fff4e5;
+  border-color: #e8a500;
+  color: #b37700;
+}
+
+.idea-publish-btn:hover {
+  background: #e8a500;
+  color: white;
+  border-color: #e8a500;
+}
+
+.idea-publish-btn--published {
+  background: #e6f4ea;
+  border-color: #107c10;
+  color: #107c10;
+}
+
+.idea-publish-btn--published:hover {
+  background: #107c10;
+  color: white;
+  border-color: #107c10;
+}
+
+.idea-publish-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

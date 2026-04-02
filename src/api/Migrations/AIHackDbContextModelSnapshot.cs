@@ -112,6 +112,9 @@ namespace api.Migrations
                     b.Property<string>("IdeaDescription")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ProblemStatement")
                         .HasColumnType("nvarchar(max)");
 

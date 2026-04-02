@@ -9,11 +9,12 @@ import './IdeasListPage.css'
 export function IdeasListPage() {
   const { user } = useUser()
   const { setSelectedIdeaId } = useIdea()
-  const { ideas, createIdea } = useIdeas(user?.id)
+  const { ideas, createIdea, publishIdea, unpublishIdea } = useIdeas(user?.id)
   const navigate = useNavigate()
   const [newTitle, setNewTitle] = useState('')
   const [creating, setCreating] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [publishingId, setPublishingId] = useState<number | null>(null)
 
   async function handleCreate() {
     const t = newTitle.trim()
@@ -26,6 +27,16 @@ export function IdeasListPage() {
       setCreating(false)
       setSelectedIdeaId(id)
     }
+  }
+
+  async function handlePublishToggle(ideaId: number, currentlyPublished: boolean) {
+    setPublishingId(ideaId)
+    if (currentlyPublished) {
+      await unpublishIdea(ideaId)
+    } else {
+      await publishIdea(ideaId)
+    }
+    setPublishingId(null)
   }
 
   function openPage(ideaId: number, path: string) {
@@ -100,6 +111,14 @@ export function IdeasListPage() {
                 )}
               </div>
               <div className="idea-item-links">
+                <button
+                  className={`idea-tool-btn idea-publish-btn${idea.isPublished ? ' idea-publish-btn--published' : ''}`}
+                  onClick={() => handlePublishToggle(idea.id, !!idea.isPublished)}
+                  disabled={publishingId === idea.id}
+                  title={idea.isPublished ? 'Remove from Gallery' : 'Publish to Gallery'}
+                >
+                  {publishingId === idea.id ? '⏳' : idea.isPublished ? '🌟 Unpublish' : '🚀 Publish'}
+                </button>
                 <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/storybook')}>
                   📖 Story Book
                 </button>
