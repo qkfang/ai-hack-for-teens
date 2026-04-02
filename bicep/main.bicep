@@ -23,6 +23,9 @@ param sqlAadAdminLogin string
 param sqlAadAdminObjectId string
 
 var uniqueSuffix = uniqueString(resourceGroup().id)
+var commonTags = {
+  SecurityControl: 'Ignore'
+}
 var keyVaultName = '${baseName}-kv'
 var storageAccountName = '${baseName}st'
 var appInsightsName = '${baseName}-appi'
@@ -37,6 +40,7 @@ module azureFoundry 'modules/foundry.bicep' = [for foundryLocation in foundryLoc
   params: {
     baseName: '${baseName}-${foundryLocation.suffix}'
     location: foundryLocation.region
+    tags: commonTags
   }
 }]
 
@@ -72,6 +76,7 @@ module sqlServer 'modules/sqlserver.bicep' = {
     location: location
     aadAdminLogin: sqlAadAdminLogin
     aadAdminObjectId: sqlAadAdminObjectId
+    tags: commonTags
   }
 }
 

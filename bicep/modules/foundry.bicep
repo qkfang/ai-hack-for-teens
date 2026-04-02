@@ -1,11 +1,13 @@
 param baseName string
 param location string
+param tags object = {}
 
 var resourcePrefix = toLower(baseName)
 
 resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
   name: '${resourcePrefix}-foundry'
   location: location
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }
@@ -15,7 +17,7 @@ resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
   kind: 'AIServices'
   properties: {
     allowProjectManagement: true
-    customSubDomainName: '${resourcePrefix}-foundry'
+    customSubDomainName: 'foundry-${resourcePrefix}'
     publicNetworkAccess: 'Enabled'
     disableLocalAuth: true
     networkAcls: {

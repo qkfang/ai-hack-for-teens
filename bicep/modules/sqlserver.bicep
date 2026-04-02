@@ -5,11 +5,13 @@ param aadAdminObjectId string
 param databaseName string = 'ai-hack-db-dev'
 param skuName string = 'Standard'
 param skuTier string = 'Standard'
-param capacity int = 20
+param capacity int = 50
+param tags object = {}
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
   name: name
   location: 'AustraliaEast'
+  tags: tags
   properties: {
     publicNetworkAccess: 'Enabled'
     administrators: {
