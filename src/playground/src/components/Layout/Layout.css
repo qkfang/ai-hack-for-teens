@@ -132,6 +132,22 @@
   text-align: center;
   padding: 1rem;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer-nav-link {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.footer-nav-link:hover,
+.footer-nav-link.active {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 /* User info in header */
