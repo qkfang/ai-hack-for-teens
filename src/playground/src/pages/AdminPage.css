@@ -238,6 +238,11 @@
   color: #444;
 }
 
+.admin-q-option.correct {
+  color: #16a34a;
+  font-weight: 700;
+}
+
 .admin-leaderboard {
   background: var(--card-bg, #fff);
   border-radius: 12px;

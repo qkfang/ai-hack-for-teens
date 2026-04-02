@@ -78,10 +78,12 @@ public class QuizStore
     private readonly object _lock = new();
     private QuizStatus _status = QuizStatus.Waiting;
     private int _currentQuestion = 0;
+    private bool _showAnswer = false;
     private readonly Dictionary<(int userId, int questionIndex), int> _answers = [];
 
     public QuizStatus Status { get { lock (_lock) return _status; } }
     public int CurrentQuestion { get { lock (_lock) return _currentQuestion; } }
+    public bool IsShowingAnswer { get { lock (_lock) return _showAnswer; } }
 
     public void Start()
     {
@@ -98,7 +100,10 @@ public class QuizStore
         {
             if (_status != QuizStatus.InProgress) return;
             if (_currentQuestion < Questions.Length - 1)
+            {
                 _currentQuestion++;
+                _showAnswer = false;
+            }
         }
     }
 
@@ -108,7 +113,10 @@ public class QuizStore
         {
             if (_status != QuizStatus.InProgress) return;
             if (_currentQuestion > 0)
+            {
                 _currentQuestion--;
+                _showAnswer = false;
+            }
         }
     }
 
@@ -123,8 +131,14 @@ public class QuizStore
         {
             _status = QuizStatus.Waiting;
             _currentQuestion = 0;
+            _showAnswer = false;
             _answers.Clear();
         }
+    }
+
+    public void ToggleShowAnswer()
+    {
+        lock (_lock) { _showAnswer = !_showAnswer; }
     }
 
     public bool SubmitAnswer(int userId, int questionIndex, int answerIndex)

@@ -16,6 +16,7 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
     {
         var q = quiz.CurrentQuestion;
         var status = quiz.Status;
+        var showAnswer = quiz.IsShowingAnswer;
         var question = status == QuizStore.QuizStatus.InProgress
             ? new
             {
@@ -31,6 +32,8 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
             totalQuestions = QuizStore.Questions.Length,
             question,
             hasAnswered = userId.HasValue && quiz.HasAnswered(userId.Value, q),
+            showAnswer,
+            correctIndex = status == QuizStore.QuizStatus.InProgress ? QuizStore.Questions[q].CorrectIndex : (int?)null,
         });
     }
 
@@ -72,10 +75,11 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
             case "prev": quiz.Prev(); break;
             case "finish": quiz.Finish(); break;
             case "reset": quiz.Reset(); break;
+            case "showAnswer": quiz.ToggleShowAnswer(); break;
             default: return BadRequest(new { error = "Unknown action" });
         }
 
-        return Ok(new { status = quiz.Status.ToString().ToLower(), currentQuestion = quiz.CurrentQuestion });
+        return Ok(new { status = quiz.Status.ToString().ToLower(), currentQuestion = quiz.CurrentQuestion, showAnswer = quiz.IsShowingAnswer });
     }
 }
 
