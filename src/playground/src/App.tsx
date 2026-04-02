@@ -16,6 +16,7 @@ import { AdminPage } from './pages/AdminPage'
 import { UserProvider, useUser } from './contexts/UserContext'
 import { IdeaProvider } from './contexts/IdeaContext'
 import { IdeasListPage } from './pages/IdeasListPage'
+import { NavVisibilityProvider } from './contexts/NavVisibilityContext'
 import './App.css'
 
 function RequireUser({ children }: { children: React.ReactNode }) {
@@ -52,9 +53,9 @@ function App() {
   return (
     <BrowserRouter>
       <UserProvider>
-        <IdeaProvider>
+        <NavVisibilityProvider>
           <AppRoutes />
-        </IdeaProvider>
+        </NavVisibilityProvider>
       </UserProvider>
     </BrowserRouter>
   )
