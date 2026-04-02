@@ -106,7 +106,14 @@ export function IdeasListPage() {
               {idea.coverImageUrl && (
                 <img src={idea.coverImageUrl} alt={idea.title} className="idea-item-cover" />
               )}
-              <div className="idea-item-body" onClick={() => setSelectedIdeaId(idea.id)} style={{ cursor: 'pointer' }}>
+              <div
+                className="idea-item-body"
+                onClick={() => setSelectedIdeaId(idea.id)}
+                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSelectedIdeaId(idea.id)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+              >
                 <div className="idea-item-title-row">
                   <span className="idea-item-title">{idea.title}</span>
                   <span className={`idea-status-badge${idea.isPublished ? ' idea-status-badge--published' : ''}`}>

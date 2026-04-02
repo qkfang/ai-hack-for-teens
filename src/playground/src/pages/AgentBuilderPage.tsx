@@ -316,7 +316,7 @@ export function AgentBuilderPage() {
 
   // Redirect to ideas list if no idea is selected after load
   useEffect(() => {
-    if (loaded && !currentIdea && !location.state) navigate('/ideas')
+    if (loaded && !currentIdea && !(location.state as { ideaAgentConfig?: unknown } | null)?.ideaAgentConfig) navigate('/ideas')
   }, [loaded, currentIdea, location.state, navigate])
 
   // Auto-load agent config from the selected idea
