@@ -351,7 +351,7 @@ export default function UserProfile() {
           {isLockedUser && !isAdminMode && (
             <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
               <p className="text-xs text-gray-400 dark:text-gray-500">
-                Launched from AI Playground
+                Launched from AI Hack Studio
               </p>
             </div>
           )}

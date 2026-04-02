@@ -46,7 +46,7 @@ export function Layout() {
         <header className="app-header">
           <Link to="/" className="header-brand">
             <span className="brand-icon">🤖</span>
-            <span className="brand-name">AI Playground</span>
+            <span className="brand-name">AI Hack Studio</span>
           </Link>
           <nav className="app-nav">
             {genaiVisible && (

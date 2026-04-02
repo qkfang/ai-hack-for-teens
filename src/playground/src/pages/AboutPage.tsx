@@ -4,7 +4,7 @@ export function AboutPage() {
   return (
     <div className="about-page">
       <section className="about-hero">
-        <h1>About AI Playground</h1>
+        <h1>About AI Hack Studio</h1>
         <p>
           A modern React application for exploring Azure AI Foundry capabilities through
           an interactive chat interface.
@@ -13,9 +13,9 @@ export function AboutPage() {
 
       <div className="about-content">
         <section className="about-section">
-          <h2>What is AI Playground?</h2>
+          <h2>What is AI Hack Studio?</h2>
           <p>
-            AI Playground is a web application built with React and TypeScript that allows
+            AI Hack Studio is a web application built with React and TypeScript that allows
             you to interact with AI models deployed on Azure AI Foundry. It provides a
             clean, intuitive chat interface where you can experiment with different AI
             models and system prompts.

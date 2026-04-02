@@ -16,7 +16,7 @@
 ai-hack-hs-2026/
 ├── src/
 │   ├── api/          # 🌤️  Weather Info API — C# ASP.NET Core + MCP Server
-│   └── playground/   # 💬  AI Playground — React + TypeScript chat app
+│   └── playground/   # 💬  AI Hack Studio — React + TypeScript chat app
 ├── bicep/            # ☁️  Azure infrastructure as code
 └── hack.md           # 📋  Full hackathon slide deck & lab guides
 ```
@@ -35,7 +35,7 @@ A C# ASP.NET Core backend with:
 
 ➡️ See [`src/api/README.md`](src/api/README.md) for setup and endpoints.
 
-### 💬 AI Playground (`src/playground`)
+### 💬 AI Hack Studio (`src/playground`)
 A React + TypeScript single-page app featuring:
 - **Chat Page** — real-time streaming chat powered by Azure AI Foundry (GPT-4o)
 - **About Page** — project info and tech docs
@@ -53,7 +53,7 @@ Bicep templates to deploy the whole stack to Azure with one command.
 | Lab | Topic | What You Build |
 |-----|-------|---------------|
 | **Lab 1** | Prompt Engineering | Craft the perfect AI prompt using the CRAFT framework |
-| **Lab 2** | Text & Chatbots | Chat with the AI Playground app |
+| **Lab 2** | Text & Chatbots | Chat with the AI Hack Studio app |
 | **Lab 3** | Image & Video AI | Generate images and video with AI tools |
 | **Lab 4** | Voice & Audio AI | Turn voice into text and text into speech |
 
@@ -70,7 +70,7 @@ dotnet run
 # Open https://localhost:5001
 ```
 
-### Run the AI Playground locally
+### Run the AI Hack Studio locally
 ```bash
 cd src/playground
 npm install

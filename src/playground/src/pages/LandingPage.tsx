@@ -65,7 +65,7 @@ export function LandingPage() {
     <div className="landing-page">
       <div className="landing-card">
         <div className="landing-logo">🎨</div>
-        <h1 className="landing-title">AI Playground</h1>
+        <h1 className="landing-title">AI Hack Studio</h1>
         <p className="landing-subtitle">Create AI-powered comic art and explore others' creations</p>
 
         {mode === 'choose' && (

@@ -12,7 +12,7 @@ A Next.js web application that lets users build their own million-dollar startup
 
 ## URL Parameters
 
-When launched from the AI Playground, the following URL parameters are supported:
+When launched from the AI Hack Studio, the following URL parameters are supported:
 
 - `?userId=<id>` - Load a specific user's design (the user's ID from the playground)
 - `?userName=<name>` - The user's display name (used if userId is not found)
@@ -42,6 +42,6 @@ Click on the user profile in the top right, then click "Admin" and enter passcod
 
 4. Open [http://localhost:3000](http://localhost:3000)
 
-## Integration with AI Playground
+## Integration with AI Hack Studio
 
 The playground at `src/playground` links to this app. Set `VITE_WEBBUILDER_URL` in the playground's `.env` to point to this app's URL.

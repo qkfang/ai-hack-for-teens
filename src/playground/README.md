@@ -1,4 +1,4 @@
-# AI Playground
+# AI Hack Studio
 
 A React + TypeScript application for exploring Azure AI Foundry capabilities through an interactive multi-page interface.
 

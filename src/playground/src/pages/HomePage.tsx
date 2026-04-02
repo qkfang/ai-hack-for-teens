@@ -23,7 +23,7 @@ export function HomePage() {
         <div className="hero-content">
           <h1 className="hero-title">
             {user ? `Welcome back, ${user.username}!` : 'Welcome to'}{' '}
-            {!user && <span className="gradient-text">AI Playground</span>}
+            {!user && <span className="gradient-text">AI Hack Studio</span>}
           </h1>
           {user && (
             <p className="hero-user-id">Your User ID: <strong>#{user.id}</strong> — keep this to reconnect later</p>
