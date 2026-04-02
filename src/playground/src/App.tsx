@@ -14,6 +14,8 @@ import { RealtimePage } from './pages/RealtimePage'
 import { QuizPage } from './pages/QuizPage'
 import { AdminPage } from './pages/AdminPage'
 import { UserProvider, useUser } from './contexts/UserContext'
+import { IdeaProvider } from './contexts/IdeaContext'
+import { IdeasListPage } from './pages/IdeasListPage'
 import { NavVisibilityProvider } from './contexts/NavVisibilityContext'
 import './App.css'
 
@@ -40,6 +42,7 @@ function AppRoutes() {
         <Route path="quiz" element={<QuizPage />} />
         <Route path="admin" element={<AdminPage />} />
         <Route path="about" element={<AboutPage />} />
+        <Route path="ideas" element={<IdeasListPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { useIdea } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
 import { useIdeas } from '../hooks/useIdeas'
-import { IdeaSelector } from '../components/IdeaSelector'
 import './StoryBookPage.css'
 
 interface ChatMessage {
@@ -14,21 +14,30 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function StoryBookPage() {
   const { user } = useUser()
-  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
-  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const { selectedIdeaId } = useIdea()
+  const { ideas, updateIdea } = useIdeas(user?.id)
   const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit')
-  const [publishing, setPublishing] = useState(false)
-  const [publishError, setPublishError] = useState('')
-  const [publishSuccess, setPublishSuccess] = useState(false)
   const [coverImageUrl, setCoverImageUrl] = useState(() => localStorage.getItem(COVER_IMAGE_KEY) ?? '')
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  useEffect(() => {
+    if (!currentIdea) return
+    if (currentIdea.title) setTitle(currentIdea.title)
+    if (currentIdea.ideaDescription) setBody(currentIdea.ideaDescription)
+    if (currentIdea.coverImageUrl) {
+      setCoverImageUrl(currentIdea.coverImageUrl)
+      localStorage.setItem(COVER_IMAGE_KEY, currentIdea.coverImageUrl)
+    }
+  }, [currentIdea?.id])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -119,47 +128,15 @@ When the user asks for changes or suggestions, provide the updated story text or
     setTimeout(() => setSaveToIdeaState('idle'), 2500)
   }
 
-  async function handlePublish() {
-    if (!user) return
-    const t = title.trim()
-    const b = body.trim()
-    if (!t || !b) { setPublishError('Please add a title and story body before publishing.'); return }
-
-    setPublishing(true)
-    setPublishError('')
-    setPublishSuccess(false)
-    try {
-      const res = await fetch(`${API_BASE}/api/users/${user.id}/stories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: t, body: b, coverImageUrl }),
-      })
-      if (!res.ok) {
-        const data = await res.json() as { error?: string }
-        throw new Error(data.error ?? 'Publish failed')
-      }
-      setPublishSuccess(true)
-    } catch (err) {
-      setPublishError(err instanceof Error ? err.message : 'Something went wrong')
-    } finally {
-      setPublishing(false)
-    }
-  }
-
   return (
     <div className="storybook-page">
       <div className="storybook-editor-panel">
         <div className="storybook-editor-header">
           <h1>📖 Story Book</h1>
           {user && <span className="storybook-user">Writing as <strong>{user.username}</strong></span>}
+          {currentIdea && <span className="storybook-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></span>}
+          {!currentIdea && <span className="storybook-idea-banner storybook-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</span>}
         </div>
-
-        <IdeaSelector
-          ideas={ideas}
-          selectedId={selectedIdeaId}
-          onSelect={setSelectedIdeaId}
-          onCreate={createIdea}
-        />
 
         <input
           className="storybook-title-input"
@@ -212,8 +189,6 @@ When the user asks for changes or suggestions, provide the updated story text or
         )}
 
         <div className="storybook-publish-row">
-          {publishError && <span className="storybook-publish-error">{publishError}</span>}
-          {publishSuccess && <span className="storybook-publish-success">✅ Published to Gallery!</span>}
           {selectedIdeaId && (
             <button
               className={`storybook-publish-btn idea-save-btn${saveToIdeaState === 'saved' ? ' idea-save-btn--saved' : saveToIdeaState === 'error' ? ' idea-save-btn--error' : ''}`}
@@ -223,13 +198,6 @@ When the user asks for changes or suggestions, provide the updated story text or
               {saveToIdeaState === 'saving' ? '⏳ Saving…' : saveToIdeaState === 'saved' ? '✅ Saved to Idea!' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save to Idea'}
             </button>
           )}
-          <button
-            className="storybook-publish-btn"
-            onClick={handlePublish}
-            disabled={publishing || !title.trim() || !body.trim()}
-          >
-            {publishing ? '⏳ Publishing…' : '🌟 Publish to Gallery'}
-          </button>
         </div>
       </div>
 

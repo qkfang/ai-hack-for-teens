@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '../contexts/UserContext'
+import { useIdea } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
 import { useRateLimit } from '../hooks/useRateLimit'
 import { useIdeas } from '../hooks/useIdeas'
-import { IdeaSelector } from '../components/IdeaSelector'
 import './ComicPage.css'
 
 interface ComicItem {
@@ -17,8 +17,8 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function ComicPage() {
   const { user } = useUser()
-  const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
-  const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
+  const { selectedIdeaId } = useIdea()
+  const { ideas, updateIdea } = useIdeas(user?.id)
   const [ideaCoverState, setIdeaCoverState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -30,6 +30,14 @@ export function ComicPage() {
   const [editError, setEditError] = useState('')
   const [coverSet, setCoverSet] = useState(false)
   const { isRateLimited, countdown, triggerRateLimit } = useRateLimit()
+
+  const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  useEffect(() => {
+    if (!currentIdea) return
+    if (currentIdea.coverImageUrl) setSelectedImageUrl(currentIdea.coverImageUrl)
+    if (currentIdea.coverImagePrompt) setDescription(currentIdea.coverImagePrompt)
+  }, [currentIdea?.id])
 
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault()
@@ -145,12 +153,8 @@ export function ComicPage() {
         <h1>🎨 Comic Book Studio</h1>
         <p>Describe your scene and DALL-E will bring it to life!</p>
         {user && <p className="comic-user">Creating as <strong>{user.username}</strong> (ID: {user.id})</p>}
-        <IdeaSelector
-          ideas={ideas}
-          selectedId={selectedIdeaId}
-          onSelect={setSelectedIdeaId}
-          onCreate={createIdea}
-        />
+        {currentIdea && <p className="comic-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></p>}
+        {!currentIdea && <p className="comic-idea-banner comic-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</p>}
       </div>
 
       <div className="comic-layout">

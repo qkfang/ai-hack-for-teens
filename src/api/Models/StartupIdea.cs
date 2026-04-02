@@ -28,6 +28,8 @@ public class StartupIdea
     // From web builder
     [MaxLength(500)] public string? WebsiteUrl { get; set; }
 
+    public bool IsPublished { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

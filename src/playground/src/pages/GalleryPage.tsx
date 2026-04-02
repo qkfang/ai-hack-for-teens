@@ -20,6 +20,7 @@ interface StartupIdeaEntry {
   agentModel?: string
   agentTemperature?: number
   websiteUrl?: string
+  isPublished?: boolean
   createdAt: string
   updatedAt: string
 }
@@ -175,7 +176,7 @@ export function GalleryPage() {
     })
   }
 
-  const othersIdeas = ideas.filter(i => i.userId !== user?.id)
+  const othersIdeas = ideas.filter(i => i.userId !== user?.id && i.isPublished)
   const myIdeas = ideas.filter(i => i.userId === user?.id)
 
   return (

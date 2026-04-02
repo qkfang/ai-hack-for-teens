@@ -32,6 +32,7 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
                 agentModel = i.AgentModel,
                 agentTemperature = i.AgentTemperature,
                 websiteUrl = i.WebsiteUrl,
+                isPublished = i.IsPublished,
                 createdAt = i.CreatedAt,
                 updatedAt = i.UpdatedAt,
             })
@@ -61,6 +62,7 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
             agentModel = i.AgentModel,
             agentTemperature = i.AgentTemperature,
             websiteUrl = i.WebsiteUrl,
+            isPublished = i.IsPublished,
             createdAt = i.CreatedAt,
             updatedAt = i.UpdatedAt,
         });
@@ -128,6 +130,28 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         db.StartupIdeas.Remove(idea);
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    [HttpPatch("{id:int}/publish")]
+    public async Task<IActionResult> Publish(int id)
+    {
+        var idea = await db.StartupIdeas.FindAsync(id);
+        if (idea == null) return NotFound(new { error = "Idea not found" });
+        idea.IsPublished = true;
+        idea.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return Ok(new { id = idea.Id, isPublished = idea.IsPublished });
+    }
+
+    [HttpPatch("{id:int}/unpublish")]
+    public async Task<IActionResult> Unpublish(int id)
+    {
+        var idea = await db.StartupIdeas.FindAsync(id);
+        if (idea == null) return NotFound(new { error = "Idea not found" });
+        idea.IsPublished = false;
+        idea.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return Ok(new { id = idea.Id, isPublished = idea.IsPublished });
     }
 }
 

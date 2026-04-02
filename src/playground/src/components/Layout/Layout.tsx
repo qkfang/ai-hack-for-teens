@@ -13,7 +13,7 @@ export function Layout() {
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | null>(null)
   const [isMaxLayout, setIsMaxLayout] = useState(false)
   const genAiPaths = ['/chat', '/translation', '/speech', '/realtime']
-  const startupPaths = ['/storybook', '/comic', '/agent']
+  const startupPaths = ['/ideas', '/storybook', '/comic', '/agent']
   const isGenAiActive = genAiPaths.some((path) => location.pathname.startsWith(path))
   const isStartupActive = startupPaths.some((path) => location.pathname.startsWith(path))
 

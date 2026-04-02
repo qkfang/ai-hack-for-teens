@@ -2,8 +2,8 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
+import { useIdea } from '../contexts/IdeaContext'
 import { useIdeas } from '../hooks/useIdeas'
-import { IdeaSelector } from '../components/IdeaSelector'
 import './AgentBuilderPage.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -299,6 +299,10 @@ function ToolCallBlock({ name, args, result }: { name: string; args: string; res
 export function AgentBuilderPage() {
   const { user } = useUser()
   const location = useLocation()
+  const { selectedIdeaId } = useIdea()
+  const { ideas, updateIdea } = useIdeas(user?.id)
+  const [saveToIdeaState, setSaveToIdeaState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [activeTab, setActiveTab] = useState<'designer' | 'use' | 'code'>('designer')
   const { ideas, createIdea, updateIdea } = useIdeas(user?.id)
   const [selectedIdeaId, setSelectedIdeaId] = useState<number | null>(null)
   const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
@@ -310,6 +314,20 @@ export function AgentBuilderPage() {
   const [showTemplates, setShowTemplates] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+
+  const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  // Auto-load agent config from the selected idea
+  useEffect(() => {
+    if (!currentIdea) return
+    setConfig(prev => ({
+      ...prev,
+      ...(currentIdea.agentName != null && { name: currentIdea.agentName }),
+      ...(currentIdea.agentSystemPrompt != null && { systemPrompt: currentIdea.agentSystemPrompt }),
+      ...(currentIdea.agentModel != null && { model: currentIdea.agentModel }),
+      ...(currentIdea.agentTemperature != null && { temperature: currentIdea.agentTemperature }),
+    }))
+  }, [currentIdea?.id])
 
   // Pre-load agent config from gallery navigation state
   useEffect(() => {
@@ -518,14 +536,17 @@ export function AgentBuilderPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="ab-page">
-      {/* Idea Selector bar */}
+      {/* Current idea banner */}
       <div style={{ padding: '0.5rem 1rem 0' }}>
-        <IdeaSelector
-          ideas={ideas}
-          selectedId={selectedIdeaId}
-          onSelect={setSelectedIdeaId}
-          onCreate={createIdea}
-        />
+        {currentIdea ? (
+          <span style={{ fontSize: '0.9rem', color: '#107c10', background: '#e6f4ea', border: '1px solid #a8d5b0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block' }}>
+            💡 Working on: <strong>{currentIdea.title}</strong>
+          </span>
+        ) : (
+          <span style={{ fontSize: '0.9rem', color: '#805000', background: '#fff4e5', border: '1px solid #e8d5a0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block' }}>
+            No idea selected — go to <a href="/ideas" style={{ color: '#0078d4' }}>Your Ideas</a> to pick one.
+          </span>
+        )}
       </div>
       {/* Tab bar */}
       <div className="ab-tabbar">
