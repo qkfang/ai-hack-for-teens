@@ -183,11 +183,10 @@ export function GalleryPage() {
     <div className="gallery-page">
       <div className="gallery-header">
         <div className="gallery-header-text">
-          <h1>🌟 Community Gallery</h1>
-          <p>Startup ideas, AI-generated comics and stories from all users</p>
+          <h1>🌟 Idea Gallery</h1>
+          <p>Startup ideas from everyone!</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="gallery-new-idea-btn" onClick={openNewIdeaForm}>💡 New Idea</button>
           <button className="gallery-refresh-btn" onClick={fetchAll} disabled={loading}>
             {loading ? '⏳' : '🔄'} Refresh
           </button>
@@ -203,18 +202,6 @@ export function GalleryPage() {
         </div>
       )}
 
-      {/* Startup Ideas – others */}
-      {!loading && othersIdeas.length > 0 && (
-        <section className="gallery-section">
-          <h2 className="gallery-section-title">💡 Startup Ideas</h2>
-          <div className="gallery-grid">
-            {othersIdeas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* My Startup Ideas */}
       {!loading && myIdeas.length > 0 && (
         <section className="gallery-section">
@@ -222,6 +209,18 @@ export function GalleryPage() {
           <div className="gallery-grid">
             {myIdeas.map(idea => (
               <IdeaCard key={idea.id} idea={idea} mine onClick={() => setSelectedIdea(idea)} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Startup Ideas – others */}
+      {!loading && othersIdeas.length > 0 && (
+        <section className="gallery-section">
+          <h2 className="gallery-section-title">💡 Startup Ideas</h2>
+          <div className="gallery-grid">
+            {othersIdeas.map(idea => (
+              <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />
             ))}
           </div>
         </section>
