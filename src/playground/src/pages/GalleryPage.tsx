@@ -535,8 +535,10 @@ function IdeaCard({ idea, mine, onClick }: { idea: StartupIdeaEntry; mine?: bool
         )}
         <div className="gallery-card-overlay"><span>🔍 View</span></div>
         <div className="gallery-idea-badges">
+          {idea.ideaDescription && <span className="gallery-idea-badge">📖 Story</span>}
+          {idea.coverImageUrl && <span className="gallery-idea-badge">🎨 Art</span>}
           {idea.agentName && <span className="gallery-idea-badge">🤖 Agent</span>}
-          {idea.websiteUrl && <span className="gallery-idea-badge">🌐 Website</span>}
+          {idea.websiteUrl && <span className="gallery-idea-badge">🌐 Web</span>}
         </div>
       </div>
       <div className="gallery-card-body">
