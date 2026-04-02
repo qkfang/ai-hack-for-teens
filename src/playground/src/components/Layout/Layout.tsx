@@ -169,12 +169,6 @@ export function Layout() {
                 🧠 Quiz
               </NavLink>
             )}
-            <NavLink
-              to="/admin"
-              className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
-            >
-              🎛️ Admin
-            </NavLink>
           </nav>
           {user && (
             <div className="header-user">
@@ -201,7 +195,10 @@ export function Layout() {
       </main>
       {!isMaxLayout && (
         <footer className="app-footer">
-          <p>AI Playground — Powered by Azure AI Foundry</p>
+          <p>AI Hack Studio — Powered by Azure AI Foundry</p>
+          <NavLink to="/admin" className={({ isActive }) => (isActive ? 'footer-nav-link active' : 'footer-nav-link')}>
+            🎛️ Admin
+          </NavLink>
         </footer>
       )}
     </div>
