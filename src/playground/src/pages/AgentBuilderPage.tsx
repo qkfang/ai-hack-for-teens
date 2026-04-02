@@ -850,18 +850,6 @@ export function AgentBuilderPage() {
                   ))}
               </div>
             )}
-
-            <div className="ab-sidebar-actions">
-              <button className="ab-btn ab-btn-ghost ab-btn-full" onClick={clearConversation}>
-                🗑 Clear Chat
-              </button>
-              <button
-                className="ab-btn ab-btn-ghost ab-btn-full"
-                onClick={() => setActiveTab('builder')}
-              >
-                🎨 Edit Agent
-              </button>
-            </div>
           </aside>
 
           {/* Chat area */}

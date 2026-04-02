@@ -167,7 +167,7 @@ export function ComicPage() {
         <div className="comic-form-panel">
           <form onSubmit={handleGenerate} className="comic-form">
             <label htmlFor="comic-desc" className="comic-label">
-              📝 Describe your comic scene
+              📝 Describe your idea
             </label>
             <textarea
               id="comic-desc"
@@ -194,7 +194,7 @@ export function ComicPage() {
                   Generating your comic…
                 </>
               ) : isRateLimited ? `Wait ${countdown}s` : (
-                '✨ Generate Comic'
+                '✨ Generate Design'
               )}
             </button>
           </form>
@@ -263,7 +263,7 @@ export function ComicPage() {
           ) : (
             <div className="comic-empty-preview">
               <span className="comic-empty-icon">🎭</span>
-              <p>Your generated comic will appear here</p>
+              <p>Your generated design will appear here</p>
             </div>
           )}
         </div>

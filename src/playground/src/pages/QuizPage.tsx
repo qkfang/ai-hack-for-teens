@@ -140,22 +140,6 @@ export function QuizPage() {
         </div>
       )}
 
-      <div className="quiz-leaderboard">
-        <h3>🏆 Leaderboard</h3>
-        {leaderboard.length === 0 ? (
-          <p className="quiz-no-scores">No scores yet</p>
-        ) : (
-          <ol className="quiz-leaderboard-list">
-            {leaderboard.map((entry, i) => (
-              <li key={entry.userId} className={`quiz-lb-entry${user?.id === entry.userId ? ' me' : ''}`}>
-                <span className="quiz-lb-rank">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
-                <span className="quiz-lb-name">{entry.username}</span>
-                <span className="quiz-lb-score">{entry.score} / {state.totalQuestions}</span>
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
     </div>
   )
 }

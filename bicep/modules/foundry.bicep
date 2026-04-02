@@ -1,48 +1,59 @@
 param baseName string
 param location string
-param modelName string = 'gpt-4o'
-param modelFormat string = 'OpenAI'
-param modelVersion string = '2024-05-13'
-param accountSkuName string = 'S0'
-param deploymentName string = 'gpt-4o'
-param deploymentSkuName string = 'Standard'
-param deploymentCapacity int = 1
 
-var normalizedBase = toLower(replace(replace(baseName, '-', ''), '_', ''))
-var locationTag = toLower(replace(location, ' ', ''))
-var uniqueFragment = toLower(substring(uniqueString(resourceGroup().id, location), 0, 6))
-var accountName = '${normalizedBase}${locationTag}${uniqueFragment}'
+var resourcePrefix = toLower(baseName)
 
-resource openAi 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
-  name: accountName
+resource aiHub 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' = {
+  name: '${resourcePrefix}-foundry'
   location: location
-  kind: 'OpenAI'
-  sku: {
-    name: accountSkuName
+  identity: {
+    type: 'SystemAssigned'
   }
+  sku: {
+    name: 'S0'
+  }
+  kind: 'AIServices'
   properties: {
-    customSubDomainName: accountName
+    allowProjectManagement: true
+    customSubDomainName: '${resourcePrefix}-foundry'
     publicNetworkAccess: 'Enabled'
-  }
-}
-
-resource gptDeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = {
-  name: deploymentName
-  parent: openAi
-  sku: {
-    name: deploymentSkuName
-    capacity: deploymentCapacity
-  }
-  properties: {
-    model: {
-      format: modelFormat
-      name: modelName
-      version: modelVersion
+    disableLocalAuth: true
+    networkAcls: {
+      defaultAction: 'Allow'
     }
   }
 }
 
-output accountName string = openAi.name
-output endpoint string = openAi.properties.endpoint
-output deploymentName string = gptDeployment.name
+resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
+  parent: aiHub
+  name: '${resourcePrefix}-project'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {}
+}
+
+resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
+  parent: aiHub
+  name: 'gpt-4o'
+  sku: {
+    name: 'GlobalStandard'
+    capacity: 100
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-4o'
+      version: '2024-11-20'
+    }
+    versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
+    raiPolicyName: 'Microsoft.DefaultV2'
+  }
+}
+
+output accountName string = aiHub.name
+output endpoint string = aiHub.properties.endpoint
+output deploymentName string = gpt4oDeployment.name
+output projectName string = aiProject.name
 output location string = location
