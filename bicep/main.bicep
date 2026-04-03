@@ -33,8 +33,10 @@ var keyVaultName = '${baseName}-kv'
 var storageAccountName = '${baseName}st'
 var appInsightsName = '${baseName}-appi'
 var logAnalyticsWorkspaceName = '${baseName}-log'
-var webAppName = '${baseName}-app'
-var appServicePlanName = '${baseName}-asp'
+var webAppHackName = '${baseName}-app'
+var webAppHackPlanName = '${baseName}-asp'
+var webAppBuilderName = '${baseName}-builder'
+var webAppBuilderPlanName = '${baseName}-builder-asp'
 var staticWebAppName = '${baseName}-swa'
 var sqlServerName = '${baseName}-sql'
 
@@ -46,7 +48,7 @@ module azureFoundry 'modules/foundry.bicep' = [for foundryLocation in foundryLoc
     tags: commonTags
     deployImage: foundryLocation.image
     gpt4oQuota: foundryLocation.gpt4oQuota
-    webAppPrincipalId: webApp.outputs.principalId
+    webAppPrincipalId: webAppHack.outputs.principalId
     userObjectId: userObjectId // danielfang@MngEnvMCAP951655.onmicrosoft.com
   }
 }]
@@ -87,18 +89,28 @@ module sqlServer 'modules/sqlserver.bicep' = {
   }
 }
 
-module webApp 'modules/webapp.bicep' = {
-  name: 'webAppDeployment'
+module webAppHack 'modules/webapp.bicep' = {
+  name: 'webAppHackDeployment'
   params: {
-    name: webAppName
+    name: webAppHackName
     location: location
-    appServicePlanName: appServicePlanName
+    appServicePlanName: webAppHackPlanName
     appInsightsConnectionString: appInsights.outputs.connectionString
     azureAIFoundryEndpoint: azureAIFoundryEndpoint
     azureAIFoundryDeployment: azureAIFoundryDeployment
     azureAIFoundryDalleDeployment: azureAIFoundryDalleDeployment
     azureAIFoundryTenantId: azureAIFoundryTenantId
     sqlConnectionString: sqlServer.outputs.connectionString
+  }
+}
+
+module webAppBuilder 'modules/webapp-builder.bicep' = {
+  name: 'webAppBuilderDeployment'
+  params: {
+    name: webAppBuilderName
+    location: location
+    appServicePlanName: webAppBuilderPlanName
+    appInsightsConnectionString: appInsights.outputs.connectionString
   }
 }
 

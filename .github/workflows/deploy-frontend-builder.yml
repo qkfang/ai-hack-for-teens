@@ -1,0 +1,44 @@
+name: Deploy Web Builder
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/webbuilder/**"
+  workflow_dispatch:
+
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: src/webbuilder
+        run: npm ci --legacy-peer-deps
+
+      - name: Create .env file
+        working-directory: src/webbuilder
+        run: |
+          cp .env.sample .env
+          sed -i 's|^GH_TOKEN=.*|GH_TOKEN=${{ secrets.GH_TOKEN }}|' .env
+
+      - name: Build
+        working-directory: src/webbuilder
+        run: npm run build
+
+      - name: Deploy to Azure Static Web Apps
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BUILDER }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          skip_app_build: true
+          app_location: "src/webbuilder/.next/standalone"
+          output_location: ""

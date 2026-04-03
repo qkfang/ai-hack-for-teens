@@ -28,6 +28,7 @@ jobs:
         run: |
           cp .env.example .env
           sed -i 's|^VITE_API_BASE_URL=.*|VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}|' .env
+          sed -i 's|^VITE_WEBBUILDER_URL=.*|VITE_WEBBUILDER_URL=${{ vars.VITE_WEBBUILDER_URL }}|' .env
 
       - name: Build playground
         working-directory: src/playground
