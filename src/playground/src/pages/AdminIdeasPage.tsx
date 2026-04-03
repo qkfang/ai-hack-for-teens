@@ -13,14 +13,27 @@ interface Idea {
 export function AdminIdeasPage() {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
 
-  useEffect(() => {
+  function loadIdeas() {
     fetch(`${API_BASE}/api/ideas`)
       .then(r => r.json())
       .then(data => setIdeas(data))
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { loadIdeas() }, [])
+
+  async function handleDelete(id: number) {
+    if (!window.confirm('Delete this idea?')) return
+    setDeletingId(id)
+    try {
+      await fetch(`${API_BASE}/api/ideas/${id}`, { method: 'DELETE' })
+      setIdeas(prev => prev.filter(i => i.id !== id))
+    } catch { /* ignore */ }
+    setDeletingId(null)
+  }
 
   return (
     <div className="admin-page">
@@ -39,6 +52,7 @@ export function AdminIdeasPage() {
                 <th>User ID</th>
                 <th>Published</th>
                 <th>Created</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -49,6 +63,15 @@ export function AdminIdeasPage() {
                   <td>{idea.userId}</td>
                   <td>{idea.isPublished ? '✅' : '—'}</td>
                   <td>{new Date(idea.createdAt).toLocaleString()}</td>
+                  <td>
+                    <button
+                      className="admin-delete-btn"
+                      onClick={() => handleDelete(idea.id)}
+                      disabled={deletingId === idea.id}
+                    >
+                      {deletingId === idea.id ? '⏳' : '🗑️'}
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

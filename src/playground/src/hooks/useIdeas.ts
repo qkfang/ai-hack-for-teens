@@ -104,5 +104,15 @@ export function useIdeas(userId: number | undefined) {
     } catch { return false }
   }, [userId, refresh])
 
-  return { ideas, loaded, createIdea, updateIdea, publishIdea, unpublishIdea, refresh }
+  const deleteIdea = useCallback(async (id: number): Promise<boolean> => {
+    if (!userId) return false
+    try {
+      const res = await fetch(`${API_BASE}/api/ideas/${id}`, { method: 'DELETE' })
+      if (!res.ok) return false
+      await refresh()
+      return true
+    } catch { return false }
+  }, [userId, refresh])
+
+  return { ideas, loaded, createIdea, updateIdea, publishIdea, unpublishIdea, deleteIdea, refresh }
 }

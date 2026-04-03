@@ -256,3 +256,20 @@
   color: #107c10;
   border-color: #a8d5b0;
 }
+
+.idea-delete-btn {
+  background: #fff0f0;
+  border-color: #f0a0a0;
+  color: #c00;
+}
+
+.idea-delete-btn:hover {
+  background: #c00;
+  color: white;
+  border-color: #c00;
+}
+
+.idea-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
