@@ -12,6 +12,7 @@ export function Layout() {
   const location = useLocation()
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | 'quiz' | null>(null)
   const [isMaxLayout, setIsMaxLayout] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const genAiPaths = ['/chat', '/translation', '/speech', '/realtime']
   const startupPaths = ['/ideas', '/typewriter', '/comic', '/agent']
   const quizPaths = ['/quiz', '/leaderboard']
@@ -23,6 +24,7 @@ export function Layout() {
   const startupVisible = config.startup.ideas || config.startup.storybook || config.startup.comic || config.startup.agent || config.startup.webbuilder
 
   function handleLogout() {
+    if (!window.confirm('Are you sure you want to log out?')) return
     logout()
     navigate('/login')
   }
@@ -206,13 +208,21 @@ export function Layout() {
             )}
           </nav>
           {user && (
-            <div className="header-user">
+            <div
+              className="header-user"
+              onMouseEnter={() => setShowUserMenu(true)}
+              onMouseLeave={() => setShowUserMenu(false)}
+            >
               <span className="user-avatar">{(user.username[0] ?? '?').toUpperCase()}</span>
               <span className="user-name">{user.username}</span>
-              <span className="user-id">#{user.id}</span>
-              <button className="logout-btn" onClick={handleLogout} title="Log out">
-                ↩
-              </button>
+              {showUserMenu && (
+                <div className="user-dropdown">
+                  <div className="user-dropdown-id">User ID: #{user.id}</div>
+                  <button className="user-dropdown-logout" onClick={handleLogout}>
+                    ↩ Log out
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </header>
