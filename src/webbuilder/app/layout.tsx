@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Hack for Teens – Web Builder",
+  title: "AI Hack Studio – Web Builder",
   description: "Build your million-dollar AI startup website with GitHub Copilot",
 };
 
