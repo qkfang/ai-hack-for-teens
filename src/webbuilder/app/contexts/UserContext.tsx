@@ -36,26 +36,25 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const urlUserName = params.get("userName");
 
         if (urlUserId) {
-          // Try to load the user from URL params
+          // Try to load the user by the URL-provided id
           const response = await fetch(`/api/user?userId=${encodeURIComponent(urlUserId)}`);
           if (response.ok) {
             const data = await response.json();
             setUser(data.user);
             localStorage.setItem(USER_STORAGE_KEY, data.user.id);
             setIsLockedUser(true);
-          } else if (urlUserName) {
-            // User not found — create them with the provided name
+          } else {
+            // User not found — create them with the URL-provided id and name
+            const name = urlUserName || urlUserId;
             const createRes = await fetch("/api/user", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name: urlUserName }),
+              body: JSON.stringify({ name, userId: urlUserId }),
             });
             const createData = await createRes.json();
             setUser(createData.user);
             localStorage.setItem(USER_STORAGE_KEY, createData.user.id);
             setIsLockedUser(true);
-          } else {
-            await createDefaultUser();
           }
         } else {
           const savedUserId = localStorage.getItem(USER_STORAGE_KEY);

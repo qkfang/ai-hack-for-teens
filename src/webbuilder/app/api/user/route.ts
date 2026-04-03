@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name } = body;
+    const { name, userId } = body;
 
     if (!name || typeof name !== "string") {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    const user = await storage.createUser(name.trim());
+    const user = await storage.createUser(name.trim(), userId);
     return NextResponse.json({ user }, { status: 201 });
   } catch (error) {
     console.error("Failed to create user:", error);

@@ -23,7 +23,7 @@ export interface UserData {
 
 export interface StorageProvider {
   getUser(userId: string): Promise<UserData | null>;
-  createUser(name: string): Promise<UserData>;
+  createUser(name: string, userId?: string): Promise<UserData>;
   updateUser(userId: string, updates: Partial<UserData>): Promise<UserData>;
   listUsers(): Promise<UserData[]>;
   getCodeBundle(userId: string): Promise<CodeBundle | null>;
@@ -80,10 +80,10 @@ export class FileSystemStorageProvider implements StorageProvider {
     return users?.find((u) => u.id === userId) || null;
   }
 
-  async createUser(name: string): Promise<UserData> {
+  async createUser(name: string, userId?: string): Promise<UserData> {
     const users = (await this.readJsonFile<UserData[]>(this.usersFile)) || [];
     const newUser: UserData = {
-      id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id: userId || `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       name,
       createdAt: new Date().toISOString(),
     };
@@ -319,10 +319,10 @@ export class BlobStorageProvider implements StorageProvider {
     return users?.find((u) => u.id === userId) || null;
   }
 
-  async createUser(name: string): Promise<UserData> {
+  async createUser(name: string, userId?: string): Promise<UserData> {
     const users = (await this.readBlob<UserData[]>("meta/users.json")) || [];
     const newUser: UserData = {
-      id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id: userId || `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       name,
       createdAt: new Date().toISOString(),
     };
