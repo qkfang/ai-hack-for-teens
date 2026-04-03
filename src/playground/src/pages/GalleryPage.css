@@ -666,3 +666,42 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Vote button */
+.gallery-vote-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #555;
+  border: none;
+  border-radius: 100px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+  z-index: 1;
+}
+
+.gallery-vote-btn:hover:not(:disabled) {
+  background: #ffe4e8;
+  color: #e53e3e;
+}
+
+.gallery-vote-btn--voted {
+  background: #e53e3e;
+  color: white;
+}
+
+.gallery-vote-btn--voted:hover:not(:disabled) {
+  background: #c53030;
+  color: white;
+}
+
+.gallery-vote-btn--own,
+.gallery-vote-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

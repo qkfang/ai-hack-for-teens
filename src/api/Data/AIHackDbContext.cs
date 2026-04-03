@@ -12,6 +12,7 @@ public class AIHackDbContext : DbContext
     public DbSet<Comic> Comics => Set<Comic>();
     public DbSet<Story> Stories => Set<Story>();
     public DbSet<StartupIdea> StartupIdeas => Set<StartupIdea>();
+    public DbSet<IdeaVote> IdeaVotes => Set<IdeaVote>();
     public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -42,5 +43,17 @@ public class AIHackDbContext : DbContext
         modelBuilder.Entity<StartupIdea>().Property(x => x.ProblemStatement).HasColumnType("nvarchar(max)");
         modelBuilder.Entity<StartupIdea>().Property(x => x.AgentSystemPrompt).HasColumnType("nvarchar(max)");
         modelBuilder.Entity<StartupIdea>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
+
+        modelBuilder.Entity<IdeaVote>().HasKey(v => new { v.IdeaId, v.UserId });
+        modelBuilder.Entity<IdeaVote>()
+            .HasOne(v => v.Idea)
+            .WithMany()
+            .HasForeignKey(v => v.IdeaId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<IdeaVote>()
+            .HasOne(v => v.User)
+            .WithMany()
+            .HasForeignKey(v => v.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -41,6 +41,8 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
                     isPublished = i.IsPublished,
                     createdAt = i.CreatedAt,
                     updatedAt = i.UpdatedAt,
+                    votes = db.IdeaVotes.Count(v => v.IdeaId == i.Id),
+                    voters = db.IdeaVotes.Where(v => v.IdeaId == i.Id).Select(v => v.UserId).ToList(),
                 })
                 .ToListAsync();
             cache.Set("ideas:all", cached, DbCacheDuration);
@@ -76,6 +78,8 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
                 isPublished = i.IsPublished,
                 createdAt = i.CreatedAt,
                 updatedAt = i.UpdatedAt,
+                votes = await db.IdeaVotes.CountAsync(v => v.IdeaId == id),
+                voters = await db.IdeaVotes.Where(v => v.IdeaId == id).Select(v => v.UserId).ToListAsync(),
             };
             cache.Set(cacheKey, cached, DbCacheDuration);
         }
@@ -176,6 +180,33 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
         cache.Remove($"ideas:{id}");
         return Ok(new { id = idea.Id, isPublished = idea.IsPublished });
     }
+
+    [HttpPost("{id:int}/vote")]
+    public async Task<IActionResult> Vote(int id, [FromBody] VoteRequest request)
+    {
+        if (!await db.StartupIdeas.AnyAsync(i => i.Id == id))
+            return NotFound(new { error = "Idea not found" });
+        if (!await db.AppUsers.AnyAsync(u => u.Id == request.UserId))
+            return NotFound(new { error = "User not found" });
+
+        var existing = await db.IdeaVotes.FindAsync(id, request.UserId);
+        bool voted;
+        if (existing != null)
+        {
+            db.IdeaVotes.Remove(existing);
+            voted = false;
+        }
+        else
+        {
+            db.IdeaVotes.Add(new IdeaVote { IdeaId = id, UserId = request.UserId });
+            voted = true;
+        }
+        await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
+        cache.Remove($"ideas:{id}");
+        var votes = await db.IdeaVotes.CountAsync(v => v.IdeaId == id);
+        return Ok(new { voted, votes });
+    }
 }
 
 public record IdeaRequest(
@@ -192,3 +223,5 @@ public record IdeaRequest(
     string? AgentModel,
     double? AgentTemperature,
     string? WebsiteUrl);
+
+public record VoteRequest(int UserId);

@@ -24,6 +24,8 @@ interface StartupIdeaEntry {
   isPublished?: boolean
   createdAt: string
   updatedAt: string
+  votes: number
+  voters: number[]
 }
 
 interface IdeaForm {
@@ -59,7 +61,8 @@ export function GalleryPage() {
   const [ideaForm, setIdeaForm] = useState<IdeaForm>(emptyForm())
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
-  const [sort, setSort] = useState<'latest' | 'oldest'>('latest')
+  const [sort, setSort] = useState<'latest' | 'oldest' | 'most-voted'>('latest')
+  const [votingId, setVotingId] = useState<number | null>(null)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -95,6 +98,33 @@ export function GalleryPage() {
   const importLastImage = () => {
     const url = localStorage.getItem('storybook_cover_url')
     if (url) setIdeaForm(f => ({ ...f, coverImageUrl: url }))
+  }
+
+  const handleVote = async (e: React.MouseEvent, ideaId: number) => {
+    e.stopPropagation()
+    if (!user || votingId !== null) return
+    setVotingId(ideaId)
+    try {
+      const res = await fetch(`${API_BASE}/api/ideas/${ideaId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setIdeas(prev => prev.map(idea => {
+          if (idea.id !== ideaId) return idea
+          const newVoters = data.voted
+            ? [...idea.voters, user.id]
+            : idea.voters.filter(v => v !== user.id)
+          return { ...idea, voters: newVoters, votes: data.votes }
+        }))
+      }
+    } catch (err) {
+      console.error('Failed to vote:', err)
+    } finally {
+      setVotingId(null)
+    }
   }
 
   const saveIdea = async () => {
@@ -145,10 +175,11 @@ export function GalleryPage() {
 
   const publishedIdeas = ideas
     .filter(i => i.isPublished)
-    .sort((a, b) => sort === 'latest'
-      ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    )
+    .sort((a, b) => {
+      if (sort === 'most-voted') return b.votes - a.votes
+      if (sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
 
   return (
     <div className="gallery-page">
@@ -160,11 +191,12 @@ export function GalleryPage() {
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <select
             value={sort}
-            onChange={e => setSort(e.target.value as 'latest' | 'oldest')}
+            onChange={e => setSort(e.target.value as 'latest' | 'oldest' | 'most-voted')}
             className="gallery-sort-select"
           >
             <option value="latest">Latest</option>
             <option value="oldest">Oldest</option>
+            <option value="most-voted">Most Voted</option>
           </select>
           <button className="gallery-refresh-btn" onClick={fetchAll} disabled={loading}>
             {loading ? '⏳' : '🔄'} Refresh
@@ -187,7 +219,14 @@ export function GalleryPage() {
           <h2 className="gallery-section-title">💡 What do you think about these ideas?</h2>
           <div className="gallery-grid">
             {publishedIdeas.map(idea => (
-              <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />
+              <IdeaCard
+                key={idea.id}
+                idea={idea}
+                currentUserId={user?.id}
+                isVoting={votingId === idea.id}
+                onVote={handleVote}
+                onClick={() => setSelectedIdea(idea)}
+              />
             ))}
           </div>
         </section>
@@ -368,7 +407,21 @@ export function GalleryPage() {
   )
 }
 
-function IdeaCard({ idea, onClick }: { idea: StartupIdeaEntry; onClick: () => void }) {
+function IdeaCard({
+  idea,
+  currentUserId,
+  isVoting,
+  onVote,
+  onClick,
+}: {
+  idea: StartupIdeaEntry
+  currentUserId?: number
+  isVoting: boolean
+  onVote: (e: React.MouseEvent, ideaId: number) => void
+  onClick: () => void
+}) {
+  const isOwn = currentUserId === idea.userId
+  const hasVoted = currentUserId != null && idea.voters.includes(currentUserId)
   return (
     <div className="gallery-card gallery-card--idea" onClick={onClick}>
       <div className="gallery-idea-card-cover">
@@ -384,6 +437,14 @@ function IdeaCard({ idea, onClick }: { idea: StartupIdeaEntry; onClick: () => vo
           {idea.agentName && <span className="gallery-idea-badge">🤖 Agent</span>}
           {idea.websiteUrl && <span className="gallery-idea-badge">🌐 Web</span>}
         </div>
+        <button
+          className={`gallery-vote-btn${hasVoted ? ' gallery-vote-btn--voted' : ''}${isOwn ? ' gallery-vote-btn--own' : ''}`}
+          onClick={e => onVote(e, idea.id)}
+          disabled={isOwn || isVoting || currentUserId == null}
+          title={isOwn ? "Can't vote for your own idea" : hasVoted ? 'Remove vote' : 'Vote for this idea'}
+        >
+          ♥ {idea.votes}
+        </button>
       </div>
       <div className="gallery-card-body">
         <div className="gallery-card-author">
