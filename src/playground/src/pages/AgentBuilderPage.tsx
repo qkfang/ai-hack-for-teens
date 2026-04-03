@@ -564,19 +564,7 @@ export function AgentBuilderPage() {
             {/* Identity */}
             <section className="ab-card">
               <div className="ab-card-title-row">
-                <h3 className="ab-card-title">🤖 Agent Identity</h3>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button className="ab-btn ab-btn-ghost ab-btn-sm" onClick={handleReset} title="Reset to defaults">
-                    ↺ Reset
-                  </button>
-                  <button
-                    className={`ab-btn ab-btn-sm ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
-                    onClick={handleSave}
-                  >
-                    {saveState === 'saved' ? '✓ Saved' : '💾 Save'}
-                  </button>
-                </div>
-              </div>
+                <h3 className="ab-card-title">🤖 Agent Name</h3>
               {currentIdea ? (
                 <span style={{ fontSize: '0.9rem', color: '#107c10', background: '#e6f4ea', border: '1px solid #a8d5b0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block', marginBottom: '0.5rem' }}>
                   💡 Working on: <strong>{currentIdea.title}</strong>
@@ -586,6 +574,7 @@ export function AgentBuilderPage() {
                   No idea selected — go to <a href="/ideas" style={{ color: '#0078d4' }}>Your Ideas</a> to pick one.
                 </span>
               )}
+              </div>
               <div className="ab-form-group">
                 <label className="ab-label">Agent Name</label>
                 <input
@@ -619,11 +608,14 @@ export function AgentBuilderPage() {
                   >
                     Templates ▾
                   </button>
+                  <button className="ab-btn ab-btn-ghost ab-btn-sm" onClick={handleReset} title="Reset to defaults">
+                    ↺ Reset
+                  </button>
                   <button
-                    className="ab-btn ab-btn-ghost ab-btn-sm"
-                    onClick={() => updateConfig({ systemPrompt: '' })}
+                    className={`ab-btn ab-btn-sm ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
+                    onClick={handleSave}
                   >
-                    Clear
+                    {saveState === 'saved' ? '✓ Saved' : '💾 Save'}
                   </button>
                 </div>
               </div>
