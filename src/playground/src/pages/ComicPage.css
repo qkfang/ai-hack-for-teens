@@ -379,3 +379,34 @@
   font-size: 0.9rem;
   margin-bottom: 8px;
 }
+
+/* Tabs */
+.comic-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.comic-tab {
+  padding: 0.65rem 1.5rem;
+  border: 2px solid #e0e6ed;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.comic-tab:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
+.comic-tab.active {
+  background: linear-gradient(135deg, #0078d4, #00b4ff);
+  color: white;
+  border-color: transparent;
+}
