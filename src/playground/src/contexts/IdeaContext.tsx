@@ -10,21 +10,30 @@ const IdeaContext = createContext<IdeaContextValue>({
   setSelectedIdeaId: () => {},
 })
 
-const STORAGE_KEY = 'selected-idea-id'
+const COOKIE_NAME = 'selected-idea-id'
+
+function getCookieIdeaId(): number | null {
+  const match = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_NAME}=`))
+  if (!match) return null
+  const val = match.split('=')[1]
+  const num = Number(val)
+  return isNaN(num) ? null : num
+}
+
+function setCookieIdeaId(id: number | null) {
+  if (id === null) {
+    document.cookie = `${COOKIE_NAME}=; path=/; max-age=0`
+  } else {
+    document.cookie = `${COOKIE_NAME}=${id}; path=/; max-age=2592000; SameSite=Lax`
+  }
+}
 
 export function IdeaProvider({ children }: { children: React.ReactNode }) {
-  const [selectedIdeaId, setSelectedIdeaIdState] = useState<number | null>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    return stored ? Number(stored) : null
-  })
+  const [selectedIdeaId, setSelectedIdeaIdState] = useState<number | null>(() => getCookieIdeaId())
 
   function setSelectedIdeaId(id: number | null) {
     setSelectedIdeaIdState(id)
-    if (id === null) {
-      localStorage.removeItem(STORAGE_KEY)
-    } else {
-      localStorage.setItem(STORAGE_KEY, String(id))
-    }
+    setCookieIdeaId(id)
   }
 
   return (
