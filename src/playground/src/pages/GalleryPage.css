@@ -111,6 +111,45 @@
   margin: 0 0 0.5rem;
 }
 
+/* Pagination */
+.gallery-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem 0 0.5rem;
+}
+
+.gallery-page-btn {
+  padding: 0.45rem 1.1rem;
+  background: white;
+  border: 2px solid #0078d4;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #0078d4;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gallery-page-btn:hover:not(:disabled) {
+  background: #0078d4;
+  color: white;
+}
+
+.gallery-page-btn:disabled {
+  border-color: #d0d0d0;
+  color: #aaa;
+  cursor: default;
+}
+
+.gallery-page-info {
+  font-size: 0.9rem;
+  color: #555;
+  min-width: 100px;
+  text-align: center;
+}
+
 /* Sections */
 .gallery-section {
   margin-bottom: 3rem;

@@ -62,8 +62,9 @@ export function GalleryPage() {
   const [ideaForm, setIdeaForm] = useState<IdeaForm>(emptyForm())
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
-  const [sort, setSort] = useState<'latest' | 'oldest' | 'most-voted'>('latest')
+  const [sort, setSort] = useState<'latest' | 'oldest' | 'most-voted' | 'my-ideas'>('latest')
   const [votingId, setVotingId] = useState<number | null>(null)
+  const [page, setPage] = useState(1)
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
@@ -174,13 +175,18 @@ export function GalleryPage() {
     })
   }
 
+  const PAGE_SIZE = 15
+
   const publishedIdeas = ideas
-    .filter(i => i.isPublished)
+    .filter(i => i.isPublished && (sort !== 'my-ideas' || i.userId === user?.id))
     .sort((a, b) => {
       if (sort === 'most-voted') return b.votes - a.votes
       if (sort === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     })
+
+  const totalPages = Math.ceil(publishedIdeas.length / PAGE_SIZE)
+  const pagedIdeas = publishedIdeas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   return (
     <div className="gallery-page">
@@ -192,12 +198,13 @@ export function GalleryPage() {
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <select
             value={sort}
-            onChange={e => setSort(e.target.value as 'latest' | 'oldest' | 'most-voted')}
+            onChange={e => { setSort(e.target.value as 'latest' | 'oldest' | 'most-voted' | 'my-ideas'); setPage(1) }}
             className="gallery-sort-select"
           >
             <option value="latest">Latest</option>
             <option value="oldest">Oldest</option>
             <option value="most-voted">Most Voted</option>
+            <option value="my-ideas">My Ideas Only</option>
           </select>
           <button className="gallery-refresh-btn" onClick={fetchAll} disabled={loading}>
             {loading ? '⏳' : '🔄'} Refresh
@@ -219,7 +226,7 @@ export function GalleryPage() {
         <section className="gallery-section">
           <h2 className="gallery-section-title">💡 What do you think about these ideas?</h2>
           <div className="gallery-grid">
-            {publishedIdeas.map(idea => (
+            {pagedIdeas.map(idea => (
               <IdeaCard
                 key={idea.id}
                 idea={idea}
@@ -230,6 +237,21 @@ export function GalleryPage() {
               />
             ))}
           </div>
+          {totalPages > 1 && (
+            <div className="gallery-pagination">
+              <button
+                className="gallery-page-btn"
+                onClick={() => setPage(p => p - 1)}
+                disabled={page === 1}
+              >← Prev</button>
+              <span className="gallery-page-info">Page {page} of {totalPages}</span>
+              <button
+                className="gallery-page-btn"
+                onClick={() => setPage(p => p + 1)}
+                disabled={page === totalPages}
+              >Next →</button>
+            </div>
+          )}
         </section>
       )}
 
