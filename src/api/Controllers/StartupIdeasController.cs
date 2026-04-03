@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using api.Data;
 using api.Models;
 
@@ -7,15 +8,54 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/ideas")]
-public class StartupIdeasController(AIHackDbContext db) : ControllerBase
+public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
 {
+    private static readonly TimeSpan DbCacheDuration = TimeSpan.FromMinutes(5);
+
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var ideas = await db.StartupIdeas
-            .Include(i => i.User)
-            .OrderByDescending(i => i.CreatedAt)
-            .Select(i => new
+        if (!cache.TryGetValue("ideas:all", out object? cached))
+        {
+            cached = await db.StartupIdeas
+                .Include(i => i.User)
+                .OrderByDescending(i => i.CreatedAt)
+                .Select(i => new
+                {
+                    id = i.Id,
+                    userId = i.UserId,
+                    username = i.User.Username,
+                    title = i.Title,
+                    ideaDescription = i.IdeaDescription,
+                    problemStatement = i.ProblemStatement,
+                    targetAudience = i.TargetAudience,
+                    businessModel = i.BusinessModel,
+                    coverImageUrl = i.CoverImageUrl,
+                    coverImagePrompt = i.CoverImagePrompt,
+                    agentName = i.AgentName,
+                    agentSystemPrompt = i.AgentSystemPrompt,
+                    agentModel = i.AgentModel,
+                    agentTemperature = i.AgentTemperature,
+                    websiteUrl = i.WebsiteUrl,
+                    isPublished = i.IsPublished,
+                    createdAt = i.CreatedAt,
+                    updatedAt = i.UpdatedAt,
+                })
+                .ToListAsync();
+            cache.Set("ideas:all", cached, DbCacheDuration);
+        }
+        return Ok(cached);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> Get(int id)
+    {
+        var cacheKey = $"ideas:{id}";
+        if (!cache.TryGetValue(cacheKey, out object? cached))
+        {
+            var i = await db.StartupIdeas.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+            if (i == null) return NotFound(new { error = "Idea not found" });
+            cached = new
             {
                 id = i.Id,
                 userId = i.UserId,
@@ -35,37 +75,10 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
                 isPublished = i.IsPublished,
                 createdAt = i.CreatedAt,
                 updatedAt = i.UpdatedAt,
-            })
-            .ToListAsync();
-        return Ok(ideas);
-    }
-
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
-    {
-        var i = await db.StartupIdeas.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
-        if (i == null) return NotFound(new { error = "Idea not found" });
-        return Ok(new
-        {
-            id = i.Id,
-            userId = i.UserId,
-            username = i.User.Username,
-            title = i.Title,
-            ideaDescription = i.IdeaDescription,
-            problemStatement = i.ProblemStatement,
-            targetAudience = i.TargetAudience,
-            businessModel = i.BusinessModel,
-            coverImageUrl = i.CoverImageUrl,
-            coverImagePrompt = i.CoverImagePrompt,
-            agentName = i.AgentName,
-            agentSystemPrompt = i.AgentSystemPrompt,
-            agentModel = i.AgentModel,
-            agentTemperature = i.AgentTemperature,
-            websiteUrl = i.WebsiteUrl,
-            isPublished = i.IsPublished,
-            createdAt = i.CreatedAt,
-            updatedAt = i.UpdatedAt,
-        });
+            };
+            cache.Set(cacheKey, cached, DbCacheDuration);
+        }
+        return Ok(cached);
     }
 
     [HttpPost]
@@ -94,6 +107,7 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         };
         db.StartupIdeas.Add(idea);
         await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
         return StatusCode(201, new { id = idea.Id });
     }
 
@@ -119,6 +133,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         idea.WebsiteUrl = request.WebsiteUrl;
         idea.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
+        cache.Remove($"ideas:{id}");
         return Ok(new { id = idea.Id });
     }
 
@@ -129,6 +145,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         if (idea == null) return NotFound(new { error = "Idea not found" });
         db.StartupIdeas.Remove(idea);
         await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
+        cache.Remove($"ideas:{id}");
         return NoContent();
     }
 
@@ -140,6 +158,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         idea.IsPublished = true;
         idea.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
+        cache.Remove($"ideas:{id}");
         return Ok(new { id = idea.Id, isPublished = idea.IsPublished });
     }
 
@@ -151,6 +171,8 @@ public class StartupIdeasController(AIHackDbContext db) : ControllerBase
         idea.IsPublished = false;
         idea.UpdatedAt = DateTime.UtcNow;
         await db.SaveChangesAsync();
+        cache.Remove("ideas:all");
+        cache.Remove($"ideas:{id}");
         return Ok(new { id = idea.Id, isPublished = idea.IsPublished });
     }
 }
