@@ -85,7 +85,7 @@ export default function GalleryPage() {
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-1.5">
           <div className="flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-gray-900 dark:text-white">Design Gallery</h1>
+            <h1 className="text-sm font-semibold text-gray-900 dark:text-white">Idea Spark - Web Builder Gallery</h1>
             <Link
               href="/"
               className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
