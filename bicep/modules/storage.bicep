@@ -76,6 +76,38 @@ resource roleAssignmentUser 'Microsoft.Authorization/roleAssignments@2022-04-01'
   }
 }
 
+var storageBlobDataReaderRoleId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
+
+resource roleAssignmentReader 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppPrincipalId)) {
+  name: guid(storageAccount.id, webAppPrincipalId, storageBlobDataReaderRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataReaderRoleId)
+    principalId: webAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignmentReaderBuilder 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppBuilderPrincipalId)) {
+  name: guid(storageAccount.id, webAppBuilderPrincipalId, storageBlobDataReaderRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataReaderRoleId)
+    principalId: webAppBuilderPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignmentReaderUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
+  name: guid(storageAccount.id, userObjectId, storageBlobDataReaderRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataReaderRoleId)
+    principalId: userObjectId
+    principalType: 'User'
+  }
+}
+
 output id string = storageAccount.id
 output name string = storageAccount.name
 output primaryEndpoints object = storageAccount.properties.primaryEndpoints
