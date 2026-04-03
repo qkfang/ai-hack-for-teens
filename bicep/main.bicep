@@ -89,7 +89,7 @@ module sqlServer 'modules/sqlserver.bicep' = {
   }
 }
 
-module webAppHack 'modules/webapp.bicep' = {
+module webAppHack 'modules/webapp-hack.bicep' = {
   name: 'webAppHackDeployment'
   params: {
     name: webAppHackName

@@ -42,6 +42,10 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
           value: '~3'
         }
+        // {
+        //   name: 'GH_TOKEN'
+        //   value: ''
+        // }
       ]
     }
   }
