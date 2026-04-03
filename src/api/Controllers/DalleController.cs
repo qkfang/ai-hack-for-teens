@@ -11,7 +11,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/dalle")]
-public class DalleController(AIHackDbContext db, IConfiguration config, AzureKeyPoolService keyPool) : ControllerBase
+public class DalleController(AIHackDbContext db, IConfiguration config, AzureKeyPoolService keyPool, BlobStorageService blobStorage, IHttpClientFactory httpClientFactory, ILogger<DalleController> logger) : ControllerBase
 {
     private ImageClient CreateImageClient(FoundryEntry entry)
     {
@@ -89,6 +89,8 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
             if (string.IsNullOrEmpty(imageUrl))
                 return StatusCode(500, new { error = "DALL-E did not return an image. Please check your API configuration or try again later." });
 
+            imageUrl = await UploadToBlobAsync(imageUrl, imageBytes: result.Value.ImageBytes?.ToArray());
+
             if (request.UserId.HasValue)
             {
                 db.Comics.Add(new Comic { UserId = request.UserId.Value, Description = description, ImageUrl = imageUrl });
@@ -155,6 +157,14 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
             if (string.IsNullOrEmpty(imageUrl))
                 return StatusCode(500, new { error = "Image edit did not return a result." });
 
+            imageUrl = await UploadToBlobAsync(imageUrl, imageBytes: result.Value.ImageBytes?.ToArray());
+
+            if (request.UserId.HasValue)
+            {
+                db.Comics.Add(new Comic { UserId = request.UserId.Value, Description = $"Edit: {prompt}", ImageUrl = imageUrl });
+                await db.SaveChangesAsync();
+            }
+
             return Ok(new { imageUrl });
         }
         catch (RequestFailedException ex) when (ex.Status == 429)
@@ -168,8 +178,38 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
             return StatusCode(500, new { error = ex.Message });
         }
     }
+
+    private async Task<string> UploadToBlobAsync(string imageUrl, byte[]? imageBytes)
+    {
+        try
+        {
+            byte[] bytes;
+            if (imageBytes is not null)
+            {
+                bytes = imageBytes;
+            }
+            else if (imageUrl.StartsWith("data:"))
+            {
+                var base64 = imageUrl[(imageUrl.IndexOf(',') + 1)..];
+                bytes = Convert.FromBase64String(base64);
+            }
+            else
+            {
+                using var http = httpClientFactory.CreateClient();
+                bytes = await http.GetByteArrayAsync(imageUrl);
+            }
+
+            var fileName = $"{Guid.NewGuid()}.png";
+            return await blobStorage.UploadImageAsync(bytes, fileName);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to upload image to blob storage, falling back to original URL.");
+            return imageUrl;
+        }
+    }
 }
 
 public record DalleRequest(string? Description, int? UserId);
-public record DalleEditRequest(string? ImageUrl, string? Prompt);
+public record DalleEditRequest(string? ImageUrl, string? Prompt, int? UserId);
 

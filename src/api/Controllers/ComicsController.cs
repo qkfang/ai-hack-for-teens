@@ -18,4 +18,15 @@ public class ComicsController(AIHackDbContext db) : ControllerBase
             .ToListAsync();
         return Ok(comics);
     }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetUserComics(int userId)
+    {
+        var comics = await db.Comics
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
+            .ToListAsync();
+        return Ok(comics);
+    }
 }

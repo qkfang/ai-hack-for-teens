@@ -66,6 +66,7 @@ module storageAccount 'modules/storage.bicep' = {
   params: {
     name: storageAccountName
     location: location
+    webAppPrincipalId: webAppHack.outputs.principalId
   }
 }
 
@@ -101,6 +102,7 @@ module webAppHack 'modules/webapp-hack.bicep' = {
     azureAIFoundryDalleDeployment: azureAIFoundryDalleDeployment
     azureAIFoundryTenantId: azureAIFoundryTenantId
     sqlConnectionString: sqlServer.outputs.connectionString
+    storageAccountName: storageAccountName
   }
 }
 

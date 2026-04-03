@@ -43,6 +43,18 @@ export function ComicPage() {
     }
   }, [searchParams, setSelectedIdeaId])
 
+  async function loadComics() {
+    if (!user?.id) return
+    try {
+      const res = await fetch(`${API_BASE}/api/comics/user/${user.id}`)
+      if (res.ok) setComics(await res.json() as ComicItem[])
+    } catch { /* ignore */ }
+  }
+
+  useEffect(() => {
+    loadComics()
+  }, [user?.id])
+
   useEffect(() => {
     if (loaded && !currentIdea) navigate('/ideas')
   }, [loaded, currentIdea, navigate])
@@ -76,13 +88,7 @@ export function ComicPage() {
       if (!res.ok) throw new Error(data.error ?? 'Image generation failed')
       const imageUrl = data.imageUrl ?? ''
       setSelectedImageUrl(imageUrl)
-      const newComic: ComicItem = {
-        id: Date.now(),
-        description: desc,
-        imageUrl,
-        createdAt: new Date().toISOString(),
-      }
-      setComics(prev => [newComic, ...prev])
+      await loadComics()
       setDescription('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -102,7 +108,7 @@ export function ComicPage() {
       const res = await fetch(`${API_BASE}/api/dalle/edit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: selectedImageUrl, prompt }),
+        body: JSON.stringify({ imageUrl: selectedImageUrl, prompt, userId: user?.id }),
       })
       const data = await res.json() as { imageUrl?: string; error?: string; retryAfter?: number }
       if (res.status === 429) {
@@ -113,13 +119,7 @@ export function ComicPage() {
       if (!res.ok) throw new Error(data.error ?? 'Image edit failed')
       const newUrl = data.imageUrl ?? ''
       setSelectedImageUrl(newUrl)
-      const newComic: ComicItem = {
-        id: Date.now(),
-        description: `Edit: ${prompt}`,
-        imageUrl: newUrl,
-        createdAt: new Date().toISOString(),
-      }
-      setComics(prev => [newComic, ...prev])
+      await loadComics()
       setEditPrompt('')
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'Something went wrong')
@@ -279,7 +279,7 @@ export function ComicPage() {
 
       {comics.length > 0 && (
         <div className="comic-history">
-          <h2>📚 Your Comics This Session</h2>
+          <h2>📚 Your Images</h2>
           <div className="comic-grid">
             {comics.map(comic => (
               <div
