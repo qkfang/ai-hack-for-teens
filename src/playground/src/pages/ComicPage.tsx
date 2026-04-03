@@ -159,9 +159,10 @@ export function ComicPage() {
     <div className="comic-page">
       <div className="comic-header">
         <h1>🎨 Design Studio</h1>
-        <p>Describe your scene and DALL-E will bring it to life!</p>
+        <p>Describe your scene and DALL-E will bring it to life! <span>   </span>
         {currentIdea && <p className="comic-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></p>}
         {!currentIdea && <p className="comic-idea-banner comic-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</p>}
+        </p>
       </div>
 
       <div className="comic-tabs">
