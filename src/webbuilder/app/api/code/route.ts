@@ -105,7 +105,7 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || "default";
   const ideaId = searchParams.get("ideaId");
-  const storageKey = getStorageKey(userId, ideaId);
+  const storageKey = `${userId}_${ideaId}`;
   const fileToDelete = searchParams.get("file");
 
   if (fileToDelete) {
