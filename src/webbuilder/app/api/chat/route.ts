@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { CopilotClient, CopilotSession, approveAll } from "@github/copilot-sdk";
 import { writeFile, unlink, readdir } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 import { randomUUID } from "crypto";
+
+export const dynamic = "force-dynamic";
+
+type CopilotClient = import("@github/copilot-sdk").CopilotClient;
+type CopilotSession = import("@github/copilot-sdk").CopilotSession;
+
+async function loadSdk() {
+  return await import("@github/copilot-sdk");
+}
 
 interface ChatMessage {
   role: "user" | "assistant";

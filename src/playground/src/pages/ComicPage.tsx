@@ -207,7 +207,7 @@ export function ComicPage() {
 
           {loading && (
             <div className="comic-loading-msg">
-              🖌️ GPT-Image is painting your scene… this may take a moment
+              🖌️ GPT-Image is painting your scene… this may take a moment. Don't close this windows.
             </div>
           )}
 

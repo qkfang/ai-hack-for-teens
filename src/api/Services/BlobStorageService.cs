@@ -15,8 +15,13 @@ public class BlobStorageService
         if (string.IsNullOrEmpty(accountName))
             throw new InvalidOperationException("AzureStorage:AccountName is not configured.");
 
+        var tenantId = config["AzureStorage:TenantId"] ?? "";
+        var credentialOptions = new DefaultAzureCredentialOptions();
+        if (!string.IsNullOrEmpty(tenantId))
+            credentialOptions.TenantId = tenantId;
+
         var serviceUri = new Uri($"https://{accountName}.blob.core.windows.net");
-        var serviceClient = new BlobServiceClient(serviceUri, new DefaultAzureCredential());
+        var serviceClient = new BlobServiceClient(serviceUri, new DefaultAzureCredential(credentialOptions));
         _containerClient = serviceClient.GetBlobContainerClient(ContainerName);
     }
 
