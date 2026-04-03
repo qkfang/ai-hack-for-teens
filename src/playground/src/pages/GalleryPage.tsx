@@ -309,6 +309,7 @@ export function GalleryPage() {
                       onClick={() => setShowWebPreview(v => !v)}
                     >{showWebPreview ? '📄 Hide Preview' : '🌐 Web Preview'}</button>
                   )}
+                  {selectedIdea.hasWebBuilder && (
                   <a
                     className="gallery-idea-edit-btn"
                     href={`${WEBBUILDER_URL}/gallery/?userId=${encodeURIComponent(selectedIdea.userId)}&userName=${encodeURIComponent(selectedIdea.username)}&ideaId=${encodeURIComponent(selectedIdea.id)}&ideaTitle=${encodeURIComponent(selectedIdea.title)}`}
@@ -316,6 +317,7 @@ export function GalleryPage() {
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
                   >🔗 Open Webpage</a>
+                  )}
                 </div>
               </div>
               {showWebPreview && selectedIdea.websiteUrl && (
