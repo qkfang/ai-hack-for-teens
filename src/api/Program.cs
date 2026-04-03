@@ -9,9 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AIHackDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// In-memory cache
-builder.Services.AddMemoryCache();
-
 // In-memory quiz store (singleton so state persists across requests)
 builder.Services.AddSingleton<QuizStore>();
 builder.Services.AddSingleton<AzureKeyPoolService>();
