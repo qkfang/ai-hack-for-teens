@@ -1,3 +1,37 @@
+.admin-subnav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.5rem 1rem;
+  background: var(--card-bg, #fff);
+  border-bottom: 1px solid var(--border, #e0e0e0);
+}
+
+.admin-subnav-link {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.admin-subnav-link:hover {
+  background: #f0f7ff;
+  color: #0078d4;
+}
+
+.admin-subnav-link.active {
+  background: #0078d4;
+  color: #fff;
+}
+
+.admin-empty {
+  color: #888;
+  text-align: center;
+  padding: 1rem;
+}
+
 .admin-section {
   background: var(--card-bg, #fff);
   border-radius: 12px;

@@ -1,26 +1,8 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useNavVisibility, type NavConfig } from '../contexts/NavVisibilityContext'
 import './AdminPage.css'
 
-const ADMIN_PASSWORD = '9999'
-const STORAGE_KEY = 'ai-quiz-admin'
-
 export function AdminPage() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true')
-  const [pw, setPw] = useState('')
-  const [pwError, setPwError] = useState(false)
   const { config, setConfig } = useNavVisibility()
-
-  function login() {
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem(STORAGE_KEY, 'true')
-      setAuthed(true)
-      setPwError(false)
-    } else {
-      setPwError(true)
-    }
-  }
 
   function toggleGenai(key: keyof NavConfig['genai']) {
     setConfig({ ...config, genai: { ...config.genai, [key]: !config.genai[key] } })
@@ -34,37 +16,8 @@ export function AdminPage() {
     setConfig({ ...config, [key]: !config[key] })
   }
 
-  if (!authed) {
-    return (
-      <div className="admin-page">
-        <div className="admin-login-card">
-          <h1>🔐 Admin Login</h1>
-          <p>Enter admin password to access quiz controls</p>
-          <div className="admin-login-form">
-            <input
-              type="password"
-              placeholder="Password"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && login()}
-              className={`admin-pw-input${pwError ? ' error' : ''}`}
-              autoFocus
-            />
-            <button className="admin-btn primary" onClick={login}>Login</button>
-          </div>
-          {pwError && <p className="admin-pw-error">Incorrect password</p>}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="admin-page">
-      <div className="admin-header">
-        <h1>🎛️ Admin</h1>
-        <Link to="/admin/quiz" className="admin-btn primary">🧠 Quiz Control</Link>
-      </div>
-
       <div className="admin-section">
         <h2 className="admin-section-title">📋 Nav Modules</h2>
 
