@@ -65,6 +65,11 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.ab-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .ab-tabbar-right {
   flex: 1;
   display: flex;
