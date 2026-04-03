@@ -5,10 +5,12 @@ param kind string = 'StorageV2'
 param webAppPrincipalId string = ''
 param webAppBuilderPrincipalId string = ''
 param userObjectId string = ''
+param tags object = {}
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: name
   location: location
+  tags: tags
   sku: {
     name: skuName
   }

@@ -55,8 +55,9 @@ let client: CopilotClient | null = null;
 let session: CopilotSession | null = null;
 
 async function getSession(): Promise<CopilotSession> {
+  const { CopilotClient: Client, approveAll } = await loadSdk();
   if (!client) {
-    client = new CopilotClient();
+    client = new Client();
     await client.start();
     const authStatus = await client.getAuthStatus();
     if (!authStatus.isAuthenticated) {
