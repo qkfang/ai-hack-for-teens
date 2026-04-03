@@ -7,8 +7,8 @@ param azureAIFoundryDeployment string
 param azureAIFoundryDalleDeployment string
 param azureAIFoundryTenantId string
 param sqlConnectionString string
-param skuName string = 'S1'
-param skuTier string = 'Standard'
+param skuName string = 'P1V3'
+param skuTier string = 'PremiumV3'
 param linuxFxVersion string = 'DOTNETCORE|9.0'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {

@@ -54,6 +54,11 @@ jobs:
       - name: Restore dependencies
         working-directory: src/api
         run: dotnet restore
+        
+      - name: Azure CLI Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Run database migrations
         working-directory: src/api
@@ -66,11 +71,6 @@ jobs:
         with:
           name: api-dist
           path: dist
-
-      - name: Azure CLI Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
