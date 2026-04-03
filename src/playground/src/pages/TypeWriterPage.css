@@ -179,12 +179,42 @@
 }
 
 .typewriter-preview-text {
-  white-space: pre-wrap;
   font-family: 'Georgia', serif;
   font-size: 1rem;
   line-height: 1.8;
   color: #222;
   margin: 0;
+}
+
+.typewriter-preview-text h1,
+.typewriter-preview-text h2,
+.typewriter-preview-text h3 {
+  font-family: inherit;
+  margin: 0.75rem 0 0.25rem;
+}
+
+.typewriter-preview-text p {
+  margin: 0.5rem 0;
+}
+
+.typewriter-preview-text ul,
+.typewriter-preview-text ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.typewriter-preview-text code {
+  background: #f0f0f0;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.typewriter-preview-text blockquote {
+  border-left: 4px solid #6366f1;
+  margin: 0.5rem 0;
+  padding: 0.25rem 1rem;
+  color: #555;
 }
 
 .typewriter-preview-empty {

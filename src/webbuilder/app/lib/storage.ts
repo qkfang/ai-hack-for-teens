@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import { DefaultAzureCredential } from "@azure/identity";
 
 export interface CodeFile {
   filename: string;
@@ -254,10 +255,13 @@ export class BlobStorageProvider implements StorageProvider {
   private containerClient: ContainerClient;
   private templateDir: string;
 
-  constructor(connectionString: string, containerName = "webbuilder", sampleName?: string) {
+  constructor(accountName: string, containerName = "webbuilder", sampleName?: string) {
     const activeSample = sampleName || process.env.SAMPLE_NAME || "idea-spark-app";
     this.templateDir = path.join(process.cwd(), "samples", activeSample, "template");
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    const blobServiceClient = new BlobServiceClient(
+      `https://${accountName}.blob.core.windows.net`,
+      new DefaultAzureCredential()
+    );
     this.containerClient = blobServiceClient.getContainerClient(containerName);
   }
 
@@ -477,10 +481,10 @@ export class BlobStorageProvider implements StorageProvider {
 }
 
 function createStorage(): StorageProvider {
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-  if (connectionString) {
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  if (accountName && accountName.trim().length > 0) {
     const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "webbuilder";
-    return new BlobStorageProvider(connectionString, containerName);
+    return new BlobStorageProvider(accountName, containerName);
   }
   return new FileSystemStorageProvider();
 }

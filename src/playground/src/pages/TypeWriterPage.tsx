@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
@@ -151,16 +152,6 @@ When the user asks for changes or suggestions, provide the updated story text or
           maxLength={200}
         />
 
-        {coverImageUrl && (
-          <div className="typewriter-cover-preview">
-            <img src={coverImageUrl} alt="Story book cover image" className="typewriter-cover-img" />
-            <div className="typewriter-cover-info">
-              <span>🎨 Design Studio cover</span>
-              <button className="typewriter-cover-clear" onClick={handleClearCover}>✕ Remove</button>
-            </div>
-          </div>
-        )}
-
         <div className="typewriter-view-toggle">
           <button
             className={viewMode === 'edit' ? 'toggle-btn active' : 'toggle-btn'}
@@ -198,13 +189,24 @@ When the user asks for changes or suggestions, provide the updated story text or
         ) : (
           <div className="typewriter-preview">
             {body ? (
-              <pre className="typewriter-preview-text">{body}</pre>
+              <div className="typewriter-preview-text"><ReactMarkdown>{body}</ReactMarkdown></div>
             ) : (
               <p className="typewriter-preview-empty">Nothing to preview yet.</p>
             )}
           </div>
         )}
 
+
+        {coverImageUrl && (
+          <div className="typewriter-cover-preview">
+            <img src={coverImageUrl} alt="Story book cover image" className="typewriter-cover-img" />
+            <div className="typewriter-cover-info">
+              <span>🎨 Design Studio cover</span>
+              <button className="typewriter-cover-clear" onClick={handleClearCover}>✕ Remove</button>
+            </div>
+          </div>
+        )}
+        
       </div>
 
       <div className="typewriter-chat-panel">

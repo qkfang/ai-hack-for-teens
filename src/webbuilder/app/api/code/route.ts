@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { storage, CodeBundle } from "@/app/lib/storage";
+import { storage, CodeBundle, BlobStorageProvider } from "@/app/lib/storage";
+
+async function saveToBlobIfConfigured(storageKey: string, bundle: CodeBundle): Promise<void> {
+  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+  if (!connectionString || connectionString.trim().length === 0) return;
+  const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "webbuilder";
+  const blobProvider = new BlobStorageProvider(connectionString, containerName);
+  await blobProvider.saveCodeBundle(storageKey, bundle);
+}
 
 function getStorageKey(userId: string, ideaId: string | null): string {
-  return ideaId ? `${userId}/${ideaId}` : userId;
+  return ideaId ? `${userId}_${ideaId}` : userId;
 }
 
 export async function GET(request: NextRequest) {
@@ -81,6 +89,9 @@ export async function POST(request: NextRequest) {
     bundle.version += 1;
     bundle.updatedAt = new Date().toISOString();
     await storage.saveCodeBundle(storageKey, bundle);
+    saveToBlobIfConfigured(storageKey, bundle).catch((err) =>
+      console.error("Blob mirror save failed:", err)
+    );
 
     return NextResponse.json({
       success: true,

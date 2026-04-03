@@ -15,6 +15,8 @@ interface HeaderProps {
   isChatOpen: boolean;
   setIsChatOpen: (open: boolean) => void;
   onReset: () => void;
+  onSave?: () => void;
+  isSaving?: boolean;
   isFullScreen: boolean;
   setIsFullScreen: (full: boolean) => void;
 }
@@ -29,6 +31,8 @@ export default function Header({
   isChatOpen,
   setIsChatOpen,
   onReset,
+  onSave,
+  isSaving,
   isFullScreen,
   setIsFullScreen,
 }: HeaderProps) {
@@ -133,6 +137,26 @@ export default function Header({
                 ⛶
               </button>
               <div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
+              {onSave && (
+                <button
+                  onClick={onSave}
+                  disabled={isSaving}
+                  className="px-2 py-1 text-xs font-medium rounded transition-colors flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                  title="Save to storage"
+                >
+                  {isSaving ? (
+                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                  )}
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+              )}
               <button
                 onClick={() => setIsChatOpen(!isChatOpen)}
                 className={`px-2 py-1 text-xs font-medium rounded transition-colors flex items-center gap-1.5 ${

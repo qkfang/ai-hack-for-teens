@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import DynamicRenderer from "./components/DynamicRenderer";
@@ -18,7 +19,9 @@ function getLanguageFromFilename(filename: string): string {
 }
 
 export default function Home() {
-  const { user, isLoading: isUserLoading } = useUser();
+  const { user, isLoading: isUserLoading, isLockedUser } = useUser();
+  const searchParams = useSearchParams();
+  const ideaId = searchParams.get("ideaId");
   const [code, setCode] = useState<string>("");
   const [files, setFiles] = useState<Record<string, string>>({});
   const [entrypoint, setEntrypoint] = useState<string>("index.html");
@@ -26,6 +29,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [showCode, setShowCode] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [version, setVersion] = useState(0);
   const [lastError, setLastError] = useState<string | null>(null);
   const [sampleName, setSampleName] = useState<string>("");
@@ -41,7 +45,11 @@ export default function Home() {
 
   useEffect(() => {
     if (user?.id) {
-      loadCode(user.id);
+      if (isLockedUser) {
+        syncFromBlob(user.id, ideaId).then(() => loadCode(user.id, ideaId));
+      } else {
+        loadCode(user.id, ideaId);
+      }
     }
   }, [user?.id]);
 
@@ -50,7 +58,7 @@ export default function Home() {
       const userId = event.detail?.userId;
       if (userId) {
         setIsLoading(true);
-        loadCode(userId);
+        loadCode(userId, ideaId);
       }
     };
     window.addEventListener("user-switched", handleUserSwitched as EventListener);
@@ -68,9 +76,19 @@ export default function Home() {
     return () => window.removeEventListener("dynamic-code-update", handleCodeUpdate as EventListener);
   }, [user?.id, entrypoint]);
 
-  const loadCode = async (userId: string) => {
+  const syncFromBlob = async (userId: string, idea: string | null) => {
     try {
-      const response = await fetch(`/api/code?userId=${userId}&all=true`);
+      const url = `/api/sync?userId=${encodeURIComponent(userId)}${idea ? `&ideaId=${encodeURIComponent(idea)}` : ""}`;
+      await fetch(url, { method: "POST" });
+    } catch (err) {
+      console.error("Failed to sync from blob:", err);
+    }
+  };
+
+  const loadCode = async (userId: string, idea: string | null = null) => {
+    try {
+      const url = `/api/code?userId=${encodeURIComponent(userId)}&all=true${idea ? `&ideaId=${encodeURIComponent(idea)}` : ""}`;
+      const response = await fetch(url);
       const data = await response.json();
       setFiles(data.files || {});
       setEntrypoint(data.entrypoint || "index.tsx");
@@ -87,7 +105,8 @@ export default function Home() {
 
   const saveCode = async (newCode: string, userId: string) => {
     try {
-      const response = await fetch(`/api/code?userId=${userId}`, {
+      const url = `/api/code?userId=${encodeURIComponent(userId)}${ideaId ? `&ideaId=${encodeURIComponent(ideaId)}` : ""}`;
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: newCode }),
@@ -103,8 +122,9 @@ export default function Home() {
     if (!confirm("Reset to default code? This will lose your changes.")) return;
     if (!user?.id) return;
     try {
-      await fetch(`/api/code?userId=${user.id}`, { method: "DELETE" });
-      await loadCode(user.id);
+      const delUrl = `/api/code?userId=${encodeURIComponent(user.id)}${ideaId ? `&ideaId=${encodeURIComponent(ideaId)}` : ""}`;
+      await fetch(delUrl, { method: "DELETE" });
+      await loadCode(user.id, ideaId);
       setLastError(null);
       window.dispatchEvent(new CustomEvent("clear-chat-session"));
       setIsChatOpen(false);
@@ -115,6 +135,19 @@ export default function Home() {
 
   const handleCompileError = useCallback((error: string) => { setLastError(error); }, []);
   const handleCompileSuccess = useCallback(() => { setLastError(null); }, []);
+
+  const handleSave = async () => {
+    if (!user?.id || isSaving) return;
+    setIsSaving(true);
+    try {
+      const url = `/api/save?userId=${encodeURIComponent(user.id)}${ideaId ? `&ideaId=${encodeURIComponent(ideaId)}` : ""}`;
+      await fetch(url, { method: "POST" });
+    } catch (err) {
+      console.error("Failed to save to storage:", err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   if (isLoading || isUserLoading) {
     return (
@@ -139,6 +172,8 @@ export default function Home() {
         isChatOpen={isChatOpen}
         setIsChatOpen={setIsChatOpen}
         onReset={resetCode}
+        onSave={handleSave}
+        isSaving={isSaving}
         isFullScreen={isFullScreen}
         setIsFullScreen={setIsFullScreen}
       />
