@@ -310,7 +310,7 @@ export function GalleryPage() {
                   )}
                   <a
                     className="gallery-idea-edit-btn"
-                    href={`${WEBBUILDER_URL}/gallery/${selectedIdea.userId}?ideaId=${selectedIdea.id}&title=${encodeURIComponent(selectedIdea.title)}`}
+                    href={`${WEBBUILDER_URL}/gallery/?userId=${encodeURIComponent(selectedIdea.userId)}&userName=${encodeURIComponent(selectedIdea.username)}&ideaId=${encodeURIComponent(selectedIdea.id)}&ideaTitle=${encodeURIComponent(selectedIdea.title)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}

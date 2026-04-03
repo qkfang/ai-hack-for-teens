@@ -34,6 +34,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const params = new URLSearchParams(window.location.search);
         const urlUserId = params.get("userId");
         const urlUserName = params.get("userName");
+        const urlIdeaId = params.get("ideaId");
+        const urlIdeaTitle = params.get("ideaTitle");
 
         if (urlUserId) {
           // Try to load the user by the URL-provided id
@@ -43,13 +45,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setUser(data.user);
             localStorage.setItem(USER_STORAGE_KEY, data.user.id);
             setIsLockedUser(true);
+            if (urlIdeaId || urlIdeaTitle) {
+              const patchRes = await fetch("/api/user", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: urlUserId, ideaId: urlIdeaId, ideaTitle: urlIdeaTitle }),
+              });
+              if (patchRes.ok) {
+                const patchData = await patchRes.json();
+                setUser(patchData.user);
+              }
+            }
           } else {
             // User not found — create them with the URL-provided id and name
             const name = urlUserName || urlUserId;
             const createRes = await fetch("/api/user", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name, userId: urlUserId }),
+              body: JSON.stringify({ name, userId: urlUserId, ideaId: urlIdeaId, ideaTitle: urlIdeaTitle }),
             });
             const createData = await createRes.json();
             setUser(createData.user);

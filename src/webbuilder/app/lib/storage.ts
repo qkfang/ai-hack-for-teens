@@ -19,6 +19,8 @@ export interface UserData {
   id: string;
   name: string;
   createdAt: string;
+  ideaId?: string;
+  ideaTitle?: string;
 }
 
 export interface StorageProvider {

@@ -6,13 +6,17 @@ export async function GET() {
 
   const entries = await Promise.all(
     users.map(async (user) => {
-      const bundle = await storage.getCodeBundle(user.id);
+      if (!user.ideaId) return null;
+      const storageKey = `${user.id}_${user.ideaId}`;
+      const bundle = await storage.getCodeBundle(storageKey);
       if (!bundle || Object.keys(bundle.files).length === 0) return null;
 
       const entrypointCode = bundle.files[bundle.entrypoint] || "";
       return {
         userId: user.id,
         userName: user.name,
+        ideaId: user.ideaId,
+        ideaTitle: user.ideaTitle || "",
         createdAt: user.createdAt,
         updatedAt: bundle.updatedAt,
         version: bundle.version,

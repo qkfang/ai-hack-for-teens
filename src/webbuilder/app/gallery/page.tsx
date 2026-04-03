@@ -7,6 +7,8 @@ import { useSearchParams } from "next/navigation";
 interface GalleryEntry {
   userId: string;
   userName: string;
+  ideaId: string;
+  ideaTitle: string;
   createdAt: string;
   updatedAt: string;
   version: number;
@@ -203,7 +205,7 @@ function GalleryList() {
               </div>
               <div className="flex items-center gap-2">
                 <Link
-                  href={`/gallery/?userId=${encodeURIComponent(previewEntry.userId)}&userName=${encodeURIComponent(previewEntry.userName)}`}
+                  href={`/gallery/?userId=${encodeURIComponent(previewEntry.userId)}&userName=${encodeURIComponent(previewEntry.userName)}&ideaId=${encodeURIComponent(previewEntry.ideaId)}&ideaTitle=${encodeURIComponent(previewEntry.ideaTitle)}`}
                   target="_blank"
                   className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                   onClick={(e) => e.stopPropagation()}
