@@ -258,7 +258,7 @@ export function GalleryPage() {
               <div className="gallery-lightbox-author">
                 <span className="gallery-author-avatar">{(selectedIdea.username[0] ?? '?').toUpperCase()}</span>
                 <strong>{selectedIdea.username}</strong>
-                <span className="gallery-author-id">#{selectedIdea.userId}</span>
+                <span className="gallery-author-id">(User:{selectedIdea.userId} / Idea:{selectedIdea.id})</span>
               </div>
               <h3 className="gallery-idea-modal-title">{selectedIdea.title}</h3>
               {selectedIdea.ideaDescription && (
@@ -453,7 +453,7 @@ function IdeaCard({
         <div className="gallery-card-author">
           <span className="gallery-author-avatar">{(idea.username[0] ?? '?').toUpperCase()}</span>
           <span className="gallery-author-name">{idea.username}</span>
-          <span className="gallery-author-id">#{idea.userId}</span>
+          <span className="gallery-author-id">(User:{idea.userId} / Idea:{idea.id})</span>
         </div>
         <p className="gallery-card-title">{idea.title}</p>
         {idea.ideaDescription && <p className="gallery-card-desc">{idea.ideaDescription}</p>}
