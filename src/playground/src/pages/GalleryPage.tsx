@@ -53,6 +53,7 @@ export function GalleryPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedIdea, setSelectedIdea] = useState<StartupIdeaEntry | null>(null)
+  const [showWebPreview, setShowWebPreview] = useState(false)
   const [showIdeaForm, setShowIdeaForm] = useState(false)
   const [ideaForm, setIdeaForm] = useState<IdeaForm>(emptyForm())
   const [saving, setSaving] = useState(false)
@@ -201,9 +202,9 @@ export function GalleryPage() {
 
       {/* Startup Idea detail modal */}
       {selectedIdea && (
-        <div className="gallery-lightbox" onClick={() => setSelectedIdea(null)}>
+        <div className="gallery-lightbox" onClick={() => { setSelectedIdea(null); setShowWebPreview(false) }}>
           <div className="gallery-lightbox-content gallery-idea-modal" onClick={e => e.stopPropagation()}>
-            <button className="gallery-lightbox-close" onClick={() => setSelectedIdea(null)}>✕</button>
+            <button className="gallery-lightbox-close" onClick={() => { setSelectedIdea(null); setShowWebPreview(false) }}>✕</button>
             {selectedIdea.coverImageUrl && (
               <img src={selectedIdea.coverImageUrl} alt={selectedIdea.title} className="gallery-lightbox-img" />
             )}
@@ -259,15 +260,31 @@ export function GalleryPage() {
                   {selectedIdea.agentName && (
                     <button className="gallery-idea-edit-btn" onClick={() => openAgentView(selectedIdea)}>🤖 Chat with Agent</button>
                   )}
+                  {selectedIdea.websiteUrl && (
+                    <button
+                      className="gallery-idea-edit-btn"
+                      onClick={() => setShowWebPreview(v => !v)}
+                    >{showWebPreview ? '📄 Hide Preview' : '🌐 Web Preview'}</button>
+                  )}
                   <a
                     className="gallery-idea-edit-btn"
                     href={`${WEBBUILDER_URL}/gallery/${selectedIdea.userId}?ideaId=${selectedIdea.id}&title=${encodeURIComponent(selectedIdea.title)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
-                  >🌐 View in Web Builder</a>
+                  >🔗 View in Web Builder</a>
                 </div>
               </div>
+              {showWebPreview && selectedIdea.websiteUrl && (
+                <div style={{ marginTop: '1rem', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+                  <iframe
+                    src={selectedIdea.websiteUrl}
+                    sandbox="allow-scripts allow-same-origin allow-forms"
+                    style={{ width: '100%', height: '400px', border: 'none', display: 'block' }}
+                    title={`${selectedIdea.title} website preview`}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
