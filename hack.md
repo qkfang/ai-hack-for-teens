@@ -1,4 +1,4 @@
-# 🤖 AI Hackathon 2026 — Slide Deck
+# 🤖 AI Hack — Slide Deck
 ### *For Year 7 – Year 12 High School Students*
 **Duration: 2 Hours of Fun, Learning & Building!**
 

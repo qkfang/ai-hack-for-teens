@@ -41,7 +41,7 @@ export class FileSystemStorageProvider implements StorageProvider {
   private votesFile: string;
 
   constructor(sampleName?: string) {
-    const activeSample = sampleName || process.env.SAMPLE_NAME || "startup-app";
+    const activeSample = sampleName || process.env.SAMPLE_NAME || "idea-spark-app";
     this.baseDir = path.join(process.cwd(), ".user-data");
     this.templateDir = path.join(process.cwd(), "samples", activeSample, "template");
     this.usersFile = path.join(this.baseDir, "users.json");
@@ -255,7 +255,7 @@ export class BlobStorageProvider implements StorageProvider {
   private templateDir: string;
 
   constructor(connectionString: string, containerName = "webbuilder", sampleName?: string) {
-    const activeSample = sampleName || process.env.SAMPLE_NAME || "startup-app";
+    const activeSample = sampleName || process.env.SAMPLE_NAME || "idea-spark-app";
     this.templateDir = path.join(process.cwd(), "samples", activeSample, "template");
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     this.containerClient = blobServiceClient.getContainerClient(containerName);

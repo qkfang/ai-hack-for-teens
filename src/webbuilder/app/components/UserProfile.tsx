@@ -182,55 +182,15 @@ export default function UserProfile() {
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
               Current User
             </p>
-            {isEditing ? (
-              <div className="flex items-center gap-2">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter name"
-                  disabled={isSaving}
-                />
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving || !editName.trim()}
-                  className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                >
-                  {isSaving ? "..." : "Save"}
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {user?.name}
-                </span>
-                <button
-                  onClick={handleStartEdit}
-                  className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                {user?.name}
+              </span>
+            </div>
           </div>
 
           {/* Actions */}
           <div className="px-2 py-1">
-            <button
-              onClick={handleStartEdit}
-              className="w-full text-left px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-            >
-              <span className="flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-                Change Name
-              </span>
-            </button>
-
             {/* Admin mode: show switch user; locked mode: show Admin button */}
             {isAdminMode ? (
               <div className="relative">

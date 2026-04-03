@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Azure;
@@ -9,7 +10,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/chat")]
-public class ChatController(IConfiguration config, IHttpClientFactory httpClientFactory, AzureKeyPoolService keyPool) : ControllerBase
+public class ChatController(IConfiguration config, IHttpClientFactory httpClientFactory, AzureKeyPoolService keyPool, ILogger<ChatController> logger) : ControllerBase
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
@@ -20,6 +21,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
         Response.Headers.CacheControl = "no-cache";
         Response.Headers.Connection = "keep-alive";
 
+        var sw = Stopwatch.StartNew();
         try
         {
             var entry = keyPool.FoundryTextPool.GetNext();
@@ -29,8 +31,10 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
                 await SendSseAsync(new { type = "error", message = "Rate limit reached, please wait.", retryAfter = wait }, cancellationToken);
                 return;
             }
+            logger.LogInformation("[chat] pool entry selected: {ms}ms", sw.ElapsedMilliseconds);
 
             var chatClient = BuildChatClient(request.Model ?? "", entry);
+            logger.LogInformation("[chat] client ready: {ms}ms", sw.ElapsedMilliseconds);
 
             // Build message list
             var conversationMessages = new List<ChatMessage>();
@@ -72,13 +76,20 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
                 {
                     var toolCallAccumulator = new Dictionary<int, (string Id, string Name, string Arguments)>();
                     var assistantContent = new StringBuilder();
+                    var firstTokenMs = -1L;
 
+                    logger.LogInformation("[chat] calling CompleteChatStreamingAsync (iteration {i}): {ms}ms", iteration, sw.ElapsedMilliseconds);
                     await foreach (var update in chatClient.CompleteChatStreamingAsync(conversationMessages, options, cancellationToken))
                     {
                         foreach (var part in update.ContentUpdate)
                         {
                             if (!string.IsNullOrEmpty(part.Text))
                             {
+                                if (firstTokenMs < 0)
+                                {
+                                    firstTokenMs = sw.ElapsedMilliseconds;
+                                    logger.LogInformation("[chat] first token received: {ms}ms", firstTokenMs);
+                                }
                                 assistantContent.Append(part.Text);
                                 await SendSseAsync(new { type = "content", content = part.Text }, cancellationToken);
                             }
@@ -97,6 +108,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
                         }
                     }
 
+                    logger.LogInformation("[chat] stream complete (iteration {i}): {ms}ms", iteration, sw.ElapsedMilliseconds);
                     var toolCalls = toolCallAccumulator.Values.ToList();
                     if (toolCalls.Count == 0)
                     {
@@ -114,14 +126,16 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
                     foreach (var tc in toolCalls)
                     {
                         await SendSseAsync(new { type = "tool_call", name = tc.Name, arguments = tc.Arguments }, cancellationToken);
-
+                        var toolStart = sw.ElapsedMilliseconds;
                         var toolResult = await ExecuteMcpToolAsync(tc.Name, tc.Arguments, enabledTools, httpClientFactory, cancellationToken);
+                        logger.LogInformation("[chat] tool '{tool}' completed: {elapsed}ms", tc.Name, sw.ElapsedMilliseconds - toolStart);
                         await SendSseAsync(new { type = "tool_result", name = tc.Name, result = toolResult }, cancellationToken);
                         conversationMessages.Add(new ToolChatMessage(tc.Id, toolResult));
                     }
                 }
 
                 await SendSseAsync(new { type = "done" }, cancellationToken);
+                logger.LogInformation("[chat] total: {ms}ms", sw.ElapsedMilliseconds);
             }
             catch (RequestFailedException ex) when (ex.Status == 429)
             {

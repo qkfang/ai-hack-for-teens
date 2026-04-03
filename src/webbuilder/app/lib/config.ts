@@ -1,5 +1,5 @@
 export function getActiveSampleName(): string {
-  return process.env.SAMPLE_NAME || "startup-app";
+  return process.env.SAMPLE_NAME || "idea-spark-app";
 }
 
 export function getSamplesDir(): string {

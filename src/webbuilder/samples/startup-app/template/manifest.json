@@ -1,7 +1,0 @@
-{
-  "name": "startup-app",
-  "version": "1.0.0",
-  "description": "A Million Dollar Idea for AI Hack for Teenagers",
-  "entrypoint": "index.html",
-  "files": ["index.html"]
-}

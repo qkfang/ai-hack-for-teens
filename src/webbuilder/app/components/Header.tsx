@@ -108,7 +108,7 @@ export default function Header({
               </div>
 
               <h1 className="text-sm font-semibold text-gray-900 dark:text-white">
-                Startup Idea Builder
+                Web Builder
               </h1>
               {sampleName && (
                 <span className="px-1.5 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded-full">

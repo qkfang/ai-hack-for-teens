@@ -1,0 +1,7 @@
+{
+  "name": "idea-spark-web-builder",
+  "version": "1.0.0",
+  "description": "An Idea Spark App for AI Hack for Teenagers",
+  "entrypoint": "index.html",
+  "files": ["index.html"]
+}

@@ -1,6 +1,6 @@
 import { APIEndpoint } from "@/app/lib/schema";
 
-import * as todoAppSchema from "@/samples/startup-app/schema";
+import * as todoAppSchema from "@/samples/idea-spark-app/schema";
 
 export interface SampleSchema {
   sampleName: string;
@@ -11,19 +11,19 @@ export interface SampleSchema {
 }
 
 const schemaRegistry: Record<string, SampleSchema> = {
-  "startup-app": todoAppSchema,
+  "idea-spark-app": todoAppSchema,
 };
 
 export function getActiveSampleName(): string {
-  return process.env.SAMPLE_NAME || "startup-app";
+  return process.env.SAMPLE_NAME || "idea-spark-app";
 }
 
 export function getActiveSchema(): SampleSchema {
   const sampleName = getActiveSampleName();
   const schema = schemaRegistry[sampleName];
   if (!schema) {
-    console.warn(`[Schema Registry] Sample "${sampleName}" not found, falling back to startup-app`);
-    return schemaRegistry["startup-app"];
+    console.warn(`[Schema Registry] Sample "${sampleName}" not found, falling back to idea-spark-app`);
+    return schemaRegistry["idea-spark-app"];
   }
   return schema;
 }
