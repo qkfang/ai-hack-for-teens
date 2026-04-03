@@ -4,7 +4,7 @@ import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
 import { useNavVisibility } from '../contexts/NavVisibilityContext'
 import { useIdeas } from '../hooks/useIdeas'
-import { WEBBUILDER_URL } from '../config'
+import { WEBBUILDER_URL, API_BASE } from '../config'
 import './IdeasListPage.css'
 
 export function IdeasListPage() {
@@ -65,6 +65,7 @@ export function IdeasListPage() {
       userName: user.username,
       ...(idea ? { ideaId: String(idea.id), ideaTitle: idea.title } : {}),
     })
+    fetch(`${API_BASE}/api/ideas/${ideaId}/webbuilder`, { method: 'PATCH' }).catch(() => {})
     window.open(`${WEBBUILDER_URL}?${params.toString()}`, '_blank')
   }
 

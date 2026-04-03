@@ -152,6 +152,9 @@ namespace api.Migrations
                     b.Property<string>("IdeaDescription")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("HasWebBuilder")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
 

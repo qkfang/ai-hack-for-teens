@@ -11,3 +11,9 @@ IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'aihack26-app'
     CREATE USER [aihack26-app] FROM EXTERNAL PROVIDER;
 ALTER ROLE db_owner ADD MEMBER [aihack26-app];
 "@
+
+Invoke-Sqlcmd -ServerInstance "aihack26-sql.database.windows.net" -Database "ai-hack-db-dev" -AccessToken $token -Query @"
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = 'aihack26-builder')
+    CREATE USER [aihack26-builder] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_owner ADD MEMBER [aihack26-builder];
+"@

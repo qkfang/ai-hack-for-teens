@@ -27,6 +27,7 @@ public class StartupIdea
 
     // From web builder
     [MaxLength(500)] public string? WebsiteUrl { get; set; }
+    public bool HasWebBuilder { get; set; } = false;
 
     public bool IsPublished { get; set; } = false;
 

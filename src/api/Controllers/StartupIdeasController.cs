@@ -38,6 +38,7 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
                     agentModel = i.AgentModel,
                     agentTemperature = i.AgentTemperature,
                     websiteUrl = i.WebsiteUrl,
+                    hasWebBuilder = i.HasWebBuilder,
                     isPublished = i.IsPublished,
                     createdAt = i.CreatedAt,
                     updatedAt = i.UpdatedAt,
@@ -75,6 +76,7 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
                 agentModel = i.AgentModel,
                 agentTemperature = i.AgentTemperature,
                 websiteUrl = i.WebsiteUrl,
+                hasWebBuilder = i.HasWebBuilder,
                 isPublished = i.IsPublished,
                 createdAt = i.CreatedAt,
                 updatedAt = i.UpdatedAt,
@@ -153,6 +155,22 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, Blob
         cache.Remove("ideas:all");
         cache.Remove($"ideas:{id}");
         return NoContent();
+    }
+
+    [HttpPatch("{id:int}/webbuilder")]
+    public async Task<IActionResult> MarkWebBuilder(int id)
+    {
+        var idea = await db.StartupIdeas.FindAsync(id);
+        if (idea == null) return NotFound(new { error = "Idea not found" });
+        if (!idea.HasWebBuilder)
+        {
+            idea.HasWebBuilder = true;
+            idea.UpdatedAt = DateTime.UtcNow;
+            await db.SaveChangesAsync();
+            cache.Remove("ideas:all");
+            cache.Remove($"ideas:{id}");
+        }
+        return Ok(new { id = idea.Id, hasWebBuilder = idea.HasWebBuilder });
     }
 
     [HttpPatch("{id:int}/publish")]
