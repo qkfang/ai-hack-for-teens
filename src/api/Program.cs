@@ -15,6 +15,7 @@ builder.Services.AddMemoryCache();
 // In-memory quiz store (singleton so state persists across requests)
 builder.Services.AddSingleton<QuizStore>();
 builder.Services.AddSingleton<AzureKeyPoolService>();
+builder.Services.AddSingleton<BlobStorageService>();
 
 // HttpClient for ChatKit session creation
 builder.Services.AddHttpClient();
