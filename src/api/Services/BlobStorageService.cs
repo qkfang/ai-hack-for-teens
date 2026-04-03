@@ -29,4 +29,15 @@ public class BlobStorageService
         await blobClient.UploadAsync(stream, overwrite: true);
         return blobClient.Uri.ToString();
     }
+
+    public async Task<string> UploadBase64IfNeededAsync(string imageUrl)
+    {
+        if (string.IsNullOrEmpty(imageUrl) || !imageUrl.StartsWith("data:"))
+            return imageUrl;
+
+        var base64 = imageUrl[(imageUrl.IndexOf(',') + 1)..];
+        var bytes = Convert.FromBase64String(base64);
+        var fileName = $"{Guid.NewGuid()}.png";
+        return await UploadImageAsync(bytes, fileName);
+    }
 }

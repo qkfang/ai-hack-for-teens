@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using api.Data;
 using api.Models;
+using api.Services;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/ideas")]
-public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
+public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache, BlobStorageService blobStorage) : ControllerBase
 {
     private static readonly TimeSpan DbCacheDuration = TimeSpan.FromMinutes(5);
 
@@ -97,7 +98,7 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache) : Co
             ProblemStatement = request.ProblemStatement,
             TargetAudience = request.TargetAudience,
             BusinessModel = request.BusinessModel,
-            CoverImageUrl = request.CoverImageUrl,
+            CoverImageUrl = await blobStorage.UploadBase64IfNeededAsync(request.CoverImageUrl ?? ""),
             CoverImagePrompt = request.CoverImagePrompt,
             AgentName = request.AgentName,
             AgentSystemPrompt = request.AgentSystemPrompt,
@@ -124,7 +125,7 @@ public class StartupIdeasController(AIHackDbContext db, IMemoryCache cache) : Co
         idea.ProblemStatement = request.ProblemStatement;
         idea.TargetAudience = request.TargetAudience;
         idea.BusinessModel = request.BusinessModel;
-        idea.CoverImageUrl = request.CoverImageUrl;
+        idea.CoverImageUrl = await blobStorage.UploadBase64IfNeededAsync(request.CoverImageUrl ?? "");
         idea.CoverImagePrompt = request.CoverImagePrompt;
         idea.AgentName = request.AgentName;
         idea.AgentSystemPrompt = request.AgentSystemPrompt;

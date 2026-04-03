@@ -3,12 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using api.Data;
 using api.Models;
+using api.Services;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
+public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorageService blobStorage) : ControllerBase
 {
     private static readonly TimeSpan DbCacheDuration = TimeSpan.FromMinutes(5);
 
@@ -82,6 +83,7 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache) : Controlle
         if (string.IsNullOrEmpty(description) || string.IsNullOrEmpty(imageUrl))
             return BadRequest(new { error = "description and imageUrl are required" });
 
+        imageUrl = await blobStorage.UploadBase64IfNeededAsync(imageUrl);
         var comic = new Comic { UserId = id, Description = description, ImageUrl = imageUrl };
         db.Comics.Add(comic);
         await db.SaveChangesAsync();
@@ -121,7 +123,8 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache) : Controlle
         if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(body))
             return BadRequest(new { error = "title and body are required" });
 
-        var story = new Story { UserId = id, Title = title, Body = body, CoverImageUrl = request.CoverImageUrl?.Trim() ?? "" };
+        var coverImageUrl = await blobStorage.UploadBase64IfNeededAsync(request.CoverImageUrl?.Trim() ?? "");
+        var story = new Story { UserId = id, Title = title, Body = body, CoverImageUrl = coverImageUrl };
         db.Stories.Add(story);
         await db.SaveChangesAsync();
         cache.Remove($"users:{id}:stories");

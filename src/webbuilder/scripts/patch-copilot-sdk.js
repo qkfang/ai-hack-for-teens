@@ -26,16 +26,19 @@ try {
 
     const oldFnRegex = /function getBundledCliPath\(\)\s*\{[^}]+\}/;
     const newFn = `function getBundledCliPath() {
-  const candidate = join(process.cwd(), "node_modules", "@github", "copilot", "index.js");
-  if (existsSync(candidate)) return candidate;
+  const thisDir = dirname(fileURLToPath(import.meta.url));
+  const relCandidate = join(thisDir, "..", "..", "copilot", "index.js");
+  if (existsSync(relCandidate)) return relCandidate;
+  const cwdCandidate = join(process.cwd(), "node_modules", "@github", "copilot", "index.js");
+  if (existsSync(cwdCandidate)) return cwdCandidate;
   try {
     const sdkPath = fileURLToPath(import.meta.resolve("@github/copilot/sdk"));
     return join(dirname(dirname(sdkPath)), "index.js");
   } catch {}
-  return candidate;
+  return relCandidate;
 }`;
 
-    if (oldFnRegex.test(clientContent) && !clientContent.includes('process.cwd(), "node_modules", "@github", "copilot"')) {
+    if (oldFnRegex.test(clientContent) && !clientContent.includes('thisDir, "..", "..", "copilot"')) {
       clientContent = clientContent.replace(oldFnRegex, newFn);
       fs.writeFileSync(clientPath, clientContent, 'utf8');
       console.log('[patch-copilot-sdk] Patched getBundledCliPath in client.js');
