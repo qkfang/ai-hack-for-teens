@@ -393,13 +393,13 @@ export class BlobStorageProvider implements StorageProvider {
           try {
             await this.containerClient.getBlockBlobClient(`${userId}/files/${filename}`).delete();
           } catch (error) {
-            console.warn(`Failed to delete blob ${userId}/files/${filename}:`, error);
+            console.warn("Failed to delete blob for user:", userId, "file:", filename, error);
           }
         }
         await this.containerClient.getBlockBlobClient(`${userId}/bundle.json`).delete();
       }
     } catch (error) {
-      console.warn(`Failed to delete code bundle for ${userId}:`, error);
+      console.warn("Failed to delete code bundle for user:", userId, error);
     }
   }
 
