@@ -19,13 +19,14 @@ try {
     console.log('[patch-copilot-sdk] Patched vscode-jsonrpc import in session.js');
   }
 
-  // Patch client.js: replace import.meta.resolve("@github/copilot/sdk") with path-based resolution
+  // Patch client.js: replace import.meta.resolve("@github/copilot/sdk") with relative URL resolution
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
     const marker = 'import.meta.resolve("@github/copilot/sdk")';
     if (clientContent.includes(marker)) {
-      const copilotSdkEntry = path.join(__dirname, '..', 'node_modules', '@github', 'copilot', 'sdk', 'index.js');
-      const replacement = 'new URL("file:///" + ' + JSON.stringify(copilotSdkEntry.replace(/\\/g, '/')) + ')';
+      // Resolve relative to client.js at @github/copilot-sdk/dist/client.js
+      // ../../copilot/sdk/index.js -> @github/copilot/sdk/index.js
+      const replacement = 'new URL("../../copilot/sdk/index.js", import.meta.url).href';
       clientContent = clientContent.replace(marker, replacement);
       fs.writeFileSync(clientPath, clientContent, 'utf8');
       console.log('[patch-copilot-sdk] Patched import.meta.resolve in client.js');

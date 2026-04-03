@@ -38,6 +38,9 @@ jobs:
         run: |
           cp -r .next/static .next/standalone/.next/static
           cp -r public .next/standalone/public
+          # Copy @github/copilot into standalone (Next.js file tracing can't follow dynamic import.meta.resolve)
+          mkdir -p .next/standalone/node_modules/@github
+          cp -r node_modules/@github/copilot .next/standalone/node_modules/@github/copilot
 
       - name: Azure CLI Login
         uses: azure/login@v1
