@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import { storage } from "@/app/lib/storage";
 
 export async function GET() {
-  const [users, allVotes] = await Promise.all([
-    storage.listUsers(),
-    storage.getAllVotes(),
-  ]);
+  const users = await storage.listUsers();
 
   const entries = await Promise.all(
     users.map(async (user) => {
@@ -21,8 +18,6 @@ export async function GET() {
         version: bundle.version,
         entrypoint: bundle.entrypoint,
         code: entrypointCode,
-        votes: (allVotes[user.id] || []).length,
-        voters: allVotes[user.id] || [],
       };
     })
   );

@@ -30,23 +30,18 @@ export interface StorageProvider {
   saveCodeBundle(userId: string, bundle: CodeBundle): Promise<void>;
   deleteCodeBundle(userId: string): Promise<void>;
   getDefaultTemplate(): Promise<CodeBundle>;
-  getVoters(userId: string): Promise<string[]>;
-  toggleVote(fromUserId: string, toUserId: string): Promise<{ voted: boolean }>;
-  getAllVotes(): Promise<Record<string, string[]>>;
 }
 
 export class FileSystemStorageProvider implements StorageProvider {
   private baseDir: string;
   private templateDir: string;
   private usersFile: string;
-  private votesFile: string;
 
   constructor(sampleName?: string) {
     const activeSample = sampleName || process.env.SAMPLE_NAME || "idea-spark-app";
     this.baseDir = path.join(process.cwd(), ".user-data");
     this.templateDir = path.join(process.cwd(), "samples", activeSample, "template");
     this.usersFile = path.join(this.baseDir, "users.json");
-    this.votesFile = path.join(this.baseDir, "votes.json");
   }
 
   private async ensureDir(dir: string): Promise<void> {
@@ -168,30 +163,6 @@ export class FileSystemStorageProvider implements StorageProvider {
     } catch {
       // Files might not exist
     }
-  }
-
-  async getVoters(userId: string): Promise<string[]> {
-    const votes = (await this.readJsonFile<Record<string, string[]>>(this.votesFile)) || {};
-    return votes[userId] || [];
-  }
-
-  async toggleVote(fromUserId: string, toUserId: string): Promise<{ voted: boolean }> {
-    const votes = (await this.readJsonFile<Record<string, string[]>>(this.votesFile)) || {};
-    const voters = votes[toUserId] || [];
-    const index = voters.indexOf(fromUserId);
-    const voted = index === -1;
-    if (voted) {
-      voters.push(fromUserId);
-    } else {
-      voters.splice(index, 1);
-    }
-    votes[toUserId] = voters;
-    await this.writeJsonFile(this.votesFile, votes);
-    return { voted };
-  }
-
-  async getAllVotes(): Promise<Record<string, string[]>> {
-    return (await this.readJsonFile<Record<string, string[]>>(this.votesFile)) || {};
   }
 
   async getDefaultTemplate(): Promise<CodeBundle> {
@@ -405,30 +376,6 @@ export class BlobStorageProvider implements StorageProvider {
     } catch (error) {
       console.warn("Failed to delete code bundle for user:", userId, error);
     }
-  }
-
-  async getVoters(userId: string): Promise<string[]> {
-    const votes = (await this.readBlob<Record<string, string[]>>("meta/votes.json")) || {};
-    return votes[userId] || [];
-  }
-
-  async toggleVote(fromUserId: string, toUserId: string): Promise<{ voted: boolean }> {
-    const votes = (await this.readBlob<Record<string, string[]>>("meta/votes.json")) || {};
-    const voters = votes[toUserId] || [];
-    const index = voters.indexOf(fromUserId);
-    const voted = index === -1;
-    if (voted) {
-      voters.push(fromUserId);
-    } else {
-      voters.splice(index, 1);
-    }
-    votes[toUserId] = voters;
-    await this.writeBlob("meta/votes.json", votes);
-    return { voted };
-  }
-
-  async getAllVotes(): Promise<Record<string, string[]>> {
-    return (await this.readBlob<Record<string, string[]>>("meta/votes.json")) || {};
   }
 
   async getDefaultTemplate(): Promise<CodeBundle> {
