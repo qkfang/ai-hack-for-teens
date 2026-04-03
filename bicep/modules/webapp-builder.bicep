@@ -4,7 +4,7 @@ param appServicePlanName string
 param appInsightsConnectionString string
 param skuName string = 'P1V3'
 param skuTier string = 'PremiumV3'
-param linuxFxVersion string = 'NODE|20-lts'
+param linuxFxVersion string = 'NODE|22-lts'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: appServicePlanName
