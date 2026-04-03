@@ -140,14 +140,6 @@ export function IdeasListPage() {
                 )}
               </div>
               <div className="idea-item-links">
-                <button
-                  className={`idea-tool-btn idea-publish-btn${idea.isPublished ? ' idea-publish-btn--published' : ''}`}
-                  onClick={() => handlePublishToggle(idea.id, !!idea.isPublished)}
-                  disabled={publishingId === idea.id}
-                  title={idea.isPublished ? 'Remove from Gallery' : 'Publish to Gallery'}
-                >
-                  {publishingId === idea.id ? '⏳' : idea.isPublished ? '🌟 Unpublish' : '🚀 Publish'}
-                </button>
                 {config.startup.storybook && (
                   <button className="idea-tool-btn" onClick={() => openPage(idea.id, '/typewriter')}>
                     ✍️ Type Writer
@@ -168,14 +160,25 @@ export function IdeasListPage() {
                     🌐 Web Builder
                   </button>
                 )}
-                <button
-                  className="idea-tool-btn idea-delete-btn"
-                  onClick={() => handleDelete(idea.id)}
-                  disabled={deletingId === idea.id}
-                  title="Delete idea"
-                >
-                  {deletingId === idea.id ? '⏳' : '🗑️ Delete'}
-                </button>
+                <div>
+                  <button
+                    className={`idea-tool-btn idea-publish-btn${idea.isPublished ? ' idea-publish-btn--published' : ''}`}
+                    onClick={() => handlePublishToggle(idea.id, !!idea.isPublished)}
+                    disabled={publishingId === idea.id}
+                    title={idea.isPublished ? 'Remove from Gallery' : 'Publish to Gallery'}
+                  >
+                    {publishingId === idea.id ? '⏳' : idea.isPublished ? '🌟 Unpublish' : '🚀 Publish'}
+                  </button>
+                  <span>  </span>
+                  <button
+                    className="idea-tool-btn idea-delete-btn"
+                    onClick={() => handleDelete(idea.id)}
+                    disabled={deletingId === idea.id}
+                    title="Delete idea"
+                  >
+                    {deletingId === idea.id ? '⏳' : '🗑️ Delete'}
+                  </button>
+                </div>
               </div>
             </li>
           ))}

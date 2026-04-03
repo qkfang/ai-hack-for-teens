@@ -5,20 +5,20 @@
 }
 
 .comic-header {
-  margin-bottom: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 .comic-header h1 {
   font-size: 2rem;
   font-weight: 800;
   color: #1a1a2e;
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.25rem;
 }
 
 .comic-header p {
   color: #555;
   font-size: 1rem;
-  margin: 0.25rem 0;
+  margin: 0;
 }
 
 .comic-user {
@@ -33,9 +33,9 @@
   background: #e6f4ea;
   border: 1px solid #a8d5b0;
   border-radius: 6px;
-  padding: 0.35rem 0.75rem;
+  padding: 0.25rem 0.6rem;
   display: inline-block;
-  margin-top: 0.5rem !important;
+  margin-top: 0.25rem !important;
 }
 
 .comic-idea-banner--none {
@@ -280,22 +280,34 @@
   box-shadow: 0 0 0 4px rgba(0, 120, 212, 0.25), 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-.comic-edit-panel {
-  margin-top: 1.5rem;
-  padding: 1.25rem;
-  background: #f0f7ff;
-  border-radius: 12px;
-  border: 1px solid #c7e0f4;
+.comic-form-toggle {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.comic-edit-panel h3 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1a1a2e;
-  margin: 0;
+.comic-form-toggle-btn {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #c7e0f4;
+  border-radius: 8px;
+  background: #f8f9fa;
+  color: #444;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.comic-form-toggle-btn.active {
+  background: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
+.comic-form-toggle-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .comic-edit-form {
@@ -384,7 +396,7 @@
 .comic-tabs {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .comic-tab {

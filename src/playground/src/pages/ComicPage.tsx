@@ -29,6 +29,7 @@ export function ComicPage() {
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
   const [activeTab, setActiveTab] = useState<'create' | 'gallery'>('create')
+  const [formMode, setFormMode] = useState<'describe' | 'edit'>('describe')
   const { isRateLimited, countdown, triggerRateLimit } = useRateLimit()
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
@@ -79,7 +80,6 @@ export function ComicPage() {
       const imageUrl = data.imageUrl ?? ''
       setSelectedImageUrl(imageUrl)
       await loadComics()
-      setDescription('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -109,7 +109,6 @@ export function ComicPage() {
       const newUrl = data.imageUrl ?? ''
       setSelectedImageUrl(newUrl)
       await loadComics()
-      setEditPrompt('')
     } catch (err) {
       setEditError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
@@ -147,7 +146,8 @@ export function ComicPage() {
     <div className="comic-page">
       <div className="comic-header">
         <h1>🎨 Design Studio</h1>
-        <p>Describe your scene and DALL-E will bring it to life! <span>   </span>
+        <p>Describe your scene and GPT-Image-1 will bring it to life!
+          <span>  </span>
         {currentIdea && <p className="comic-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></p>}
         {!currentIdea && <p className="comic-idea-banner comic-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</p>}
         </p>
@@ -160,81 +160,86 @@ export function ComicPage() {
 
       {activeTab === 'create' && <div className="comic-layout">
         <div className="comic-form-panel">
-          <form onSubmit={handleGenerate} className="comic-form">
-            <label htmlFor="comic-desc" className="comic-label">
-              📝 Describe your idea
-            </label>
-            <textarea
-              id="comic-desc"
-              className="comic-textarea"
-              placeholder={placeholder}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              rows={5}
-              maxLength={1000}
-            />
-            <div className="comic-char-count">{description.length} / 1000</div>
-            {error && <div className="comic-error">{error}</div>}
-            {isRateLimited && (
-              <div className="comic-rate-limit">⏳ Please wait <strong>{countdown}s</strong> before trying again.</div>
-            )}
+          <div className="comic-form-toggle">
             <button
-              type="submit"
-              className="comic-generate-btn"
-              disabled={loading || isRateLimited || !description.trim()}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner" />
-                  Generating your design ...
-                </>
-              ) : isRateLimited ? `Wait ${countdown}s` : (
-                '✨ Generate Design'
-              )}
-            </button>
-          </form>
+              type="button"
+              className={`comic-form-toggle-btn${formMode === 'describe' ? ' active' : ''}`}
+              onClick={() => setFormMode('describe')}
+            >📝 Describe your idea</button>
+            <button
+              type="button"
+              className={`comic-form-toggle-btn${formMode === 'edit' ? ' active' : ''}`}
+              onClick={() => setFormMode('edit')}
+              disabled={!selectedImageUrl}
+            >✏️ Edit selected image</button>
+          </div>
 
-          {loading && (
-            <div className="comic-loading-msg">
-              🖌️ GPT-Image is painting your scene… this may take a moment. Don't close this windows.
-            </div>
+          {formMode === 'describe' && (
+            <form onSubmit={handleGenerate} className="comic-form">
+              <textarea
+                id="comic-desc"
+                className="comic-textarea"
+                placeholder={placeholder}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows={5}
+                maxLength={1000}
+              />
+              <div className="comic-char-count">{description.length} / 1000</div>
+              {error && <div className="comic-error">{error}</div>}
+              {isRateLimited && (
+                <div className="comic-rate-limit">⏳ Please wait <strong>{countdown}s</strong> before trying again.</div>
+              )}
+              <button
+                type="submit"
+                className="comic-generate-btn"
+                disabled={loading || isRateLimited || !description.trim()}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner" />
+                    Generating your design ...
+                  </>
+                ) : isRateLimited ? `Wait ${countdown}s` : '✨ Generate Design'}
+              </button>
+              {loading && (
+                <div className="comic-loading-msg">
+                  🖌️ GPT-Image is painting your scene… this may take a moment. Don't close this window.
+                </div>
+              )}
+            </form>
           )}
 
-          {selectedImageUrl && (
-            <div className="comic-edit-panel">
-              <h3>✏️ Edit Selected Image</h3>
-              <form onSubmit={handleEdit} className="comic-edit-form">
-                <textarea
-                  className="comic-textarea"
-                  placeholder="Describe what to change, e.g. 'Make the sky purple and add shooting stars'…"
-                  value={editPrompt}
-                  onChange={e => setEditPrompt(e.target.value)}
-                  rows={3}
-                  maxLength={500}
-                  disabled={editLoading}
-                />
-                {editError && <div className="comic-error">{editError}</div>}
-                <button
-                  type="submit"
-                  className="comic-edit-btn"
-                  disabled={editLoading || isRateLimited || !editPrompt.trim()}
-                >
-                  {editLoading ? (
-                    <><span className="spinner" />Applying changes…</>
-                  ) : isRateLimited ? `Wait ${countdown}s` : '🔄 Apply Changes'}
-                </button>
-              </form>
-              {selectedIdeaId && (
-                <button
-                  className={`comic-cover-btn idea-save-btn${ideaCoverState === 'saved' ? ' idea-save-btn--saved' : ideaCoverState === 'error' ? ' idea-save-btn--error' : ''}`}
-                  onClick={handleSetIdeaCover}
-                  disabled={ideaCoverState === 'saving'}
-                  style={{ marginTop: '0.5rem' }}
-                >
-                  {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover'}
-                </button>
+          {formMode === 'edit' && (
+            <form onSubmit={handleEdit} className="comic-edit-form">
+              <textarea
+                className="comic-textarea"
+                placeholder="Describe what to change, e.g. 'Make the sky purple and add shooting stars'…"
+                value={editPrompt}
+                onChange={e => setEditPrompt(e.target.value)}
+                rows={5}
+                maxLength={500}
+                disabled={editLoading}
+              />
+              {editError && <div className="comic-error">{editError}</div>}
+              {isRateLimited && (
+                <div className="comic-rate-limit">⏳ Please wait <strong>{countdown}s</strong> before trying again.</div>
               )}
-            </div>
+              <button
+                type="submit"
+                className="comic-edit-btn"
+                disabled={editLoading || isRateLimited || !editPrompt.trim()}
+              >
+                {editLoading ? (
+                  <><span className="spinner" />Applying changes…</>
+                ) : isRateLimited ? `Wait ${countdown}s` : '🔄 Apply Changes'}
+              </button>
+              {editLoading && (
+                <div className="comic-loading-msg">
+                  🖌️ GPT-Image is applying your changes… this may take a moment. Don't close this window.
+                </div>
+              )}
+            </form>
           )}
         </div>
 
@@ -245,9 +250,16 @@ export function ComicPage() {
               <div className="comic-image-frame selected">
                 <img src={selectedImageUrl} alt="Selected comic" className="comic-image" />
               </div>
-              <a href={selectedImageUrl} target="_blank" rel="noopener noreferrer" className="comic-download-link">
-                Open full size ↗
-              </a>
+              {selectedIdeaId && (
+                <button
+                  className={`comic-cover-btn idea-save-btn${ideaCoverState === 'saved' ? ' idea-save-btn--saved' : ideaCoverState === 'error' ? ' idea-save-btn--error' : ''}`}
+                  onClick={handleSetIdeaCover}
+                  disabled={ideaCoverState === 'saving'}
+                  style={{ marginTop: '0.5rem' }}
+                >
+                  {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover Image'}
+                </button>
+              )}
             </div>
           ) : (
             <div className="comic-empty-preview">
