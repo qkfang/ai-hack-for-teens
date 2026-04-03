@@ -154,7 +154,7 @@ export function GalleryPage() {
       <div className="gallery-header">
         <div className="gallery-header-text">
           <h1>🌟 Idea Gallery</h1>
-          <p>Startup ideas from everyone!</p>
+          <p>Ideas from everyone!</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <select
@@ -183,7 +183,7 @@ export function GalleryPage() {
       {/* All Published Startup Ideas */}
       {!loading && publishedIdeas.length > 0 && (
         <section className="gallery-section">
-          <h2 className="gallery-section-title">💡 Startup Ideas</h2>
+          <h2 className="gallery-section-title">💡 What do you think about these ideas?</h2>
           <div className="gallery-grid">
             {publishedIdeas.map(idea => (
               <IdeaCard key={idea.id} idea={idea} onClick={() => setSelectedIdea(idea)} />

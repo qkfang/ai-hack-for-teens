@@ -70,15 +70,6 @@ const DEFAULT_CONFIG: AgentConfig = {
 
 const STORAGE_KEY = 'agent-builder-config-v2'
 
-const MODEL_PRESETS = [
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4-turbo',
-  'gpt-3.5-turbo',
-  'o1',
-  'o3-mini',
-]
-
 const PROMPT_TEMPLATES = [
   {
     label: 'Helpful Assistant',

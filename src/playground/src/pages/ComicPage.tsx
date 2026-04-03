@@ -14,8 +14,6 @@ interface ComicItem {
   createdAt: string
 }
 
-const COVER_IMAGE_KEY = 'storybook_cover_url'
-
 export function ComicPage() {
   const { user } = useUser()
   const { selectedIdeaId } = useIdea()
@@ -30,7 +28,6 @@ export function ComicPage() {
   const [editPrompt, setEditPrompt] = useState('')
   const [editLoading, setEditLoading] = useState(false)
   const [editError, setEditError] = useState('')
-  const [coverSet, setCoverSet] = useState(false)
   const [activeTab, setActiveTab] = useState<'create' | 'gallery'>('create')
   const { isRateLimited, countdown, triggerRateLimit } = useRateLimit()
 
@@ -66,7 +63,6 @@ export function ComicPage() {
     if (!desc) { setError('Please enter a description for your comic.'); return }
     setLoading(true)
     setSelectedImageUrl('')
-    setCoverSet(false)
     try {
       const res = await fetch(`${API_BASE}/api/dalle`, {
         method: 'POST',
@@ -97,7 +93,6 @@ export function ComicPage() {
     const prompt = editPrompt.trim()
     if (!prompt || !selectedImageUrl) return
     setEditLoading(true)
-    setCoverSet(false)
     try {
       const res = await fetch(`${API_BASE}/api/dalle/edit`, {
         method: 'POST',
@@ -122,12 +117,6 @@ export function ComicPage() {
     }
   }
 
-  function handleSetCover() {
-    if (!selectedImageUrl) return
-    localStorage.setItem(COVER_IMAGE_KEY, selectedImageUrl)
-    setCoverSet(true)
-  }
-
   async function handleSetIdeaCover() {
     if (!selectedImageUrl || !selectedIdeaId) return
     setIdeaCoverState('saving')
@@ -144,7 +133,6 @@ export function ComicPage() {
     setSelectedImageUrl(imageUrl)
     setEditPrompt('')
     setEditError('')
-    setCoverSet(false)
   }
 
   const placeholders = [
