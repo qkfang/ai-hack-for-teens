@@ -7,6 +7,7 @@ param azureAIFoundryDeployment string
 param azureAIFoundryDalleDeployment string
 param azureAIFoundryTenantId string
 param sqlConnectionString string
+param storageAccountName string = ''
 param skuName string = 'P1V3'
 param skuTier string = 'PremiumV3'
 param linuxFxVersion string = 'DOTNETCORE|9.0'
@@ -69,6 +70,10 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'ConnectionStrings__DefaultConnection'
           value: sqlConnectionString
+        }
+        {
+          name: 'AzureStorage__AccountName'
+          value: storageAccountName
         }
       ]
     }

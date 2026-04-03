@@ -25,4 +25,15 @@ public class ComicsController(AIHackDbContext db, IMemoryCache cache) : Controll
         }
         return Ok(cached);
     }
+
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetUserComics(int userId)
+    {
+        var comics = await db.Comics
+            .Where(c => c.UserId == userId)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
+            .ToListAsync();
+        return Ok(comics);
+    }
 }
