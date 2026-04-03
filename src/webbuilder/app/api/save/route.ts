@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage, BlobStorageProvider } from "@/app/lib/storage";
+import { markHasWebBuilder } from "@/app/lib/db";
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -25,6 +26,8 @@ export async function POST(request: NextRequest) {
   const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "webbuilder";
   const blobProvider = new BlobStorageProvider(accountName, containerName);
   await blobProvider.saveCodeBundle(storageKey, bundle);
+
+  await markHasWebBuilder(ideaId).catch(() => {});
 
   return NextResponse.json({ success: true, storageKey });
 }

@@ -117,6 +117,8 @@ module webAppBuilder 'modules/webapp-builder.bicep' = {
     appServicePlanName: webAppBuilderPlanName
     appInsightsConnectionString: appInsights.outputs.connectionString
     storageAccountName: storageAccountName
+    sqlServerFqdn: sqlServer.outputs.serverFqdn
+    sqlDatabase: sqlServer.outputs.databaseName
   }
 }
 

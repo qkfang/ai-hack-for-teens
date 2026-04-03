@@ -4,6 +4,8 @@ param appServicePlanName string
 param appInsightsConnectionString string
 param storageAccountName string = ''
 param storageContainerName string = 'webbuilder'
+param sqlServerFqdn string = ''
+param sqlDatabase string = ''
 param skuName string = 'P1V3'
 param skuTier string = 'PremiumV3'
 param linuxFxVersion string = 'NODE|22-lts'
@@ -55,6 +57,14 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         {
           name: 'AZURE_STORAGE_CONTAINER_NAME'
           value: storageContainerName
+        }
+        {
+          name: 'SQL_SERVER'
+          value: sqlServerFqdn
+        }
+        {
+          name: 'SQL_DATABASE'
+          value: sqlDatabase
         }
       ]
     }
