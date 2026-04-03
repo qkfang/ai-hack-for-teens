@@ -284,6 +284,13 @@
   background: rgba(0, 0, 0, 0.75);
 }
 
+.gallery-lightbox-img-wrapper {
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .gallery-lightbox-img {
   width: auto;
   height: 35vh;
@@ -424,7 +431,6 @@
 .gallery-idea-cover-placeholder {
   width: 100%;
   height: 35vh;
-  background: linear-gradient(135deg, #fff8e1, #fff3cd);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -459,6 +465,17 @@
   font-size: 0.9rem;
   color: #444;
   line-height: 1.5;
+}
+
+.gallery-idea-section > :is(p, ul, ol, h1, h2, h3, h4, h5, h6, blockquote, pre) {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+.gallery-idea-section > :is(ul, ol) {
+  padding-left: 1.25rem;
 }
 
 .gallery-idea-link {
