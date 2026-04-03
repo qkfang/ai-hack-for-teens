@@ -175,6 +175,18 @@ When the user asks for changes or suggestions, provide the updated story text or
           >
             👁️ Preview
           </button>
+          
+          <div className="typewriter-publish-row">
+            {selectedIdeaId && (
+              <button
+                className={`typewriter-publish-btn idea-save-btn${saveToIdeaState === 'saved' ? ' idea-save-btn--saved' : saveToIdeaState === 'error' ? ' idea-save-btn--error' : ''}`}
+                onClick={handleSaveToIdea}
+                disabled={saveToIdeaState === 'saving' || !body.trim()}
+              >
+                {saveToIdeaState === 'saving' ? '⏳ Saving…' : saveToIdeaState === 'saved' ? '✅ Saved!' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save'}
+              </button>
+            )}
+          </div>
         </div>
 
         {viewMode === 'edit' ? (
@@ -194,17 +206,6 @@ When the user asks for changes or suggestions, provide the updated story text or
           </div>
         )}
 
-        <div className="typewriter-publish-row">
-          {selectedIdeaId && (
-            <button
-              className={`typewriter-publish-btn idea-save-btn${saveToIdeaState === 'saved' ? ' idea-save-btn--saved' : saveToIdeaState === 'error' ? ' idea-save-btn--error' : ''}`}
-              onClick={handleSaveToIdea}
-              disabled={saveToIdeaState === 'saving' || !body.trim()}
-            >
-              {saveToIdeaState === 'saving' ? '⏳ Saving…' : saveToIdeaState === 'saved' ? '✅ Saved to Idea!' : saveToIdeaState === 'error' ? '❌ Failed' : '💡 Save to Idea'}
-            </button>
-          )}
-        </div>
       </div>
 
       <div className="typewriter-chat-panel">

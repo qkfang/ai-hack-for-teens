@@ -675,28 +675,6 @@ export function AgentBuilderPage() {
               <h3 className="ab-card-title">⚙️ Model Settings</h3>
 
               {/* Model input + presets */}
-              <div className="ab-form-group">
-                <label className="ab-label">Model</label>
-                <div className="ab-model-row">
-                  <input
-                    type="text"
-                    value={config.model}
-                    readOnly
-                    className="ab-input ab-model-input"
-                  />
-                </div>
-                <div className="ab-model-presets">
-                  {MODEL_PRESETS.map((m) => (
-                    <span
-                      key={m}
-                      className={`ab-preset-chip ${config.model === m ? 'ab-preset-active' : ''}`}
-                    >
-                      {m}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
               <Slider
                 label="Temperature"
                 min={0}

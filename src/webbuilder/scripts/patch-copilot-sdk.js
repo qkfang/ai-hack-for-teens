@@ -19,17 +19,26 @@ try {
     console.log('[patch-copilot-sdk] Patched vscode-jsonrpc import in session.js');
   }
 
-  // Patch client.js: replace import.meta.resolve("@github/copilot/sdk") with relative URL resolution
+  // Patch client.js: replace getBundledCliPath to not rely on import.meta.url
+  // (webpack mangles import.meta.url in standalone builds)
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
-    const marker = 'import.meta.resolve("@github/copilot/sdk")';
-    if (clientContent.includes(marker)) {
-      // Resolve relative to client.js at @github/copilot-sdk/dist/client.js
-      // ../../copilot/sdk/index.js -> @github/copilot/sdk/index.js
-      const replacement = 'new URL("../../copilot/sdk/index.js", import.meta.url).href';
-      clientContent = clientContent.replace(marker, replacement);
+
+    const oldFnRegex = /function getBundledCliPath\(\)\s*\{[^}]+\}/;
+    const newFn = `function getBundledCliPath() {
+  const candidate = join(process.cwd(), "node_modules", "@github", "copilot", "index.js");
+  if (existsSync(candidate)) return candidate;
+  try {
+    const sdkPath = fileURLToPath(import.meta.resolve("@github/copilot/sdk"));
+    return join(dirname(dirname(sdkPath)), "index.js");
+  } catch {}
+  return candidate;
+}`;
+
+    if (oldFnRegex.test(clientContent) && !clientContent.includes('process.cwd(), "node_modules", "@github", "copilot"')) {
+      clientContent = clientContent.replace(oldFnRegex, newFn);
       fs.writeFileSync(clientPath, clientContent, 'utf8');
-      console.log('[patch-copilot-sdk] Patched import.meta.resolve in client.js');
+      console.log('[patch-copilot-sdk] Patched getBundledCliPath in client.js');
     }
   }
 } catch (error) {
