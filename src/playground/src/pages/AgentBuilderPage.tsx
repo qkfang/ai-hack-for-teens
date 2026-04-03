@@ -314,11 +314,17 @@ export function AgentBuilderPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+  const isCreator = !!currentIdea && !!user && currentIdea.userId === user.id
 
   // Redirect to ideas list if no idea is selected after load
   useEffect(() => {
     if (loaded && !currentIdea && !(location.state as { ideaAgentConfig?: unknown } | null)?.ideaAgentConfig) navigate('/ideas')
   }, [loaded, currentIdea, location.state, navigate])
+
+  // Switch to 'use' tab when the user is not the creator
+  useEffect(() => {
+    if (loaded && currentIdea && !isCreator) setActiveTab('use')
+  }, [loaded, currentIdea, isCreator])
 
   // Auto-load agent config from the selected idea
   useEffect(() => {
@@ -544,6 +550,8 @@ export function AgentBuilderPage() {
           <button
             className={`ab-tab ${activeTab === 'builder' ? 'ab-tab-active' : ''}`}
             onClick={() => setActiveTab('builder')}
+            disabled={!isCreator}
+            title={!isCreator ? 'Only the creator can edit this agent' : undefined}
           >
             🎨 Builder
           </button>
