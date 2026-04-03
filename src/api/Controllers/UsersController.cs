@@ -9,9 +9,10 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorageService blobStorage) : ControllerBase
+public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorageService blobStorage, IConfiguration config) : ControllerBase
 {
     private static readonly TimeSpan DbCacheDuration = TimeSpan.FromMinutes(5);
+    private bool CacheEnabled => config.GetValue<bool>("DbCacheEnabled");
 
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
@@ -30,13 +31,16 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        if (!cache.TryGetValue("users:all", out object? cached))
-        {
-            cached = await db.AppUsers
-                .Select(u => new { id = u.Id, username = u.Username, createdAt = u.CreatedAt, comicCount = u.Comics.Count })
-                .ToListAsync();
+        if (CacheEnabled && cache.TryGetValue("users:all", out object? cached))
+            return Ok(cached);
+
+        cached = await db.AppUsers
+            .Select(u => new { id = u.Id, username = u.Username, createdAt = u.CreatedAt, comicCount = u.Comics.Count })
+            .ToListAsync();
+
+        if (CacheEnabled)
             cache.Set("users:all", cached, DbCacheDuration);
-        }
+
         return Ok(cached);
     }
 
@@ -44,13 +48,16 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
     public async Task<IActionResult> GetUser(int id)
     {
         var cacheKey = $"users:{id}";
-        if (!cache.TryGetValue(cacheKey, out object? cached))
-        {
-            var user = await db.AppUsers.FindAsync(id);
-            if (user == null) return NotFound(new { error = "User not found" });
-            cached = new { id = user.Id, username = user.Username, createdAt = user.CreatedAt };
+        if (CacheEnabled && cache.TryGetValue(cacheKey, out object? cached))
+            return Ok(cached);
+
+        var user = await db.AppUsers.FindAsync(id);
+        if (user == null) return NotFound(new { error = "User not found" });
+        cached = new { id = user.Id, username = user.Username, createdAt = user.CreatedAt };
+
+        if (CacheEnabled)
             cache.Set(cacheKey, cached, DbCacheDuration);
-        }
+
         return Ok(cached);
     }
 
@@ -58,17 +65,21 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
     public async Task<IActionResult> GetUserComics(int id)
     {
         var cacheKey = $"users:{id}:comics";
-        if (!cache.TryGetValue(cacheKey, out object? cached))
-        {
-            if (!await db.AppUsers.AnyAsync(u => u.Id == id))
-                return NotFound(new { error = "User not found" });
-            cached = await db.Comics
-                .Where(c => c.UserId == id)
-                .OrderByDescending(c => c.CreatedAt)
-                .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
-                .ToListAsync();
+        if (CacheEnabled && cache.TryGetValue(cacheKey, out object? cached))
+            return Ok(cached);
+
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
+
+        cached = await db.Comics
+            .Where(c => c.UserId == id)
+            .OrderByDescending(c => c.CreatedAt)
+            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
+            .ToListAsync();
+
+        if (CacheEnabled)
             cache.Set(cacheKey, cached, DbCacheDuration);
-        }
+
         return Ok(cached);
     }
 
@@ -98,17 +109,21 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
     public async Task<IActionResult> GetUserStories(int id)
     {
         var cacheKey = $"users:{id}:stories";
-        if (!cache.TryGetValue(cacheKey, out object? cached))
-        {
-            if (!await db.AppUsers.AnyAsync(u => u.Id == id))
-                return NotFound(new { error = "User not found" });
-            cached = await db.Stories
-                .Where(s => s.UserId == id)
-                .OrderByDescending(s => s.CreatedAt)
-                .Select(s => new { id = s.Id, title = s.Title, body = s.Body, coverImageUrl = s.CoverImageUrl, createdAt = s.CreatedAt })
-                .ToListAsync();
+        if (CacheEnabled && cache.TryGetValue(cacheKey, out object? cached))
+            return Ok(cached);
+
+        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+            return NotFound(new { error = "User not found" });
+
+        cached = await db.Stories
+            .Where(s => s.UserId == id)
+            .OrderByDescending(s => s.CreatedAt)
+            .Select(s => new { id = s.Id, title = s.Title, body = s.Body, coverImageUrl = s.CoverImageUrl, createdAt = s.CreatedAt })
+            .ToListAsync();
+
+        if (CacheEnabled)
             cache.Set(cacheKey, cached, DbCacheDuration);
-        }
+
         return Ok(cached);
     }
 
