@@ -101,4 +101,12 @@ app.MapStaticAssets();
 app.MapControllers();
 app.MapRazorPages().WithStaticAssets();
 
+// Pre-initialise all AzureOpenAIClient instances in the background so the first real
+// request doesn't pay the SDK pipeline-allocation cost.
+_ = Task.Run(() =>
+{
+    try { app.Services.GetRequiredService<AzureKeyPoolService>().WarmUp(); }
+    catch { /* best effort */ }
+});
+
 app.Run();

@@ -1,6 +1,9 @@
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.Core;
 using Azure.Identity;
+using OpenAI.Chat;
+using System.Collections.Concurrent;
 
 namespace api.Services;
 
@@ -27,8 +30,13 @@ public class FoundryEntry : PoolEntry
     public string Url { get; init; } = "";
     public string Key { get; init; } = "";
     public string TenantId { get; init; } = "";
+    // Shared credential injected by the pool builder so all entries with the same TenantId
+    // share one token cache and pay the token-acquisition cost only once.
+    public TokenCredential? Credential { get; init; }
 
     private AzureOpenAIClient? _client;
+    private readonly ConcurrentDictionary<string, ChatClient> _chatClients = new();
+
     public AzureOpenAIClient GetOrCreateClient()
     {
         if (_client is not null) return _client;
@@ -37,13 +45,17 @@ public class FoundryEntry : PoolEntry
             created = new AzureOpenAIClient(new Uri(Url), new AzureKeyCredential(Key));
         else
         {
-            var credential = string.IsNullOrEmpty(TenantId)
+            var credential = Credential ?? (string.IsNullOrEmpty(TenantId)
                 ? new DefaultAzureCredential()
-                : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = TenantId });
+                : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = TenantId }));
             created = new AzureOpenAIClient(new Uri(Url), credential);
         }
         return Interlocked.CompareExchange(ref _client, created, null) ?? created;
     }
+
+    // Cache ChatClient per deployment to avoid re-wrapping the pipeline on every request.
+    public ChatClient GetOrCreateChatClient(string deployment)
+        => _chatClients.GetOrAdd(deployment, d => GetOrCreateClient().GetChatClient(d));
 }
 
 public class TranslatorEntry : PoolEntry
@@ -121,14 +133,42 @@ public class AzureKeyPoolService
         SpeechPool = BuildSpeechPool(config);
     }
 
+    // Pre-initialise all AzureOpenAIClient instances so the first real request
+    // doesn't pay the SDK pipeline allocation cost.
+    public void WarmUp()
+    {
+        for (int i = 0; i < FoundryTextPool.Count; i++) FoundryTextPool.GetNext()?.GetOrCreateClient();
+        for (int i = 0; i < FoundryImagePool.Count; i++) FoundryImagePool.GetNext()?.GetOrCreateClient();
+    }
+
     private static KeyPool<FoundryEntry> BuildFoundryPool(IConfiguration config, string section)
     {
-        var entries = config.GetSection($"{section}:Endpoints").GetChildren()
-            .Select(s => new FoundryEntry
+        var sections = config.GetSection($"{section}:Endpoints").GetChildren().ToList();
+
+        // Create one DefaultAzureCredential per TenantId so all endpoints with the same
+        // tenant share a single token cache — the token is acquired once and reused.
+        var sharedCreds = sections
+            .Where(s => string.IsNullOrEmpty(s["Key"]))
+            .Select(s => s["TenantId"] ?? "")
+            .Distinct()
+            .ToDictionary(
+                tenantId => tenantId,
+                tenantId => (TokenCredential)(string.IsNullOrEmpty(tenantId)
+                    ? new DefaultAzureCredential()
+                    : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = tenantId })));
+
+        var entries = sections
+            .Select(s =>
             {
-                Url = s["Url"] ?? "",
-                Key = s["Key"] ?? "",
-                TenantId = s["TenantId"] ?? ""
+                var key = s["Key"] ?? "";
+                var tenantId = s["TenantId"] ?? "";
+                return new FoundryEntry
+                {
+                    Url = s["Url"] ?? "",
+                    Key = key,
+                    TenantId = tenantId,
+                    Credential = string.IsNullOrEmpty(key) && sharedCreds.TryGetValue(tenantId, out var cred) ? cred : null
+                };
             })
             .Where(e => !string.IsNullOrEmpty(e.Url))
             .ToList();

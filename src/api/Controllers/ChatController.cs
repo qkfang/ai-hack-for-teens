@@ -158,7 +158,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
     {
         var defaultDeployment = config["AzureAIFoundryText:Deployment"] ?? "gpt-4o";
         var deployment = string.IsNullOrEmpty(model) ? defaultDeployment : model;
-        return entry.GetOrCreateClient().GetChatClient(deployment);
+        return entry.GetOrCreateChatClient(deployment);
     }
 
     private static int ParseRetryAfter(RequestFailedException ex, int defaultSeconds = 60)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useUser, User } from "../contexts/UserContext";
 
 const ADMIN_PASSCODE = "9999";
@@ -23,6 +24,9 @@ function dispatchClearChat() {
 
 export default function UserProfile() {
   const { user, isLoading, isLockedUser, setUserName, switchUser, createUser, listUsers } = useUser();
+  const searchParams = useSearchParams();
+  const ideaId = searchParams.get("ideaId");
+  const ideaTitle = searchParams.get("ideaTitle");
   const [isEditing, setIsEditing] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSwitchUserOpen, setIsSwitchUserOpen] = useState(false);
@@ -187,6 +191,15 @@ export default function UserProfile() {
                 {user?.name}
               </span>
             </div>
+            {ideaId && (
+              <div className="mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-0.5">Idea</p>
+                <p className="text-sm text-gray-900 dark:text-white">
+                  <span className="text-gray-400 dark:text-gray-500 mr-1">#{ideaId}</span>
+                  {ideaTitle}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Actions */}
