@@ -35,6 +35,15 @@ resource imagesContainer 'Microsoft.Storage/storageAccounts/blobServices/contain
   }
 }
 
+
+resource webbuilderContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01' = {
+  parent: blobService
+  name: 'webbuilder'
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
 var storageBlobDataContributorRoleId = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppPrincipalId)) {
