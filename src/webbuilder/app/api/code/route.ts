@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { storage, CodeBundle } from "@/app/lib/storage";
 
+function getStorageKey(userId: string, ideaId: string | null): string {
+  return ideaId ? `${userId}/${ideaId}` : userId;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || "default";
+  const ideaId = searchParams.get("ideaId");
+  const storageKey = getStorageKey(userId, ideaId);
   const requestedFile = searchParams.get("file");
   const returnAll = searchParams.get("all") === "true";
 
   let bundle: CodeBundle;
   let isDefault = false;
 
-  const userBundle = await storage.getCodeBundle(userId);
+  const userBundle = await storage.getCodeBundle(storageKey);
   if (userBundle && Object.keys(userBundle.files).length > 0) {
     bundle = userBundle;
   } else {
@@ -50,9 +56,11 @@ export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || "default";
+    const ideaId = searchParams.get("ideaId");
+    const storageKey = getStorageKey(userId, ideaId);
     const body = await request.json();
 
-    let bundle = await storage.getCodeBundle(userId);
+    let bundle = await storage.getCodeBundle(storageKey);
     if (!bundle || Object.keys(bundle.files).length === 0) {
       const defaultTemplate = await storage.getDefaultTemplate();
       bundle = { ...defaultTemplate, files: { ...defaultTemplate.files }, version: 0 };
@@ -72,7 +80,7 @@ export async function POST(request: NextRequest) {
 
     bundle.version += 1;
     bundle.updatedAt = new Date().toISOString();
-    await storage.saveCodeBundle(userId, bundle);
+    await storage.saveCodeBundle(storageKey, bundle);
 
     return NextResponse.json({
       success: true,
@@ -89,20 +97,23 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || "default";
+  const ideaId = searchParams.get("ideaId");
+  const storageKey = getStorageKey(userId, ideaId);
   const fileToDelete = searchParams.get("file");
 
   if (fileToDelete) {
-    const bundle = await storage.getCodeBundle(userId);
+    const bundle = await storage.getCodeBundle(storageKey);
     if (bundle && bundle.files[fileToDelete]) {
       delete bundle.files[fileToDelete];
       bundle.version += 1;
       bundle.updatedAt = new Date().toISOString();
-      await storage.saveCodeBundle(userId, bundle);
+      await storage.saveCodeBundle(storageKey, bundle);
       return NextResponse.json({ success: true, message: `File "${fileToDelete}" deleted`, version: bundle.version });
     }
     return NextResponse.json({ error: `File "${fileToDelete}" not found` }, { status: 404 });
   }
 
-  await storage.deleteCodeBundle(userId);
+  await storage.deleteCodeBundle(storageKey);
   return NextResponse.json({ success: true, message: "Code reset to default" });
 }
+
