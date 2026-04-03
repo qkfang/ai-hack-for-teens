@@ -24,7 +24,18 @@ try {
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
 
-    const oldFnRegex = /function getBundledCliPath\(\)\s*\{[^}]+\}/;
+    // Match the entire function body by counting braces
+    const fnStart = clientContent.indexOf('function getBundledCliPath()');
+    let oldFnText = null;
+    if (fnStart !== -1) {
+      let depth = 0, i = fnStart;
+      while (i < clientContent.length) {
+        if (clientContent[i] === '{') depth++;
+        else if (clientContent[i] === '}') { depth--; if (depth === 0) { oldFnText = clientContent.slice(fnStart, i + 1); break; } }
+        i++;
+      }
+    }
+    const oldFnRegex = oldFnText ? null : /function getBundledCliPath\(\)\s*\{[^}]+\}/;
     const newFn = `function getBundledCliPath() {
   const thisDir = dirname(fileURLToPath(import.meta.url));
   const relCandidate = join(thisDir, "..", "..", "copilot", "index.js");
@@ -38,8 +49,10 @@ try {
   return relCandidate;
 }`;
 
-    if (oldFnRegex.test(clientContent) && !clientContent.includes('thisDir, "..", "..", "copilot"')) {
-      clientContent = clientContent.replace(oldFnRegex, newFn);
+    if ((oldFnText || oldFnRegex?.test(clientContent)) && !clientContent.includes('thisDir, "..", "..", "copilot"')) {
+      clientContent = oldFnText
+        ? clientContent.replace(oldFnText, newFn)
+        : clientContent.replace(oldFnRegex, newFn);
       fs.writeFileSync(clientPath, clientContent, 'utf8');
       console.log('[patch-copilot-sdk] Patched getBundledCliPath in client.js');
     }
