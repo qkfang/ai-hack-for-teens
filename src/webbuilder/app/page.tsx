@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -18,7 +18,7 @@ function getLanguageFromFilename(filename: string): string {
   return langMap[ext || ""] || "typescript";
 }
 
-export default function Home() {
+function HomeContent() {
   const { user, isLoading: isUserLoading, isLockedUser } = useUser();
   const searchParams = useSearchParams();
   const ideaId = searchParams.get("ideaId");
@@ -246,5 +246,13 @@ export default function Home() {
 
       <ChatFlyout isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }
