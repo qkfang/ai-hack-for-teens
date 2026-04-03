@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using api.Data;
 using api.Models;
 
@@ -7,8 +8,10 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UsersController(AIHackDbContext db) : ControllerBase
+public class UsersController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
 {
+    private static readonly TimeSpan DbCacheDuration = TimeSpan.FromMinutes(5);
+
     [HttpPost]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
     {
@@ -19,37 +22,53 @@ public class UsersController(AIHackDbContext db) : ControllerBase
         var user = new AppUser { Username = username };
         db.AppUsers.Add(user);
         await db.SaveChangesAsync();
+        cache.Remove("users:all");
         return StatusCode(201, new { id = user.Id, username = user.Username, createdAt = user.CreatedAt });
     }
 
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await db.AppUsers
-            .Select(u => new { id = u.Id, username = u.Username, createdAt = u.CreatedAt, comicCount = u.Comics.Count })
-            .ToListAsync();
-        return Ok(users);
+        if (!cache.TryGetValue("users:all", out object? cached))
+        {
+            cached = await db.AppUsers
+                .Select(u => new { id = u.Id, username = u.Username, createdAt = u.CreatedAt, comicCount = u.Comics.Count })
+                .ToListAsync();
+            cache.Set("users:all", cached, DbCacheDuration);
+        }
+        return Ok(cached);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetUser(int id)
     {
-        var user = await db.AppUsers.FindAsync(id);
-        if (user == null) return NotFound(new { error = "User not found" });
-        return Ok(new { id = user.Id, username = user.Username, createdAt = user.CreatedAt });
+        var cacheKey = $"users:{id}";
+        if (!cache.TryGetValue(cacheKey, out object? cached))
+        {
+            var user = await db.AppUsers.FindAsync(id);
+            if (user == null) return NotFound(new { error = "User not found" });
+            cached = new { id = user.Id, username = user.Username, createdAt = user.CreatedAt };
+            cache.Set(cacheKey, cached, DbCacheDuration);
+        }
+        return Ok(cached);
     }
 
     [HttpGet("{id:int}/comics")]
     public async Task<IActionResult> GetUserComics(int id)
     {
-        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
-            return NotFound(new { error = "User not found" });
-        var comics = await db.Comics
-            .Where(c => c.UserId == id)
-            .OrderByDescending(c => c.CreatedAt)
-            .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
-            .ToListAsync();
-        return Ok(comics);
+        var cacheKey = $"users:{id}:comics";
+        if (!cache.TryGetValue(cacheKey, out object? cached))
+        {
+            if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+                return NotFound(new { error = "User not found" });
+            cached = await db.Comics
+                .Where(c => c.UserId == id)
+                .OrderByDescending(c => c.CreatedAt)
+                .Select(c => new { id = c.Id, description = c.Description, imageUrl = c.ImageUrl, createdAt = c.CreatedAt })
+                .ToListAsync();
+            cache.Set(cacheKey, cached, DbCacheDuration);
+        }
+        return Ok(cached);
     }
 
     [HttpPost("{id:int}/comics")]
@@ -66,20 +85,29 @@ public class UsersController(AIHackDbContext db) : ControllerBase
         var comic = new Comic { UserId = id, Description = description, ImageUrl = imageUrl };
         db.Comics.Add(comic);
         await db.SaveChangesAsync();
+        cache.Remove($"users:{id}:comics");
+        cache.Remove($"users:{id}");
+        cache.Remove("users:all");
+        cache.Remove("comics:all");
         return StatusCode(201, new { id = comic.Id, description = comic.Description, imageUrl = comic.ImageUrl, createdAt = comic.CreatedAt });
     }
 
     [HttpGet("{id:int}/stories")]
     public async Task<IActionResult> GetUserStories(int id)
     {
-        if (!await db.AppUsers.AnyAsync(u => u.Id == id))
-            return NotFound(new { error = "User not found" });
-        var stories = await db.Stories
-            .Where(s => s.UserId == id)
-            .OrderByDescending(s => s.CreatedAt)
-            .Select(s => new { id = s.Id, title = s.Title, body = s.Body, coverImageUrl = s.CoverImageUrl, createdAt = s.CreatedAt })
-            .ToListAsync();
-        return Ok(stories);
+        var cacheKey = $"users:{id}:stories";
+        if (!cache.TryGetValue(cacheKey, out object? cached))
+        {
+            if (!await db.AppUsers.AnyAsync(u => u.Id == id))
+                return NotFound(new { error = "User not found" });
+            cached = await db.Stories
+                .Where(s => s.UserId == id)
+                .OrderByDescending(s => s.CreatedAt)
+                .Select(s => new { id = s.Id, title = s.Title, body = s.Body, coverImageUrl = s.CoverImageUrl, createdAt = s.CreatedAt })
+                .ToListAsync();
+            cache.Set(cacheKey, cached, DbCacheDuration);
+        }
+        return Ok(cached);
     }
 
     [HttpPost("{id:int}/stories")]
@@ -96,6 +124,8 @@ public class UsersController(AIHackDbContext db) : ControllerBase
         var story = new Story { UserId = id, Title = title, Body = body, CoverImageUrl = request.CoverImageUrl?.Trim() ?? "" };
         db.Stories.Add(story);
         await db.SaveChangesAsync();
+        cache.Remove($"users:{id}:stories");
+        cache.Remove("stories:all");
         return StatusCode(201, new { id = story.Id, title = story.Title, body = story.Body, coverImageUrl = story.CoverImageUrl, createdAt = story.CreatedAt });
     }
 }

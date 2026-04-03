@@ -1,10 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { API_BASE } from '../config'
 import './AdminPage.css'
-
-const ADMIN_PASSWORD = '9999'
-const STORAGE_KEY = 'ai-quiz-admin'
 
 interface QuizState {
   status: 'waiting' | 'inprogress' | 'finished'
@@ -16,20 +12,7 @@ interface QuizState {
 }
 
 export function AdminQuizPage() {
-  const [authed, setAuthed] = useState(() => sessionStorage.getItem(STORAGE_KEY) === 'true')
-  const [pw, setPw] = useState('')
-  const [pwError, setPwError] = useState(false)
   const [quizState, setQuizState] = useState<QuizState | null>(null)
-
-  function login() {
-    if (pw === ADMIN_PASSWORD) {
-      sessionStorage.setItem(STORAGE_KEY, 'true')
-      setAuthed(true)
-      setPwError(false)
-    } else {
-      setPwError(true)
-    }
-  }
 
   const fetchState = useCallback(async () => {
     try {
@@ -39,45 +22,20 @@ export function AdminQuizPage() {
   }, [])
 
   useEffect(() => {
-    if (!authed) return
     fetchState()
     const id = setInterval(fetchState, 5000)
     return () => clearInterval(id)
-  }, [authed, fetchState])
+  }, [fetchState])
 
   async function control(action: string) {
     try {
       await fetch(`${API_BASE}/api/quiz/admin/control`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': ADMIN_PASSWORD },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': '9999' },
         body: JSON.stringify({ action }),
       })
       fetchState()
     } catch { /* ignore */ }
-  }
-
-  if (!authed) {
-    return (
-      <div className="admin-page">
-        <div className="admin-login-card">
-          <h1>🔐 Admin Login</h1>
-          <p>Enter admin password to access quiz controls</p>
-          <div className="admin-login-form">
-            <input
-              type="password"
-              placeholder="Password"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && login()}
-              className={`admin-pw-input${pwError ? ' error' : ''}`}
-              autoFocus
-            />
-            <button className="admin-btn primary" onClick={login}>Login</button>
-          </div>
-          {pwError && <p className="admin-pw-error">Incorrect password</p>}
-        </div>
-      </div>
-    )
   }
 
   const status = quizState?.status ?? 'waiting'
@@ -87,7 +45,6 @@ export function AdminQuizPage() {
       <div className="admin-header">
         <h1>🧠 Quiz Control</h1>
         <span className={`admin-status-badge ${status}`}>{status === 'inprogress' ? 'In Progress' : status === 'finished' ? 'Finished' : 'Waiting'}</span>
-        <Link to="/admin" className="admin-btn">← Nav Modules</Link>
       </div>
 
       <div className="admin-controls">

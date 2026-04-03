@@ -181,17 +181,27 @@
 
 .user-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: 100%;
   right: 0;
   background: #112447;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
   min-width: 160px;
+  margin-top: 8px;
   padding: 0.4rem 0;
   display: flex;
   flex-direction: column;
   z-index: 200;
+}
+
+.header-user::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 8px;
 }
 
 .user-dropdown-id {
