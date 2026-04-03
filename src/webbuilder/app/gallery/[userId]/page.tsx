@@ -77,12 +77,12 @@ export default function GalleryViewerPage() {
               </span>
               <span className="text-[10px] text-gray-400 dark:text-gray-500">v{design.version}</span>
             </div>
-            <Link
+            {/* <Link
               href="/gallery"
               className="px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
             >
               &larr; Gallery
-            </Link>
+            </Link> */}
           </div>
         </div>
       </header>

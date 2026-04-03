@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 interface GalleryEntry {
   userId: string;
@@ -13,7 +14,86 @@ interface GalleryEntry {
   code: string;
 }
 
-export default function GalleryPage() {
+interface DesignData {
+  code: string;
+  version: number;
+  updatedAt: string;
+}
+
+function GalleryViewer() {
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
+  const userName = searchParams.get("userName") || userId;
+  const ideaId = searchParams.get("ideaId");
+  const ideaTitle = searchParams.get("ideaTitle") || "";
+
+  const [design, setDesign] = useState<DesignData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!userId || !ideaId) { setError("Missing userId or ideaId"); setIsLoading(false); return; }
+
+    fetch(`/api/code?userId=${encodeURIComponent(userId)}&ideaId=${encodeURIComponent(ideaId)}&all=true`)
+      .then((r) => r.json())
+      .then((data) => {
+        const entrypoint = data.entrypoint || "index.html";
+        const code = data.files?.[entrypoint] || "";
+        if (!code) { setError("No design found"); return; }
+        setDesign({ code, version: data.version || 0, updatedAt: data.updatedAt || "" });
+      })
+      .catch(() => setError("Failed to load design"))
+      .finally(() => setIsLoading(false));
+  }, [userId, ideaId]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+          <span className="text-gray-600 dark:text-gray-400">Loading design...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !design) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 gap-4">
+        <p className="text-gray-500 dark:text-gray-400 text-lg">{error || "Design not found"}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-1.5">
+          <div className="flex items-center gap-2">
+            <h1 className="text-sm font-semibold text-gray-900 dark:text-white">
+              {userName}&apos;s Design{ideaTitle ? ` — ${ideaTitle}` : ""}
+            </h1>
+            <span className="px-1.5 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 rounded-full">
+              Read Only
+            </span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">v{design.version}</span>
+          </div>
+        </div>
+      </header>
+      <main className="flex-1">
+        <iframe
+          srcDoc={design.code}
+          sandbox="allow-scripts allow-forms allow-modals"
+          className="w-full border-0"
+          style={{ height: "calc(100vh - 36px)" }}
+          title={`${userName}'s design`}
+        />
+      </main>
+    </div>
+  );
+}
+
+function GalleryList() {
   const [entries, setEntries] = useState<GalleryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [previewEntry, setPreviewEntry] = useState<GalleryEntry | null>(null);
@@ -123,7 +203,7 @@ export default function GalleryPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Link
-                  href={`/gallery/${previewEntry.userId}`}
+                  href={`/gallery/?userId=${encodeURIComponent(previewEntry.userId)}&userName=${encodeURIComponent(previewEntry.userName)}`}
                   target="_blank"
                   className="px-2 py-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                   onClick={(e) => e.stopPropagation()}
@@ -150,5 +230,24 @@ export default function GalleryPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function GalleryRouter() {
+  const searchParams = useSearchParams();
+  const userId = searchParams.get("userId");
+  const ideaId = searchParams.get("ideaId");
+
+  if (userId && ideaId) {
+    return <GalleryViewer />;
+  }
+  return <GalleryList />;
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense>
+      <GalleryRouter />
+    </Suspense>
   );
 }

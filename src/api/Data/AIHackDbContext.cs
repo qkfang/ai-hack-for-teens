@@ -32,7 +32,7 @@ public class AIHackDbContext : DbContext
             new AppSetting
             {
                 Key = "nav-config",
-                Value = "{\"genai\":{\"chat\":false,\"translation\":false,\"speech\":false,\"realtime\":false},\"startup\":{\"ideas\":true,\"storybook\":false,\"comic\":false,\"agent\":false,\"webbuilder\":false},\"gallery\":false,\"quiz\":false}"
+                Value = "{\"genai\":{\"chat\":false,\"translation\":false,\"speech\":false,\"realtime\":false},\"startup\":{\"ideas\":false,\"storybook\":false,\"comic\":false,\"agent\":false,\"webbuilder\":false},\"gallery\":true,\"quiz\":true}"
             }
         );
 

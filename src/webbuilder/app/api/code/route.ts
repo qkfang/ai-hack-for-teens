@@ -2,22 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { storage, CodeBundle, BlobStorageProvider } from "@/app/lib/storage";
 
 async function saveToBlobIfConfigured(storageKey: string, bundle: CodeBundle): Promise<void> {
-  const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-  if (!connectionString || connectionString.trim().length === 0) return;
+  const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+  if (!accountName || accountName.trim().length === 0) return;
   const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME || "webbuilder";
-  const blobProvider = new BlobStorageProvider(connectionString, containerName);
+  const blobProvider = new BlobStorageProvider(accountName, containerName);
   await blobProvider.saveCodeBundle(storageKey, bundle);
-}
-
-function getStorageKey(userId: string, ideaId: string | null): string {
-  return ideaId ? `${userId}_${ideaId}` : userId;
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId") || "default";
-  const ideaId = searchParams.get("ideaId");
-  const storageKey = getStorageKey(userId, ideaId);
+  const ideaId = searchParams.get("ideaId") || "default";
+  const storageKey = `${userId}_${ideaId}`;
   const requestedFile = searchParams.get("file");
   const returnAll = searchParams.get("all") === "true";
 
@@ -64,8 +60,8 @@ export async function POST(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId") || "default";
-    const ideaId = searchParams.get("ideaId");
-    const storageKey = getStorageKey(userId, ideaId);
+    const ideaId = searchParams.get("ideaId") || "default";
+    const storageKey = `${userId}_${ideaId}`;
     const body = await request.json();
 
     let bundle = await storage.getCodeBundle(storageKey);

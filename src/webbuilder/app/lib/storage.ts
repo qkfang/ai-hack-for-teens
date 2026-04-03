@@ -78,7 +78,7 @@ export class FileSystemStorageProvider implements StorageProvider {
   async createUser(name: string, userId?: string): Promise<UserData> {
     const users = (await this.readJsonFile<UserData[]>(this.usersFile)) || [];
     const newUser: UserData = {
-      id: userId || `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id: userId!,
       name,
       createdAt: new Date().toISOString(),
     };
@@ -293,7 +293,7 @@ export class BlobStorageProvider implements StorageProvider {
   async createUser(name: string, userId?: string): Promise<UserData> {
     const users = (await this.readBlob<UserData[]>("meta/users.json")) || [];
     const newUser: UserData = {
-      id: userId || `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      id: userId!,
       name,
       createdAt: new Date().toISOString(),
     };
