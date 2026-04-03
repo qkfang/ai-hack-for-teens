@@ -63,14 +63,23 @@ export function GalleryPage() {
   const [formError, setFormError] = useState('')
   const [sort, setSort] = useState<'latest' | 'oldest' | 'most-voted'>('latest')
   const [votingId, setVotingId] = useState<number | null>(null)
+  const [webBuilderIds, setWebBuilderIds] = useState<Set<string>>(new Set())
 
   const fetchAll = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const ideasRes = await fetch(`${API_BASE}/api/ideas`)
-      if (!ideasRes.ok) throw new Error('Failed to fetch startup ideas')
-      setIdeas(await ideasRes.json() as StartupIdeaEntry[])
+      const [ideasRes, webRes] = await Promise.allSettled([
+        fetch(`${API_BASE}/api/ideas`),
+        fetch(`${WEBBUILDER_URL}/api/gallery`),
+      ])
+      if (ideasRes.status !== 'fulfilled' || !ideasRes.value.ok) throw new Error('Failed to fetch startup ideas')
+      setIdeas(await ideasRes.value.json() as StartupIdeaEntry[])
+      if (webRes.status === 'fulfilled' && webRes.value.ok) {
+        const data = await webRes.value.json()
+        const ids = new Set<string>((data.gallery ?? []).map((e: { userId: string; ideaId: string }) => `${e.userId}_${e.ideaId}`))
+        setWebBuilderIds(ids)
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load gallery')
     } finally {
@@ -226,6 +235,7 @@ export function GalleryPage() {
                 isVoting={votingId === idea.id}
                 onVote={handleVote}
                 onClick={() => setSelectedIdea(idea)}
+                hasWebBuilder={webBuilderIds.has(`${idea.userId}_${idea.id}`)}
               />
             ))}
           </div>
@@ -314,7 +324,7 @@ export function GalleryPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
-                  >🔗 View in Web Builder</a>
+                  >🔗 Open Webpage</a>
                 </div>
               </div>
               {showWebPreview && selectedIdea.websiteUrl && (
@@ -413,12 +423,14 @@ function IdeaCard({
   isVoting,
   onVote,
   onClick,
+  hasWebBuilder,
 }: {
   idea: StartupIdeaEntry
   currentUserId?: number
   isVoting: boolean
   onVote: (e: React.MouseEvent, ideaId: number) => void
   onClick: () => void
+  hasWebBuilder?: boolean
 }) {
   const isOwn = currentUserId === idea.userId
   const hasVoted = currentUserId != null && idea.voters.includes(currentUserId)
@@ -435,7 +447,7 @@ function IdeaCard({
           {idea.ideaDescription && <span className="gallery-idea-badge">📖 Story</span>}
           {idea.coverImageUrl && <span className="gallery-idea-badge">🎨 Art</span>}
           {idea.agentName && <span className="gallery-idea-badge">🤖 Agent</span>}
-          {idea.websiteUrl && <span className="gallery-idea-badge">🌐 Web</span>}
+          {hasWebBuilder && <span className="gallery-idea-badge">🌐 Web</span>}
         </div>
         <button
           className={`gallery-vote-btn${hasVoted ? ' gallery-vote-btn--voted' : ''}${isOwn ? ' gallery-vote-btn--own' : ''}`}
