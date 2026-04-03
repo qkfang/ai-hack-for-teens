@@ -124,7 +124,7 @@ export function HomePage() {
         <div className="features-grid">
           <Link to="/gallery" className="feature-card feature-card-link">
             <div className="feature-icon">🌟</div>
-            <h3>Community Gallery</h3>
+            <h3>Idea Gallery</h3>
             <p>
               Browse AI-generated comics from all users. Get inspired by others'
               creations and share your own artwork with the community.

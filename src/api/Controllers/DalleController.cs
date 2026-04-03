@@ -1,6 +1,4 @@
 using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Images;
 using api.Data;
@@ -19,19 +17,8 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
         var openAiKey = config["OpenAI:ApiKey"] ?? "";
 
         if (!string.IsNullOrEmpty(entry.Url))
-        {
-            AzureOpenAIClient azureClient;
-            if (!string.IsNullOrEmpty(entry.Key))
-                azureClient = new AzureOpenAIClient(new Uri(entry.Url), new AzureKeyCredential(entry.Key));
-            else
-            {
-                var credential = string.IsNullOrEmpty(entry.TenantId)
-                    ? new DefaultAzureCredential()
-                    : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = entry.TenantId });
-                azureClient = new AzureOpenAIClient(new Uri(entry.Url), credential);
-            }
-            return azureClient.GetImageClient(dalleDeployment);
-        }
+            return entry.GetOrCreateClient().GetImageClient(dalleDeployment);
+
         if (!string.IsNullOrEmpty(openAiKey))
         {
             var openAiClient = new OpenAI.OpenAIClient(openAiKey);

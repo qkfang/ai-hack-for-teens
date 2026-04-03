@@ -1,8 +1,6 @@
 using System.Text;
 using System.Text.Json;
 using Azure;
-using Azure.AI.OpenAI;
-using Azure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OpenAI.Chat;
 using api.Services;
@@ -146,20 +144,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
     {
         var defaultDeployment = config["AzureAIFoundryText:Deployment"] ?? "gpt-4o";
         var deployment = string.IsNullOrEmpty(model) ? defaultDeployment : model;
-
-        AzureOpenAIClient azureClient;
-        if (!string.IsNullOrEmpty(entry.Key))
-        {
-            azureClient = new AzureOpenAIClient(new Uri(entry.Url), new AzureKeyCredential(entry.Key));
-        }
-        else
-        {
-            var credential = string.IsNullOrEmpty(entry.TenantId)
-                ? new DefaultAzureCredential()
-                : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = entry.TenantId });
-            azureClient = new AzureOpenAIClient(new Uri(entry.Url), credential);
-        }
-        return azureClient.GetChatClient(deployment);
+        return entry.GetOrCreateClient().GetChatClient(deployment);
     }
 
     private static int ParseRetryAfter(RequestFailedException ex, int defaultSeconds = 60)

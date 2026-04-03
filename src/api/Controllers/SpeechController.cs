@@ -1,5 +1,4 @@
 using System.Text;
-using Azure.Identity;
 using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -57,9 +56,7 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
         }
         else
         {
-            var credential = new DefaultAzureCredential(
-                new DefaultAzureCredentialOptions { TenantId = entry.TenantId });
-            var aadToken = await credential.GetTokenAsync(
+            var aadToken = await entry.GetOrCreateCredential().GetTokenAsync(
                 new TokenRequestContext(["https://cognitiveservices.azure.com/.default"]),
                 cancellationToken);
             tokenReq.Headers.Authorization =

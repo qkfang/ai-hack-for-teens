@@ -1,3 +1,7 @@
+using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
+
 namespace api.Services;
 
 public abstract class PoolEntry
@@ -23,6 +27,23 @@ public class FoundryEntry : PoolEntry
     public string Url { get; init; } = "";
     public string Key { get; init; } = "";
     public string TenantId { get; init; } = "";
+
+    private AzureOpenAIClient? _client;
+    public AzureOpenAIClient GetOrCreateClient()
+    {
+        if (_client is not null) return _client;
+        AzureOpenAIClient created;
+        if (!string.IsNullOrEmpty(Key))
+            created = new AzureOpenAIClient(new Uri(Url), new AzureKeyCredential(Key));
+        else
+        {
+            var credential = string.IsNullOrEmpty(TenantId)
+                ? new DefaultAzureCredential()
+                : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = TenantId });
+            created = new AzureOpenAIClient(new Uri(Url), credential);
+        }
+        return Interlocked.CompareExchange(ref _client, created, null) ?? created;
+    }
 }
 
 public class TranslatorEntry : PoolEntry
@@ -32,6 +53,16 @@ public class TranslatorEntry : PoolEntry
     public string Region { get; init; } = "";
     public string ResourceId { get; init; } = "";
     public string TenantId { get; init; } = "";
+
+    private DefaultAzureCredential? _credential;
+    public DefaultAzureCredential GetOrCreateCredential()
+    {
+        if (_credential is not null) return _credential;
+        var created = string.IsNullOrEmpty(TenantId)
+            ? new DefaultAzureCredential()
+            : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = TenantId });
+        return Interlocked.CompareExchange(ref _credential, created, null) ?? created;
+    }
 }
 
 public class SpeechEntry : PoolEntry
@@ -40,6 +71,16 @@ public class SpeechEntry : PoolEntry
     public string Region { get; init; } = "eastus";
     public string TenantId { get; init; } = "";
     public string ResourceEndpoint { get; init; } = "";
+
+    private DefaultAzureCredential? _credential;
+    public DefaultAzureCredential GetOrCreateCredential()
+    {
+        if (_credential is not null) return _credential;
+        var created = string.IsNullOrEmpty(TenantId)
+            ? new DefaultAzureCredential()
+            : new DefaultAzureCredential(new DefaultAzureCredentialOptions { TenantId = TenantId });
+        return Interlocked.CompareExchange(ref _credential, created, null) ?? created;
+    }
 }
 
 public class KeyPool<T>(IReadOnlyList<T> entries) where T : PoolEntry
