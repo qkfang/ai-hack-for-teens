@@ -246,20 +246,21 @@ export function ComicPage() {
         <div className="comic-preview-panel">
           {selectedImageUrl ? (
             <div className="comic-latest">
-              <h2>🖼️ Selected Image</h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', paddingBottom: '0.75rem' }}>
+                <h2 style={{ margin: 0 }}>🖼️ Selected Image</h2>
+                {selectedIdeaId && (
+                  <button
+                    className={`comic-cover-btn idea-save-btn${ideaCoverState === 'saved' ? ' idea-save-btn--saved' : ideaCoverState === 'error' ? ' idea-save-btn--error' : ''}`}
+                    onClick={handleSetIdeaCover}
+                    disabled={ideaCoverState === 'saving'}
+                  >
+                    {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover Image'}
+                  </button>
+                )}
+              </div>
               <div className="comic-image-frame selected">
                 <img src={selectedImageUrl} alt="Selected comic" className="comic-image" />
               </div>
-              {selectedIdeaId && (
-                <button
-                  className={`comic-cover-btn idea-save-btn${ideaCoverState === 'saved' ? ' idea-save-btn--saved' : ideaCoverState === 'error' ? ' idea-save-btn--error' : ''}`}
-                  onClick={handleSetIdeaCover}
-                  disabled={ideaCoverState === 'saving'}
-                  style={{ marginTop: '0.5rem' }}
-                >
-                  {ideaCoverState === 'saving' ? '⏳ Saving…' : ideaCoverState === 'saved' ? '✅ Set as Idea Cover!' : ideaCoverState === 'error' ? '❌ Failed' : '💡 Set as Idea Cover Image'}
-                </button>
-              )}
             </div>
           ) : (
             <div className="comic-empty-preview">
