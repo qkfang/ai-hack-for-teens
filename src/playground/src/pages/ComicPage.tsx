@@ -94,10 +94,10 @@ export function ComicPage() {
     if (!prompt || !selectedImageUrl) return
     setEditLoading(true)
     try {
-      const res = await fetch(`${API_BASE}/api/dalle/edit`, {
+      const res = await fetch(`${API_BASE}/api/dalle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: selectedImageUrl, prompt, userId: user?.id }),
+        body: JSON.stringify({ description: prompt, userId: user?.id }),
       })
       const data = await res.json() as { imageUrl?: string; error?: string; retryAfter?: number }
       if (res.status === 429) {
