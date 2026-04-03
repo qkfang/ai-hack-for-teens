@@ -28,9 +28,9 @@ export function HomePage() {
             assistants, create AI art, write startup stories, and discover the power of modern AI.
           </p>
           <div className="hero-actions">
-            <Link to="/typewriter" className="btn btn-primary">
+            {/* <Link to="/typewriter" className="btn btn-primary">
               ✍️ Start Writing →
-            </Link>
+            </Link> */}
             <Link to="/gallery" className="btn btn-secondary">
               🌟 Browse Gallery
             </Link>

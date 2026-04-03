@@ -534,18 +534,6 @@ export function AgentBuilderPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="ab-page">
-      {/* Current idea banner */}
-      <div style={{ padding: '0.5rem 1rem 0' }}>
-        {currentIdea ? (
-          <span style={{ fontSize: '0.9rem', color: '#107c10', background: '#e6f4ea', border: '1px solid #a8d5b0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block' }}>
-            💡 Working on: <strong>{currentIdea.title}</strong>
-          </span>
-        ) : (
-          <span style={{ fontSize: '0.9rem', color: '#805000', background: '#fff4e5', border: '1px solid #e8d5a0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block' }}>
-            No idea selected — go to <a href="/ideas" style={{ color: '#0078d4' }}>Your Ideas</a> to pick one.
-          </span>
-        )}
-      </div>
       {/* Tab bar */}
       <div className="ab-tabbar">
         <div className="ab-tabbar-left">
@@ -565,29 +553,39 @@ export function AgentBuilderPage() {
             💬 Use
           </button>
         </div>
-        <div className="ab-tabbar-right">
-          <button
-            className={`ab-btn ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
-            onClick={handleSave}
-          >
-            {saveState === 'saved' ? '✓ Saved' : '💾 Save'}
-          </button>
-        </div>
+        <div className="ab-tabbar-right" />
       </div>
 
       {/* ── BUILDER TAB ───────────────────────────────────────────────────── */}
       {activeTab === 'builder' && (
         <div className="ab-designer">
-          <div className="ab-designer-toolbar">
-            <button className="ab-btn ab-btn-ghost" onClick={handleReset} title="Reset to defaults">
-              ↺ Reset
-            </button>
-          </div>
           {/* LEFT COLUMN */}
           <div className="ab-col">
             {/* Identity */}
             <section className="ab-card">
-              <h3 className="ab-card-title">🤖 Agent Identity</h3>
+              <div className="ab-card-title-row">
+                <h3 className="ab-card-title">🤖 Agent Identity</h3>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="ab-btn ab-btn-ghost ab-btn-sm" onClick={handleReset} title="Reset to defaults">
+                    ↺ Reset
+                  </button>
+                  <button
+                    className={`ab-btn ab-btn-sm ${saveState === 'saved' ? 'ab-btn-success' : 'ab-btn-primary'}`}
+                    onClick={handleSave}
+                  >
+                    {saveState === 'saved' ? '✓ Saved' : '💾 Save'}
+                  </button>
+                </div>
+              </div>
+              {currentIdea ? (
+                <span style={{ fontSize: '0.9rem', color: '#107c10', background: '#e6f4ea', border: '1px solid #a8d5b0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block', marginBottom: '0.5rem' }}>
+                  💡 Working on: <strong>{currentIdea.title}</strong>
+                </span>
+              ) : (
+                <span style={{ fontSize: '0.9rem', color: '#805000', background: '#fff4e5', border: '1px solid #e8d5a0', borderRadius: '6px', padding: '0.25rem 0.75rem', display: 'inline-block', marginBottom: '0.5rem' }}>
+                  No idea selected — go to <a href="/ideas" style={{ color: '#0078d4' }}>Your Ideas</a> to pick one.
+                </span>
+              )}
               <div className="ab-form-group">
                 <label className="ab-label">Agent Name</label>
                 <input

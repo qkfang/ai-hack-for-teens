@@ -182,16 +182,16 @@
 
 .admin-controls {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
 }
 
 .admin-btn {
-  padding: 0.65rem 1.25rem;
-  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
   border: 2px solid #e0e0e0;
   background: #fff;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s, opacity 0.2s;

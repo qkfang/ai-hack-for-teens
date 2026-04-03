@@ -35,6 +35,17 @@ export function ComicPage() {
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
 
+  async function loadComics() {
+    if (!user?.id) return
+    try {
+      const res = await fetch(`${API_BASE}/api/comics/user/${user.id}`)
+      if (res.ok) {
+        const data = await res.json() as ComicItem[]
+        setComics(data)
+      }
+    } catch { /* ignore */ }
+  }
+
   useEffect(() => {
     if (loaded && !currentIdea) navigate('/ideas')
   }, [loaded, currentIdea, navigate])
@@ -146,7 +157,6 @@ export function ComicPage() {
       <div className="comic-header">
         <h1>🎨 Design Studio</h1>
         <p>Describe your scene and DALL-E will bring it to life!</p>
-        {user && <p className="comic-user">Creating as <strong>{user.username}</strong> (ID: {user.id})</p>}
         {currentIdea && <p className="comic-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></p>}
         {!currentIdea && <p className="comic-idea-banner comic-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</p>}
       </div>
