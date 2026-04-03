@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { API_BASE } from '../config'
@@ -6,14 +6,44 @@ import './LandingPage.css'
 
 type Mode = 'choose' | 'create' | 'continue'
 
+const COOKIE_KEY = 'ai-playground-last-user-id'
+
+function getLastUserIdCookie(): string {
+  const match = document.cookie.split('; ').find(row => row.startsWith(`${COOKIE_KEY}=`))
+  return match ? decodeURIComponent(match.split('=')[1]) : ''
+}
+
+function saveLastUserIdCookie(id: number) {
+  const expires = new Date()
+  expires.setFullYear(expires.getFullYear() + 1)
+  document.cookie = `${COOKIE_KEY}=${id}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`
+}
+
 export function LandingPage() {
   const { setUser } = useUser()
   const navigate = useNavigate()
   const [mode, setMode] = useState<Mode>('choose')
   const [username, setUsername] = useState('')
   const [userId, setUserId] = useState('')
+  const [lastUserId, setLastUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const saved = getLastUserIdCookie()
+    if (saved) setLastUserId(saved)
+  }, [])
+
+  function handleContinueMode() {
+    setUserId(lastUserId)
+    setMode('continue')
+  }
+
+  function handleBackFromContinue() {
+    setMode('choose')
+    setUserId('')
+    setError('')
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -33,6 +63,7 @@ export function LandingPage() {
       }
       const data = await res.json() as { id: number; username: string }
       setUser({ id: data.id, username: data.username })
+      saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -53,6 +84,7 @@ export function LandingPage() {
       if (!res.ok) throw new Error('Failed to fetch user')
       const data = await res.json() as { id: number; username: string }
       setUser({ id: data.id, username: data.username })
+      saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -75,10 +107,12 @@ export function LandingPage() {
               <span className="choice-label">New User</span>
               <span className="choice-desc">Create a new account</span>
             </button>
-            <button className="choice-btn choice-btn--secondary" onClick={() => setMode('continue')}>
+            <button className="choice-btn choice-btn--secondary" onClick={handleContinueMode}>
               <span className="choice-icon">🔑</span>
               <span className="choice-label">Continue</span>
-              <span className="choice-desc">Return with your User ID</span>
+              <span className="choice-desc">
+                {lastUserId ? `Last signed in: #${lastUserId}` : 'Return with your User ID'}
+              </span>
             </button>
           </div>
         )}
@@ -125,7 +159,7 @@ export function LandingPage() {
             <button className="form-submit" type="submit" disabled={loading}>
               {loading ? 'Loading…' : 'Continue →'}
             </button>
-            <button className="form-back" type="button" onClick={() => { setMode('choose'); setError('') }}>
+            <button className="form-back" type="button" onClick={handleBackFromContinue}>
               ← Back
             </button>
           </form>
