@@ -2,6 +2,8 @@ param name string
 param location string
 param appServicePlanName string
 param appInsightsConnectionString string
+param storageAccountName string = ''
+param storageContainerName string = 'webbuilder'
 param skuName string = 'P1V3'
 param skuTier string = 'PremiumV3'
 param linuxFxVersion string = 'NODE|22-lts'
@@ -46,6 +48,14 @@ resource webApp 'Microsoft.Web/sites@2023-12-01' = {
         //   name: 'GH_TOKEN'
         //   value: ''
         // }
+        {
+          name: 'AZURE_STORAGE_ACCOUNT_NAME'
+          value: storageAccountName
+        }
+        {
+          name: 'AZURE_STORAGE_CONTAINER_NAME'
+          value: storageContainerName
+        }
       ]
     }
   }

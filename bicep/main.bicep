@@ -116,6 +116,7 @@ module webAppBuilder 'modules/webapp-builder.bicep' = {
     location: location
     appServicePlanName: webAppBuilderPlanName
     appInsightsConnectionString: appInsights.outputs.connectionString
+    storageAccountName: storageAccountName
   }
 }
 
