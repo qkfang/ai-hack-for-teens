@@ -23,7 +23,7 @@ param sqlAadAdminLogin string
 
 @description('Azure AD admin object ID for SQL Server')
 param sqlAadAdminObjectId string
-param userObjectId string
+param principals array = []
 
 var uniqueSuffix = uniqueString(resourceGroup().id)
 var commonTags = {
@@ -49,7 +49,7 @@ module azureFoundry 'modules/foundry.bicep' = [for foundryLocation in foundryLoc
     deployImage: foundryLocation.image
     gpt4oQuota: foundryLocation.gpt4oQuota
     webAppPrincipalId: webAppHack.outputs.principalId
-    userObjectId: userObjectId // danielfang@MngEnvMCAP951655.onmicrosoft.com
+    principals: principals
   }
 }]
 
@@ -69,7 +69,7 @@ module storageAccount 'modules/storage.bicep' = {
     tags: commonTags
     webAppPrincipalId: webAppHack.outputs.principalId
     webAppBuilderPrincipalId: webAppBuilder.outputs.principalId
-    userObjectId: userObjectId
+    principals: principals
   }
 }
 

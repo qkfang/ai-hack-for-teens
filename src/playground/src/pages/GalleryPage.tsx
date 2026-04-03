@@ -277,11 +277,6 @@ export function GalleryPage() {
               )}
             </div>
             <div className="gallery-lightbox-info">
-              <div className="gallery-lightbox-author">
-                <span className="gallery-author-avatar">{(selectedIdea.username[0] ?? '?').toUpperCase()}</span>
-                <strong>{selectedIdea.username}</strong>
-                <span className="gallery-author-id">(User:{selectedIdea.userId} / Idea:{selectedIdea.id})</span>
-              </div>
               <h3 className="gallery-idea-modal-title">{selectedIdea.title}</h3>
               {selectedIdea.ideaDescription && (
                 <div className="gallery-idea-section">
@@ -319,19 +314,14 @@ export function GalleryPage() {
                   <a href={selectedIdea.websiteUrl} target="_blank" rel="noopener noreferrer" className="gallery-idea-link">{selectedIdea.websiteUrl}</a>
                 </div>
               )}
-              <div className="gallery-idea-footer">
-                <span className="gallery-lightbox-time">{new Date(selectedIdea.createdAt).toLocaleString()}</span>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {selectedIdea.agentName && (
-                    <button className="gallery-idea-edit-btn" onClick={() => openAgentView(selectedIdea)}>🤖 Chat with Agent</button>
-                  )}
-                  {selectedIdea.websiteUrl && (
-                    <button
-                      className="gallery-idea-edit-btn"
-                      onClick={() => setShowWebPreview(v => !v)}
-                    >{showWebPreview ? '📄 Hide Preview' : '🌐 Web Preview'}</button>
-                  )}
-                  {selectedIdea.hasWebBuilder && (
+              <div className="gallery-lightbox-author" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span className="gallery-author-avatar">{(selectedIdea.username[0] ?? '?').toUpperCase()}</span>
+                <strong>{selectedIdea.username}</strong>
+                <span className="gallery-author-id">(User:{selectedIdea.userId} / Idea:{selectedIdea.id})</span>
+                {selectedIdea.agentName && (
+                  <button className="gallery-idea-edit-btn" onClick={() => openAgentView(selectedIdea)}>🤖 Chat with Agent</button>
+                )}
+                {selectedIdea.hasWebBuilder && (
                   <a
                     className="gallery-idea-edit-btn"
                     href={`${WEBBUILDER_URL}/gallery/?userId=${encodeURIComponent(selectedIdea.userId)}&userName=${encodeURIComponent(selectedIdea.username)}&ideaId=${encodeURIComponent(selectedIdea.id)}&ideaTitle=${encodeURIComponent(selectedIdea.title)}`}
@@ -339,6 +329,16 @@ export function GalleryPage() {
                     rel="noopener noreferrer"
                     style={{ textDecoration: 'none' }}
                   >🔗 Open Webpage</a>
+                )}
+              </div>
+              <div className="gallery-idea-footer">
+                <span className="gallery-lightbox-time">{new Date(selectedIdea.createdAt).toLocaleString()}</span>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {selectedIdea.websiteUrl && (
+                    <button
+                      className="gallery-idea-edit-btn"
+                      onClick={() => setShowWebPreview(v => !v)}
+                    >{showWebPreview ? '📄 Hide Preview' : '🌐 Web Preview'}</button>
                   )}
                 </div>
               </div>

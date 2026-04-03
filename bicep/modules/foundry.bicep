@@ -4,7 +4,7 @@ param tags object = {}
 param deployImage bool = true
 param gpt4oQuota int = 1800
 param webAppPrincipalId string = ''
-param userObjectId string = ''
+param principals array = []
 
 var resourcePrefix = toLower(baseName)
 
@@ -88,15 +88,15 @@ resource webAppRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-0
   }
 }
 
-resource userRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
-  name: guid(aiHub.id, userObjectId, cognitiveServicesOpenAIUserRoleId)
+resource userRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principal in principals: {
+  name: guid(aiHub.id, principal.id, cognitiveServicesOpenAIUserRoleId)
   scope: aiHub
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesOpenAIUserRoleId)
-    principalId: userObjectId
-    principalType: 'User'
+    principalId: principal.id
+    principalType: principal.principalType
   }
-}
+}]
 
 resource webAppCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppPrincipalId)) {
   name: guid(aiHub.id, webAppPrincipalId, cognitiveServicesUserRoleId)
@@ -108,15 +108,15 @@ resource webAppCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssign
   }
 }
 
-resource userCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
-  name: guid(aiHub.id, userObjectId, cognitiveServicesUserRoleId)
+resource userCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principal in principals: {
+  name: guid(aiHub.id, principal.id, cognitiveServicesUserRoleId)
   scope: aiHub
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesUserRoleId)
-    principalId: userObjectId
-    principalType: 'User'
+    principalId: principal.id
+    principalType: principal.principalType
   }
-}
+}]
 
 output accountName string = aiHub.name
 output endpoint string = aiHub.properties.endpoint

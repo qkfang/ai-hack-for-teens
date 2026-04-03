@@ -4,7 +4,7 @@ param skuName string = 'Standard_LRS'
 param kind string = 'StorageV2'
 param webAppPrincipalId string = ''
 param webAppBuilderPrincipalId string = ''
-param userObjectId string = ''
+param principals array = []
 param tags object = {}
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
@@ -67,15 +67,15 @@ resource roleAssignmentBuilder 'Microsoft.Authorization/roleAssignments@2022-04-
   }
 }
 
-resource roleAssignmentUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
-  name: guid(storageAccount.id, userObjectId, storageBlobDataContributorRoleId)
+resource roleAssignmentUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principal in principals: {
+  name: guid(storageAccount.id, principal.id, storageBlobDataContributorRoleId)
   scope: storageAccount
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
-    principalId: userObjectId
-    principalType: 'User'
+    principalId: principal.id
+    principalType: principal.principalType
   }
-}
+}]
 
 var storageBlobDataReaderRoleId = '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1'
 
@@ -99,15 +99,15 @@ resource roleAssignmentReaderBuilder 'Microsoft.Authorization/roleAssignments@20
   }
 }
 
-resource roleAssignmentReaderUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
-  name: guid(storageAccount.id, userObjectId, storageBlobDataReaderRoleId)
+resource roleAssignmentReaderUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for principal in principals: {
+  name: guid(storageAccount.id, principal.id, storageBlobDataReaderRoleId)
   scope: storageAccount
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataReaderRoleId)
-    principalId: userObjectId
-    principalType: 'User'
+    principalId: principal.id
+    principalType: principal.principalType
   }
-}
+}]
 
 output id string = storageAccount.id
 output name string = storageAccount.name
