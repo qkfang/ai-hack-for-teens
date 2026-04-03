@@ -37,7 +37,7 @@ A C# ASP.NET Core backend with:
 
 ### 💬 AI Hack Studio (`src/playground`)
 A React + TypeScript single-page app featuring:
-- **Chat Page** — real-time streaming chat powered by Azure AI Foundry (GPT-4o)
+- **Chat Page** — real-time streaming chat powered by Microsoft Foundry (GPT-4o)
 - **About Page** — project info and tech docs
 - Built with Vite, React Router v7, and the OpenAI SDK
 
@@ -74,7 +74,7 @@ dotnet run
 ```bash
 cd src/playground
 npm install
-cp .env.example .env.local   # add your Azure AI Foundry keys
+cp .env.example .env.local   # add your Microsoft Foundry keys
 npm run dev
 ```
 
@@ -86,7 +86,7 @@ npm run dev
 |-------|-----------|
 | Backend | C# / ASP.NET Core / EF Core |
 | Frontend | React 19 / TypeScript / Vite |
-| AI | Azure AI Foundry (GPT-4o) |
+| AI | Microsoft Foundry (GPT-4o) |
 | Protocol | MCP (Model Context Protocol) |
 | Infra | Azure App Service / Bicep |
 

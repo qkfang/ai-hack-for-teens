@@ -6,7 +6,7 @@ export function AboutPage() {
       <section className="about-hero">
         <h1>About AI Hack Studio</h1>
         <p>
-          A modern React application for exploring Azure AI Foundry capabilities through
+          A modern React application for exploring Microsoft Foundry capabilities through
           an interactive chat interface.
         </p>
       </section>
@@ -16,7 +16,7 @@ export function AboutPage() {
           <h2>What is AI Hack Studio?</h2>
           <p>
             AI Hack Studio is a web application built with React and TypeScript that allows
-            you to interact with AI models deployed on Azure AI Foundry. It provides a
+            you to interact with AI models deployed on Microsoft Foundry. It provides a
             clean, intuitive chat interface where you can experiment with different AI
             models and system prompts.
           </p>
@@ -52,7 +52,7 @@ export function AboutPage() {
             </div>
             <div className="tech-card">
               <div className="tech-icon">🔵</div>
-              <h3>Azure AI Foundry</h3>
+              <h3>Microsoft Foundry</h3>
               <p>Microsoft's enterprise AI platform powering the chat capabilities</p>
             </div>
           </div>
@@ -61,7 +61,7 @@ export function AboutPage() {
         <section className="about-section">
           <h2>Configuration</h2>
           <p>
-            All AI credentials (Azure AI Foundry endpoint, API keys, model deployments) are
+            All AI credentials (Microsoft Foundry endpoint, API keys, model deployments) are
             configured on the <strong>server side only</strong> — they never reach the browser.
             Update <code>src/api/appsettings.json</code> or set the equivalent environment
             variables on your server:
@@ -74,7 +74,7 @@ export function AboutPage() {
             </div>
             <div className="config-row">
               <span>AzureAIFoundry:Endpoint</span>
-              <span>Azure AI Foundry project endpoint</span>
+              <span>Microsoft Foundry project endpoint</span>
               <code>https://my-project.services.ai.azure.com</code>
             </div>
             <div className="config-row">
@@ -120,7 +120,7 @@ export function AboutPage() {
               <strong>🏠 Home</strong> — Overview and getting started guide
             </div>
             <div className="page-item">
-              <strong>💬 Chat</strong> — Interactive AI chat powered by Azure AI Foundry
+              <strong>💬 Chat</strong> — Interactive AI chat powered by Microsoft Foundry
             </div>
             <div className="page-item">
               <strong>ℹ️ About</strong> — Project information and documentation
@@ -133,7 +133,7 @@ export function AboutPage() {
           <ul className="resource-list">
             <li>
               <a href="https://ai.azure.com" target="_blank" rel="noopener noreferrer">
-                Azure AI Foundry Portal
+                Microsoft Foundry Portal
               </a>
             </li>
             <li>
@@ -142,7 +142,7 @@ export function AboutPage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Azure AI Foundry Documentation
+                Microsoft Foundry Documentation
               </a>
             </li>
             <li>

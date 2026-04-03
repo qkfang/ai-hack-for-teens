@@ -192,7 +192,7 @@ export function RealtimePage() {
     <div className="realtime-page">
       <div className="realtime-header">
         <h1>⚡ GPT Realtime</h1>
-        <p>Voice-enabled chat with GPT-4o Realtime — Azure AI Foundry</p>
+        <p>Voice-enabled chat with GPT-4o Realtime — Microsoft Foundry</p>
       </div>
 
       <div className="realtime-layout">

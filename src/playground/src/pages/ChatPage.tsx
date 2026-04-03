@@ -245,7 +245,7 @@ export function ChatPage() {
       <div className="chat-main">
         <div className="chat-header">
           <h1>💬 AI Chat</h1>
-          <p>Powered by Azure AI Foundry</p>
+          <p>Powered by Microsoft Foundry</p>
           <button
             className={`chat-guide-btn${guideOpen ? ' active' : ''}`}
             onClick={() => setGuideOpen(o => !o)}

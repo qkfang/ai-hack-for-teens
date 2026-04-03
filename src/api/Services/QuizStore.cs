@@ -49,7 +49,7 @@ public class QuizStore
         },
         new QuizQuestion
         {
-            Text = "What is Azure AI Foundry?",
+            Text = "What is Microsoft Foundry?",
             Options = ["A cloud platform for building and deploying AI models and applications", "A robot manufacturing facility", "A Microsoft gaming service", "A programming language"],
             CorrectIndex = 0
         },

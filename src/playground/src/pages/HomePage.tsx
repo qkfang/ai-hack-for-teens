@@ -29,7 +29,7 @@ export function HomePage() {
             <p className="hero-user-id">Your User ID: <strong>#{user.id}</strong> — keep this to reconnect later</p>
           )}
           <p className="hero-subtitle">
-            Explore AI capabilities powered by Azure AI Foundry. Chat with intelligent
+            Explore AI capabilities powered by Microsoft Foundry. Chat with intelligent
             assistants, create AI art, write startup stories, and discover the power of modern AI.
           </p>
           <div className="hero-actions">
