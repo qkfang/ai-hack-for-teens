@@ -3,6 +3,7 @@ param location string
 param skuName string = 'Standard_LRS'
 param kind string = 'StorageV2'
 param webAppPrincipalId string = ''
+param webAppBuilderPrincipalId string = ''
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: name
@@ -39,6 +40,16 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = i
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
     principalId: webAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource roleAssignmentBuilder 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppBuilderPrincipalId)) {
+  name: guid(storageAccount.id, webAppBuilderPrincipalId, storageBlobDataContributorRoleId)
+  scope: storageAccount
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleId)
+    principalId: webAppBuilderPrincipalId
     principalType: 'ServicePrincipal'
   }
 }

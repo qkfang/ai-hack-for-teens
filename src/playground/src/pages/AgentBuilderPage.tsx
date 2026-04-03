@@ -155,6 +155,7 @@ function Slider({
         value={value}
         onChange={(e) => onChange(parseFloat(e.target.value))}
         className="ab-slider"
+        style={{ '--pct': ((value - min) / (max - min)) * 100 } as React.CSSProperties}
       />
       {(leftLabel || rightLabel) && (
         <div className="ab-slider-labels">
@@ -672,20 +673,18 @@ export function AgentBuilderPage() {
                   <input
                     type="text"
                     value={config.model}
-                    onChange={(e) => updateConfig({ model: e.target.value })}
-                    placeholder="gpt-4o"
+                    readOnly
                     className="ab-input ab-model-input"
                   />
                 </div>
                 <div className="ab-model-presets">
                   {MODEL_PRESETS.map((m) => (
-                    <button
+                    <span
                       key={m}
                       className={`ab-preset-chip ${config.model === m ? 'ab-preset-active' : ''}`}
-                      onClick={() => updateConfig({ model: m })}
                     >
                       {m}
-                    </button>
+                    </span>
                   ))}
                 </div>
               </div>

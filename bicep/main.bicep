@@ -67,6 +67,7 @@ module storageAccount 'modules/storage.bicep' = {
     name: storageAccountName
     location: location
     webAppPrincipalId: webAppHack.outputs.principalId
+    webAppBuilderPrincipalId: webAppBuilder.outputs.principalId
   }
 }
 

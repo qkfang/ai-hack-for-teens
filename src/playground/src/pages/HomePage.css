@@ -138,10 +138,15 @@
 .feature-card {
   background: white;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.25rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border: 1px solid #e8ecf0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 0 0.6rem;
+  align-items: center;
 }
 
 .feature-card:hover {
@@ -161,21 +166,28 @@
 }
 
 .feature-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.75rem;
+  grid-row: 1;
+  grid-column: 1;
+  line-height: 1;
 }
 
 .feature-card h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #1a1a2e;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
+  grid-row: 1;
+  grid-column: 2;
 }
 
 .feature-card p {
   color: #666;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+  grid-row: 2;
+  grid-column: 1 / -1;
 }
 
 .feature-link {
