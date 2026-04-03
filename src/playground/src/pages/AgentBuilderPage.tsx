@@ -405,10 +405,6 @@ export function AgentBuilderPage() {
   }
 
   // ── Chat ───────────────────────────────────────────────────────────────────
-  function clearConversation() {
-    setActivity([])
-  }
-
   async function sendMessage() {
     const text = input.trim()
     if (!text || isLoading) return

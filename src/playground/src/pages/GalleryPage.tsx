@@ -54,7 +54,6 @@ export function GalleryPage() {
   const [error, setError] = useState('')
   const [selectedIdea, setSelectedIdea] = useState<StartupIdeaEntry | null>(null)
   const [showIdeaForm, setShowIdeaForm] = useState(false)
-  const [editingIdea, setEditingIdea] = useState<StartupIdeaEntry | null>(null)
   const [ideaForm, setIdeaForm] = useState<IdeaForm>(emptyForm())
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
@@ -76,35 +75,7 @@ export function GalleryPage() {
 
   useEffect(() => { fetchAll() }, [fetchAll])
 
-  const openNewIdeaForm = () => {
-    setEditingIdea(null)
-    setIdeaForm(emptyForm())
-    setFormError('')
-    setShowIdeaForm(true)
-  }
-
-  const openEditIdeaForm = (idea: StartupIdeaEntry) => {
-    setEditingIdea(idea)
-    setIdeaForm({
-      title: idea.title,
-      ideaDescription: idea.ideaDescription ?? '',
-      problemStatement: idea.problemStatement ?? '',
-      targetAudience: idea.targetAudience ?? '',
-      businessModel: idea.businessModel ?? '',
-      coverImageUrl: idea.coverImageUrl ?? '',
-      coverImagePrompt: idea.coverImagePrompt ?? '',
-      agentName: idea.agentName ?? '',
-      agentSystemPrompt: idea.agentSystemPrompt ?? '',
-      agentModel: idea.agentModel ?? '',
-      agentTemperature: idea.agentTemperature?.toFixed(1) ?? '',
-      websiteUrl: idea.websiteUrl ?? '',
-    })
-    setFormError('')
-    setShowIdeaForm(true)
-    setSelectedIdea(null)
-  }
-
-  const importAgentConfig = () => {
+  const importAgentConfig= () => {
     try {
       const raw = localStorage.getItem('agent-builder-config-v2')
       if (!raw) return
@@ -144,8 +115,8 @@ export function GalleryPage() {
         agentTemperature: ideaForm.agentTemperature ? parseFloat(ideaForm.agentTemperature) : null,
         websiteUrl: ideaForm.websiteUrl || null,
       }
-      const url = editingIdea ? `${API_BASE}/api/ideas/${editingIdea.id}` : `${API_BASE}/api/ideas`
-      const method = editingIdea ? 'PUT' : 'POST'
+      const url = `${API_BASE}/api/ideas`
+      const method = 'POST'
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       if (!res.ok) throw new Error('Failed to save idea')
       setShowIdeaForm(false)
@@ -157,14 +128,7 @@ export function GalleryPage() {
     }
   }
 
-  const deleteIdea = async (id: number) => {
-    if (!confirm('Delete this startup idea?')) return
-    await fetch(`${API_BASE}/api/ideas/${id}`, { method: 'DELETE' })
-    setSelectedIdea(null)
-    await fetchAll()
-  }
-
-  const openAgentView = (idea: StartupIdeaEntry) => {
+  const openAgentView= (idea: StartupIdeaEntry) => {
     navigate('/agent', {
       state: {
         ideaAgentConfig: {
@@ -314,7 +278,7 @@ export function GalleryPage() {
         <div className="gallery-lightbox" onClick={() => setShowIdeaForm(false)}>
           <div className="gallery-idea-form-modal" onClick={e => e.stopPropagation()}>
             <div className="gallery-idea-form-header">
-              <h2>{editingIdea ? '✏️ Edit Startup Idea' : '💡 New Startup Idea'}</h2>
+              <h2>💡 New Startup Idea</h2>
               <button className="gallery-lightbox-close" style={{ position: 'static' }} onClick={() => setShowIdeaForm(false)}>✕</button>
             </div>
             <div className="gallery-idea-form-body">

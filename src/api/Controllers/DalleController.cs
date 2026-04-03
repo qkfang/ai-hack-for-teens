@@ -15,7 +15,7 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
 {
     private ImageClient CreateImageClient(FoundryEntry entry)
     {
-        var dalleDeployment = config["AzureAIFoundry:DalleDeployment"] ?? "dall-e-3";
+        var dalleDeployment = config["AzureAIFoundryImage:Deployment"] ?? "dall-e-3";
         var openAiKey = config["OpenAI:ApiKey"] ?? "";
 
         if (!string.IsNullOrEmpty(entry.Url))
@@ -63,10 +63,10 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
         if (string.IsNullOrEmpty(description))
             return BadRequest(new { error = "description is required" });
 
-        var entry = keyPool.FoundryPool.GetNext();
+        var entry = keyPool.FoundryImagePool.GetNext();
         if (entry is null)
         {
-            var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+            var wait = keyPool.FoundryImagePool.GetMinRetryAfterSeconds();
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
 
@@ -100,7 +100,7 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
         catch (RequestFailedException ex) when (ex.Status == 429)
         {
             entry.MarkRateLimited(ParseRetryAfter(ex));
-            var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+            var wait = keyPool.FoundryImagePool.GetMinRetryAfterSeconds();
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
         catch (Exception ex)
@@ -117,10 +117,10 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
         if (string.IsNullOrEmpty(prompt) || string.IsNullOrEmpty(sourceUrl))
             return BadRequest(new { error = "imageUrl and prompt are required" });
 
-        var entry = keyPool.FoundryPool.GetNext();
+        var entry = keyPool.FoundryImagePool.GetNext();
         if (entry is null)
         {
-            var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+            var wait = keyPool.FoundryImagePool.GetMinRetryAfterSeconds();
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
 
@@ -160,7 +160,7 @@ public class DalleController(AIHackDbContext db, IConfiguration config, AzureKey
         catch (RequestFailedException ex) when (ex.Status == 429)
         {
             entry.MarkRateLimited(ParseRetryAfter(ex));
-            var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+            var wait = keyPool.FoundryImagePool.GetMinRetryAfterSeconds();
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
         catch (Exception ex)

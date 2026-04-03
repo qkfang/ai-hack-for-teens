@@ -24,10 +24,10 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
 
         try
         {
-            var entry = keyPool.FoundryPool.GetNext();
+            var entry = keyPool.FoundryTextPool.GetNext();
             if (entry is null)
             {
-                var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+                var wait = keyPool.FoundryTextPool.GetMinRetryAfterSeconds();
                 await SendSseAsync(new { type = "error", message = "Rate limit reached, please wait.", retryAfter = wait }, cancellationToken);
                 return;
             }
@@ -128,7 +128,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
             catch (RequestFailedException ex) when (ex.Status == 429)
             {
                 entry.MarkRateLimited(ParseRetryAfter(ex));
-                var wait = keyPool.FoundryPool.GetMinRetryAfterSeconds();
+                var wait = keyPool.FoundryTextPool.GetMinRetryAfterSeconds();
                 await SendSseAsync(new { type = "error", message = "Rate limit reached, please wait.", retryAfter = wait }, cancellationToken);
             }
         }
@@ -144,7 +144,7 @@ public class ChatController(IConfiguration config, IHttpClientFactory httpClient
 
     private ChatClient BuildChatClient(string model, FoundryEntry entry)
     {
-        var defaultDeployment = config["AzureAIFoundry:Deployment"] ?? "gpt-4o";
+        var defaultDeployment = config["AzureAIFoundryText:Deployment"] ?? "gpt-4o";
         var deployment = string.IsNullOrEmpty(model) ? defaultDeployment : model;
 
         AzureOpenAIClient azureClient;

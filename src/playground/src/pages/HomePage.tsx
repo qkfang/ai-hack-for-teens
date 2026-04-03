@@ -12,11 +12,6 @@ export function HomePage() {
     window.open(`${WEBBUILDER_URL}?${params.toString()}`, '_blank')
   }
 
-  function viewWebsite() {
-    if (!user) return
-    window.open(`${WEBBUILDER_URL}/gallery/${user.id}`, '_blank')
-  }
-
   return (
     <div className="home-page">
       <section className="hero-section">

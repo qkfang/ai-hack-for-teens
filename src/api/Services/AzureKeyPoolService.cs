@@ -67,20 +67,22 @@ public class KeyPool<T>(IReadOnlyList<T> entries) where T : PoolEntry
 
 public class AzureKeyPoolService
 {
-    public KeyPool<FoundryEntry> FoundryPool { get; }
+    public KeyPool<FoundryEntry> FoundryTextPool { get; }
+    public KeyPool<FoundryEntry> FoundryImagePool { get; }
     public KeyPool<TranslatorEntry> TranslatorPool { get; }
     public KeyPool<SpeechEntry> SpeechPool { get; }
 
     public AzureKeyPoolService(IConfiguration config)
     {
-        FoundryPool = BuildFoundryPool(config);
+        FoundryTextPool = BuildFoundryPool(config, "AzureAIFoundryText");
+        FoundryImagePool = BuildFoundryPool(config, "AzureAIFoundryImage");
         TranslatorPool = BuildTranslatorPool(config);
         SpeechPool = BuildSpeechPool(config);
     }
 
-    private static KeyPool<FoundryEntry> BuildFoundryPool(IConfiguration config)
+    private static KeyPool<FoundryEntry> BuildFoundryPool(IConfiguration config, string section)
     {
-        var entries = config.GetSection("AzureAIFoundry:Endpoints").GetChildren()
+        var entries = config.GetSection($"{section}:Endpoints").GetChildren()
             .Select(s => new FoundryEntry
             {
                 Url = s["Url"] ?? "",
@@ -92,13 +94,13 @@ public class AzureKeyPoolService
 
         if (entries.Count == 0)
         {
-            var url = config["AzureAIFoundry:Endpoint"] ?? "";
+            var url = config[$"{section}:Endpoint"] ?? "";
             if (!string.IsNullOrEmpty(url))
                 entries.Add(new FoundryEntry
                 {
                     Url = url,
-                    Key = config["AzureAIFoundry:Key"] ?? "",
-                    TenantId = config["AzureAIFoundry:TenantId"] ?? ""
+                    Key = config[$"{section}:Key"] ?? "",
+                    TenantId = config[$"{section}:TenantId"] ?? ""
                 });
         }
         return new KeyPool<FoundryEntry>(entries);
