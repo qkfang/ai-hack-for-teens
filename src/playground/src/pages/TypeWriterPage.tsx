@@ -139,7 +139,6 @@ When the user asks for changes or suggestions, provide the updated story text or
       <div className="typewriter-editor-panel">
         <div className="typewriter-editor-header">
           <h1>✍️ Type Writer</h1>
-          {user && <span className="typewriter-user">Writing as <strong>{user.username}</strong></span>}
           {currentIdea && <span className="typewriter-idea-banner">💡 Working on: <strong>{currentIdea.title}</strong></span>}
           {!currentIdea && <span className="typewriter-idea-banner typewriter-idea-banner--none">No idea selected — go to <a href="/ideas">Your Ideas</a> to pick one.</span>}
         </div>
