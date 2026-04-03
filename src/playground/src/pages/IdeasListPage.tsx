@@ -11,12 +11,13 @@ export function IdeasListPage() {
   const { user } = useUser()
   const { selectedIdeaId, setSelectedIdeaId } = useIdea()
   const { config } = useNavVisibility()
-  const { ideas, loaded, createIdea, publishIdea, unpublishIdea } = useIdeas(user?.id)
+  const { ideas, loaded, createIdea, publishIdea, unpublishIdea, deleteIdea } = useIdeas(user?.id)
   const navigate = useNavigate()
   const [newTitle, setNewTitle] = useState('')
   const [creating, setCreating] = useState(false)
   const [loading, setLoading] = useState(false)
   const [publishingId, setPublishingId] = useState<number | null>(null)
+  const [deletingId, setDeletingId] = useState<number | null>(null)
 
   async function handleCreate() {
     const t = newTitle.trim()
@@ -32,6 +33,7 @@ export function IdeasListPage() {
   }
 
   async function handlePublishToggle(ideaId: number, currentlyPublished: boolean) {
+    setSelectedIdeaId(ideaId)
     setPublishingId(ideaId)
     if (currentlyPublished) {
       await unpublishIdea(ideaId)
@@ -39,6 +41,14 @@ export function IdeasListPage() {
       await publishIdea(ideaId)
     }
     setPublishingId(null)
+  }
+
+  async function handleDelete(ideaId: number) {
+    if (!window.confirm('Delete this idea?')) return
+    setDeletingId(ideaId)
+    await deleteIdea(ideaId)
+    if (selectedIdeaId === ideaId) setSelectedIdeaId(null)
+    setDeletingId(null)
   }
 
   function openPage(ideaId: number, path: string) {
@@ -158,6 +168,14 @@ export function IdeasListPage() {
                     🌐 Web Builder
                   </button>
                 )}
+                <button
+                  className="idea-tool-btn idea-delete-btn"
+                  onClick={() => handleDelete(idea.id)}
+                  disabled={deletingId === idea.id}
+                  title="Delete idea"
+                >
+                  {deletingId === idea.id ? '⏳' : '🗑️ Delete'}
+                </button>
               </div>
             </li>
           ))}

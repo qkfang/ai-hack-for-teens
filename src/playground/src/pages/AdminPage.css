@@ -314,3 +314,24 @@
   font-size: 0.8rem;
   text-transform: uppercase;
 }
+
+.admin-delete-btn {
+  padding: 0.25rem 0.6rem;
+  background: #fff0f0;
+  border: 1px solid #f0a0a0;
+  border-radius: 6px;
+  color: #c00;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.admin-delete-btn:hover {
+  background: #c00;
+  color: white;
+  border-color: #c00;
+}
+
+.admin-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

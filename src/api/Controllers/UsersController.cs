@@ -128,6 +128,20 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache) : Controlle
         cache.Remove("stories:all");
         return StatusCode(201, new { id = story.Id, title = story.Title, body = story.Body, coverImageUrl = story.CoverImageUrl, createdAt = story.CreatedAt });
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await db.AppUsers.FindAsync(id);
+        if (user == null) return NotFound(new { error = "User not found" });
+        db.AppUsers.Remove(user);
+        await db.SaveChangesAsync();
+        cache.Remove($"users:{id}");
+        cache.Remove($"users:{id}:comics");
+        cache.Remove($"users:{id}:stories");
+        cache.Remove("users:all");
+        return NoContent();
+    }
 }
 
 public record CreateUserRequest(string? Username);
