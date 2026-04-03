@@ -44,6 +44,15 @@ resource allowAzureServices 'Microsoft.Sql/servers/firewallRules@2023-05-01-prev
   }
 }
 
+resource allowAllNetworks 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = {
+  parent: sqlServer
+  name: 'AllowAllNetworks'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '255.255.255.255'
+  }
+}
+
 output serverName string = sqlServer.name
 output serverFqdn string = sqlServer.properties.fullyQualifiedDomainName
 output databaseName string = sqlDatabase.name
