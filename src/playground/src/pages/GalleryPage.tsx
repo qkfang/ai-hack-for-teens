@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import { useUser } from '../contexts/UserContext'
 import { API_BASE, WEBBUILDER_URL } from '../config'
 import './GalleryPage.css'
@@ -205,12 +206,14 @@ export function GalleryPage() {
         <div className="gallery-lightbox" onClick={() => { setSelectedIdea(null); setShowWebPreview(false) }}>
           <div className="gallery-lightbox-content gallery-idea-modal" onClick={e => e.stopPropagation()}>
             <button className="gallery-lightbox-close" onClick={() => { setSelectedIdea(null); setShowWebPreview(false) }}>✕</button>
-            {selectedIdea.coverImageUrl && (
-              <img src={selectedIdea.coverImageUrl} alt={selectedIdea.title} className="gallery-lightbox-img" />
-            )}
-            {!selectedIdea.coverImageUrl && (
-              <div className="gallery-idea-cover-placeholder">💡</div>
-            )}
+            <div className="gallery-lightbox-img-wrapper">
+              {selectedIdea.coverImageUrl && (
+                <img src={selectedIdea.coverImageUrl} alt={selectedIdea.title} className="gallery-lightbox-img" />
+              )}
+              {!selectedIdea.coverImageUrl && (
+                <div className="gallery-idea-cover-placeholder">💡</div>
+              )}
+            </div>
             <div className="gallery-lightbox-info">
               <div className="gallery-lightbox-author">
                 <span className="gallery-author-avatar">{(selectedIdea.username[0] ?? '?').toUpperCase()}</span>
@@ -221,25 +224,25 @@ export function GalleryPage() {
               {selectedIdea.ideaDescription && (
                 <div className="gallery-idea-section">
                   <span className="gallery-idea-label">💬 Idea</span>
-                  <p>{selectedIdea.ideaDescription}</p>
+                  <ReactMarkdown>{selectedIdea.ideaDescription}</ReactMarkdown>
                 </div>
               )}
               {selectedIdea.problemStatement && (
                 <div className="gallery-idea-section">
                   <span className="gallery-idea-label">🔍 Problem</span>
-                  <p>{selectedIdea.problemStatement}</p>
+                  <ReactMarkdown>{selectedIdea.problemStatement}</ReactMarkdown>
                 </div>
               )}
               {selectedIdea.targetAudience && (
                 <div className="gallery-idea-section">
                   <span className="gallery-idea-label">👥 Target Audience</span>
-                  <p>{selectedIdea.targetAudience}</p>
+                  <ReactMarkdown>{selectedIdea.targetAudience}</ReactMarkdown>
                 </div>
               )}
               {selectedIdea.businessModel && (
                 <div className="gallery-idea-section">
                   <span className="gallery-idea-label">💰 Business Model</span>
-                  <p>{selectedIdea.businessModel}</p>
+                  <ReactMarkdown>{selectedIdea.businessModel}</ReactMarkdown>
                 </div>
               )}
               {selectedIdea.agentName && (
