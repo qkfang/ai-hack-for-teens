@@ -1,4 +1,4 @@
-name: Deploy Playground
+name: Deploy Hack Studio
 
 on:
   push:

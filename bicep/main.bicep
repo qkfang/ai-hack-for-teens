@@ -109,15 +109,3 @@ module staticWebApp 'modules/staticwebapp.bicep' = {
     location: location
   }
 }
-
-output keyVaultName string = keyVault.outputs.name
-output keyVaultUri string = keyVault.outputs.uri
-output storageAccountName string = storageAccount.outputs.name
-output appInsightsName string = appInsights.outputs.name
-output appInsightsConnectionString string = appInsights.outputs.connectionString
-output webAppName string = webApp.outputs.name
-output webAppHostName string = webApp.outputs.defaultHostName
-output staticWebAppName string = staticWebApp.outputs.name
-output staticWebAppHostName string = staticWebApp.outputs.defaultHostName
-output sqlServerName string = sqlServer.outputs.serverName
-output sqlServerFqdn string = sqlServer.outputs.serverFqdn
