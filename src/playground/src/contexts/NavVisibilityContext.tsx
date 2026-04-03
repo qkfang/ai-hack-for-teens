@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { API_BASE } from '../config'
 
 export interface NavConfig {
   genai: {
@@ -32,24 +33,27 @@ interface NavVisibilityContextValue {
 
 const NavVisibilityContext = createContext<NavVisibilityContextValue | null>(null)
 
-const STORAGE_KEY = 'ai-playground-nav-config'
-
 export function NavVisibilityProvider({ children }: { children: ReactNode }) {
-  const [config, setConfigState] = useState<NavConfig>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? (JSON.parse(stored) as NavConfig) : DEFAULT_CONFIG
-    } catch {
-      return DEFAULT_CONFIG
-    }
-  })
+  const [config, setConfigState] = useState<NavConfig>(DEFAULT_CONFIG)
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
-  }, [config])
+    fetch(`${API_BASE}/api/settings/nav`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => { if (data) setConfigState(data as NavConfig) })
+      .catch((err) => console.error('Failed to load nav config', err))
+  }, [])
+
+  function setConfig(newConfig: NavConfig) {
+    setConfigState(newConfig)
+    fetch(`${API_BASE}/api/settings/nav`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newConfig),
+    }).catch((err) => console.error('Failed to save nav config', err))
+  }
 
   return (
-    <NavVisibilityContext.Provider value={{ config, setConfig: setConfigState }}>
+    <NavVisibilityContext.Provider value={{ config, setConfig }}>
       {children}
     </NavVisibilityContext.Provider>
   )
@@ -61,3 +65,4 @@ export function useNavVisibility(): NavVisibilityContextValue {
   if (!ctx) throw new Error('useNavVisibility must be used inside NavVisibilityProvider')
   return ctx
 }
+

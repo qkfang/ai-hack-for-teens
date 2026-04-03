@@ -12,6 +12,7 @@ public class AIHackDbContext : DbContext
     public DbSet<Comic> Comics => Set<Comic>();
     public DbSet<Story> Stories => Set<Story>();
     public DbSet<StartupIdea> StartupIdeas => Set<StartupIdea>();
+    public DbSet<AppSetting> AppSettings => Set<AppSetting>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -23,6 +24,15 @@ public class AIHackDbContext : DbContext
             new WeatherRecord { Id = 3, City = "Tokyo", Condition = "Rainy", TemperatureCelsius = 18.0, Humidity = 85, WindSpeedKmh = 10, RecordedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
             new WeatherRecord { Id = 4, City = "Sydney", Condition = "Partly Cloudy", TemperatureCelsius = 26.0, Humidity = 60, WindSpeedKmh = 25, RecordedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
             new WeatherRecord { Id = 5, City = "Paris", Condition = "Clear", TemperatureCelsius = 19.5, Humidity = 50, WindSpeedKmh = 12, RecordedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
+        );
+
+        modelBuilder.Entity<AppSetting>().Property(x => x.Value).HasColumnType("nvarchar(max)");
+        modelBuilder.Entity<AppSetting>().HasData(
+            new AppSetting
+            {
+                Key = "nav-config",
+                Value = "{\"genai\":{\"chat\":false,\"translation\":false,\"speech\":false,\"realtime\":false},\"startup\":{\"ideas\":true,\"storybook\":false,\"comic\":false,\"agent\":false,\"webbuilder\":false},\"gallery\":false,\"quiz\":false}"
+            }
         );
 
         modelBuilder.Entity<Comic>().Property(x => x.ImageUrl).HasColumnType("nvarchar(max)");
