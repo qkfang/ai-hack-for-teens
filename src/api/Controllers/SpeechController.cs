@@ -2,14 +2,17 @@ using System.Text;
 using Azure.Identity;
 using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using api.Services;
 
 namespace api.Controllers;
 
 [ApiController]
 [Route("api/speech")]
-public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPoolService keyPool) : ControllerBase
+public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPoolService keyPool, IMemoryCache cache) : ControllerBase
 {
+    private static readonly TimeSpan SpeechCacheDuration = TimeSpan.FromHours(1);
+
     private static readonly HashSet<string> AllowedVoices = new(StringComparer.OrdinalIgnoreCase)
     {
         "en-US-JennyNeural", "en-US-GuyNeural", "en-US-AriaNeural", "en-US-DavisNeural",
@@ -35,6 +38,10 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
         var requestedVoice = request.Voice ?? "en-US-JennyNeural";
         var voice = AllowedVoices.Contains(requestedVoice) ? requestedVoice : "en-US-JennyNeural";
         var text = System.Security.SecurityElement.Escape(request.Text ?? "") ?? "";
+
+        var cacheKey = $"speech:{voice}:{text}";
+        if (cache.TryGetValue(cacheKey, out byte[]? cachedAudio) && cachedAudio is not null)
+            return File(cachedAudio, "audio/mpeg");
 
         using var http = httpClientFactory.CreateClient();
 
@@ -103,6 +110,7 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
         }
 
         var audioBytes = await ttsResp.Content.ReadAsByteArrayAsync(cancellationToken);
+        cache.Set(cacheKey, audioBytes, SpeechCacheDuration);
         return File(audioBytes, "audio/mpeg");
     }
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using api.Data;
 using api.Models;
 
@@ -8,27 +9,31 @@ namespace api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class WeatherController : ControllerBase
+public class WeatherController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
 {
-    private readonly AIHackDbContext _db;
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    private const string AllRecordsCacheKey = "weather:all";
 
-    public WeatherController(AIHackDbContext db)
-    {
-        _db = db;
-    }
+    private void InvalidateCache() => cache.Remove(AllRecordsCacheKey);
+
+    private Task<List<WeatherRecord>> GetAllCachedAsync() =>
+        cache.GetOrCreateAsync(AllRecordsCacheKey, async entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = CacheDuration;
+            return await db.WeatherRecords.OrderBy(w => w.City).ToListAsync();
+        })!;
 
     /// <summary>Get all weather records</summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<WeatherRecord>>> GetAll()
-    {
-        return await _db.WeatherRecords.OrderBy(w => w.City).ToListAsync();
-    }
+    public async Task<ActionResult<IEnumerable<WeatherRecord>>> GetAll() =>
+        await GetAllCachedAsync();
 
     /// <summary>Get weather record by ID</summary>
     [HttpGet("{id:int}")]
     public async Task<ActionResult<WeatherRecord>> GetById(int id)
     {
-        var record = await _db.WeatherRecords.FindAsync(id);
+        var records = await GetAllCachedAsync();
+        var record = records.FirstOrDefault(w => w.Id == id);
         return record is null ? NotFound() : Ok(record);
     }
 
@@ -36,8 +41,8 @@ public class WeatherController : ControllerBase
     [HttpGet("city/{city}")]
     public async Task<ActionResult<WeatherRecord>> GetByCity(string city)
     {
-        var record = await _db.WeatherRecords
-            .FirstOrDefaultAsync(w => w.City.ToLower() == city.ToLower());
+        var records = await GetAllCachedAsync();
+        var record = records.FirstOrDefault(w => w.City.Equals(city, StringComparison.OrdinalIgnoreCase));
         return record is null ? NotFound() : Ok(record);
     }
 
@@ -47,8 +52,9 @@ public class WeatherController : ControllerBase
     {
         record.Id = 0;
         record.RecordedAt = DateTime.UtcNow;
-        _db.WeatherRecords.Add(record);
-        await _db.SaveChangesAsync();
+        db.WeatherRecords.Add(record);
+        await db.SaveChangesAsync();
+        InvalidateCache();
         return CreatedAtAction(nameof(GetById), new { id = record.Id }, record);
     }
 
@@ -57,16 +63,17 @@ public class WeatherController : ControllerBase
     public async Task<IActionResult> Update(int id, WeatherRecord record)
     {
         if (id != record.Id) return BadRequest();
-        _db.Entry(record).State = EntityState.Modified;
+        db.Entry(record).State = EntityState.Modified;
         try
         {
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await _db.WeatherRecords.AnyAsync(w => w.Id == id)) return NotFound();
+            if (!await db.WeatherRecords.AnyAsync(w => w.Id == id)) return NotFound();
             throw;
         }
+        InvalidateCache();
         return NoContent();
     }
 
@@ -74,10 +81,11 @@ public class WeatherController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var record = await _db.WeatherRecords.FindAsync(id);
+        var record = await db.WeatherRecords.FindAsync(id);
         if (record is null) return NotFound();
-        _db.WeatherRecords.Remove(record);
-        await _db.SaveChangesAsync();
+        db.WeatherRecords.Remove(record);
+        await db.SaveChangesAsync();
+        InvalidateCache();
         return NoContent();
     }
 
@@ -85,7 +93,7 @@ public class WeatherController : ControllerBase
     [HttpGet("summary")]
     public async Task<ActionResult<object>> GetSummary()
     {
-        var records = await _db.WeatherRecords.ToListAsync();
+        var records = await GetAllCachedAsync();
         return Ok(new
         {
             TotalCities = records.Count,
