@@ -12,8 +12,11 @@ import { TranslationPage } from './pages/TranslationPage'
 import { SpeechPage } from './pages/SpeechPage'
 import { RealtimePage } from './pages/RealtimePage'
 import { QuizPage } from './pages/QuizPage'
+import { AdminLayout } from './pages/AdminLayout'
 import { AdminPage } from './pages/AdminPage'
 import { AdminQuizPage } from './pages/AdminQuizPage'
+import { AdminUsersPage } from './pages/AdminUsersPage'
+import { AdminIdeasPage } from './pages/AdminIdeasPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { UserProvider, useUser } from './contexts/UserContext'
 import { IdeaProvider } from './contexts/IdeaContext'
@@ -43,8 +46,12 @@ function AppRoutes() {
         <Route path="realtime" element={<RealtimePage />} />
         <Route path="quiz" element={<QuizPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
-        <Route path="admin" element={<AdminPage />} />
-        <Route path="admin/quiz" element={<AdminQuizPage />} />
+        <Route path="admin" element={<AdminLayout />}>
+          <Route index element={<AdminPage />} />
+          <Route path="quiz" element={<AdminQuizPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="ideas" element={<AdminIdeasPage />} />
+        </Route>
         <Route path="about" element={<AboutPage />} />
         <Route path="ideas" element={<IdeasListPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
