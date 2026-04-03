@@ -43,7 +43,7 @@ export function IdeasListPage() {
 
   function openPage(ideaId: number, path: string) {
     setSelectedIdeaId(ideaId)
-    navigate(path)
+    navigate(`${path}?ideaId=${ideaId}`)
   }
 
   function openWebBuilder(ideaId: number) {

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
@@ -300,7 +300,8 @@ export function AgentBuilderPage() {
   const { user } = useUser()
   const location = useLocation()
   const navigate = useNavigate()
-  const { selectedIdeaId } = useIdea()
+  const [searchParams] = useSearchParams()
+  const { selectedIdeaId, setSelectedIdeaId } = useIdea()
   const { ideas, loaded, updateIdea } = useIdeas(user?.id)
   const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
   const [config, setConfig] = useState<AgentConfig>(loadConfig)
@@ -313,6 +314,14 @@ export function AgentBuilderPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  // Set idea from query string
+  useEffect(() => {
+    const qsIdeaId = searchParams.get('ideaId')
+    if (qsIdeaId) {
+      setSelectedIdeaId(Number(qsIdeaId))
+    }
+  }, [searchParams, setSelectedIdeaId])
 
   // Redirect to ideas list if no idea is selected after load
   useEffect(() => {

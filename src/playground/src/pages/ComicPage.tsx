@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
 import { API_BASE } from '../config'
@@ -18,9 +18,10 @@ const COVER_IMAGE_KEY = 'storybook_cover_url'
 
 export function ComicPage() {
   const { user } = useUser()
-  const { selectedIdeaId } = useIdea()
+  const { selectedIdeaId, setSelectedIdeaId } = useIdea()
   const { ideas, loaded, updateIdea } = useIdeas(user?.id)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [ideaCoverState, setIdeaCoverState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,6 +35,13 @@ export function ComicPage() {
   const { isRateLimited, countdown, triggerRateLimit } = useRateLimit()
 
   const currentIdea = ideas.find(i => i.id === selectedIdeaId)
+
+  useEffect(() => {
+    const qsIdeaId = searchParams.get('ideaId')
+    if (qsIdeaId) {
+      setSelectedIdeaId(Number(qsIdeaId))
+    }
+  }, [searchParams, setSelectedIdeaId])
 
   useEffect(() => {
     if (loaded && !currentIdea) navigate('/ideas')
