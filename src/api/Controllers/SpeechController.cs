@@ -1,4 +1,6 @@
 using System.Text;
+using Azure.Identity;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 
@@ -27,7 +29,7 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
 
-        if (string.IsNullOrEmpty(entry.Key))
+        if (string.IsNullOrEmpty(entry.Key) && string.IsNullOrEmpty(entry.Region))
             return BadRequest(new { error = "Azure Speech is not configured. Set AzureSpeech:Keys in appsettings." });
 
         var requestedVoice = request.Voice ?? "en-US-JennyNeural";
@@ -36,10 +38,26 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
 
         using var http = httpClientFactory.CreateClient();
 
-        // Obtain access token
-        var tokenReq = new HttpRequestMessage(HttpMethod.Post,
-            $"https://{entry.Region}.api.cognitive.microsoft.com/sts/v1.0/issueToken");
-        tokenReq.Headers.Add("Ocp-Apim-Subscription-Key", entry.Key);
+        // Obtain short-lived access token via STS (key-based or managed identity)
+        string token;
+        var stsUrl = !string.IsNullOrEmpty(entry.ResourceEndpoint)
+            ? $"{entry.ResourceEndpoint.TrimEnd('/')}/sts/v1.0/issueToken"
+            : $"https://{entry.Region}.api.cognitive.microsoft.com/sts/v1.0/issueToken";
+        var tokenReq = new HttpRequestMessage(HttpMethod.Post, stsUrl);
+        if (!string.IsNullOrEmpty(entry.Key))
+        {
+            tokenReq.Headers.Add("Ocp-Apim-Subscription-Key", entry.Key);
+        }
+        else
+        {
+            var credential = new DefaultAzureCredential(
+                new DefaultAzureCredentialOptions { TenantId = entry.TenantId });
+            var aadToken = await credential.GetTokenAsync(
+                new TokenRequestContext(["https://cognitiveservices.azure.com/.default"]),
+                cancellationToken);
+            tokenReq.Headers.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", aadToken.Token);
+        }
         var tokenResp = await http.SendAsync(tokenReq, cancellationToken);
 
         if (tokenResp.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
@@ -52,7 +70,7 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
 
         if (!tokenResp.IsSuccessStatusCode)
             return StatusCode((int)tokenResp.StatusCode, new { error = "Failed to obtain Speech token" });
-        var token = await tokenResp.Content.ReadAsStringAsync(cancellationToken);
+        token = await tokenResp.Content.ReadAsStringAsync(cancellationToken);
 
         var ssml = $"""
             <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
@@ -65,6 +83,7 @@ public class SpeechController(IHttpClientFactory httpClientFactory, AzureKeyPool
         ttsReq.Headers.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         ttsReq.Headers.Add("X-Microsoft-OutputFormat", "audio-24khz-48kbitrate-mono-mp3");
+        ttsReq.Headers.Add("User-Agent", "ai-hack-api");
         ttsReq.Content = new StringContent(ssml, Encoding.UTF8, "application/ssml+xml");
 
         var ttsResp = await http.SendAsync(ttsReq, cancellationToken);

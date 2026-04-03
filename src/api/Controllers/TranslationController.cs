@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using Azure.Identity;
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using api.Services;
 
@@ -19,16 +21,28 @@ public class TranslationController(IHttpClientFactory httpClientFactory, AzureKe
             return StatusCode(429, new { error = "Rate limit reached, please wait.", retryAfter = wait });
         }
 
-        if (string.IsNullOrEmpty(entry.Key))
-            return BadRequest(new { error = "Azure Translator is not configured. Set AzureTranslator:Keys in appsettings." });
-
         var targetLang = request.TargetLanguage ?? "en";
-        var url = $"{entry.Url}/translate?api-version=3.0&to={targetLang}";
+        var isCustomDomain = !entry.Url.Contains("cognitive.microsofttranslator.com");
+        var translatePath = isCustomDomain ? "/translator/text/v3.0/translate" : "/translate";
+        var url = $"{entry.Url}{translatePath}?api-version=3.0&to={targetLang}";
         if (!string.IsNullOrEmpty(request.SourceLanguage))
             url += $"&from={request.SourceLanguage}";
 
         using var http = httpClientFactory.CreateClient();
-        http.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", entry.Key);
+        if (!string.IsNullOrEmpty(entry.Key))
+        {
+            http.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", entry.Key);
+        }
+        else
+        {
+            var credential = new DefaultAzureCredential(
+                new DefaultAzureCredentialOptions { TenantId = entry.TenantId });
+            var aadToken = await credential.GetTokenAsync(
+                new TokenRequestContext(["https://cognitiveservices.azure.com/.default"]),
+                cancellationToken);
+            http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", aadToken.Token);
+        }
         if (!string.IsNullOrEmpty(entry.Region))
             http.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Region", entry.Region);
 

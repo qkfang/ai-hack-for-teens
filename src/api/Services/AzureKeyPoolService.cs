@@ -30,12 +30,16 @@ public class TranslatorEntry : PoolEntry
     public string Url { get; init; } = "https://api.cognitive.microsofttranslator.com";
     public string Key { get; init; } = "";
     public string Region { get; init; } = "";
+    public string ResourceId { get; init; } = "";
+    public string TenantId { get; init; } = "";
 }
 
 public class SpeechEntry : PoolEntry
 {
     public string Key { get; init; } = "";
     public string Region { get; init; } = "eastus";
+    public string TenantId { get; init; } = "";
+    public string ResourceEndpoint { get; init; } = "";
 }
 
 public class KeyPool<T>(IReadOnlyList<T> entries) where T : PoolEntry
@@ -107,20 +111,23 @@ public class AzureKeyPoolService
             {
                 Url = s["Url"] ?? "https://api.cognitive.microsofttranslator.com",
                 Key = s["Key"] ?? "",
-                Region = s["Region"] ?? ""
+                Region = s["Region"] ?? "",
+                ResourceId = s["ResourceId"] ?? "",
+                TenantId = s["TenantId"] ?? ""
             })
-            .Where(e => !string.IsNullOrEmpty(e.Key))
+            .Where(e => !string.IsNullOrEmpty(e.Url))
             .ToList();
 
         if (entries.Count == 0)
         {
-            var key = config["AzureTranslator:Key"] ?? "";
-            if (!string.IsNullOrEmpty(key))
+            var url = config["AzureTranslator:Endpoint"] ?? "";
+            if (!string.IsNullOrEmpty(url))
                 entries.Add(new TranslatorEntry
                 {
-                    Url = config["AzureTranslator:Endpoint"] ?? "https://api.cognitive.microsofttranslator.com",
-                    Key = key,
-                    Region = config["AzureTranslator:Region"] ?? ""
+                    Url = url,
+                    Key = config["AzureTranslator:Key"] ?? "",
+                    Region = config["AzureTranslator:Region"] ?? "",
+                    ResourceId = config["AzureTranslator:ResourceId"] ?? ""
                 });
         }
         return new KeyPool<TranslatorEntry>(entries);
@@ -132,19 +139,22 @@ public class AzureKeyPoolService
             .Select(s => new SpeechEntry
             {
                 Key = s["Key"] ?? "",
-                Region = s["Region"] ?? "eastus"
+                Region = s["Region"] ?? "eastus",
+                TenantId = s["TenantId"] ?? "",
+                ResourceEndpoint = s["ResourceEndpoint"] ?? ""
             })
-            .Where(e => !string.IsNullOrEmpty(e.Key))
+            .Where(e => !string.IsNullOrEmpty(e.Region))
             .ToList();
 
         if (entries.Count == 0)
         {
-            var key = config["AzureSpeech:Key"] ?? "";
-            if (!string.IsNullOrEmpty(key))
+            var region = config["AzureSpeech:Region"] ?? "";
+            if (!string.IsNullOrEmpty(region))
                 entries.Add(new SpeechEntry
                 {
-                    Key = key,
-                    Region = config["AzureSpeech:Region"] ?? "eastus"
+                    Key = config["AzureSpeech:Key"] ?? "",
+                    Region = region,
+                    TenantId = config["AzureSpeech:TenantId"] ?? ""
                 });
         }
         return new KeyPool<SpeechEntry>(entries);

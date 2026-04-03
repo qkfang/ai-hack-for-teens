@@ -1,6 +1,10 @@
 param baseName string
 param location string
 param tags object = {}
+param deployImage bool = true
+param gpt4oQuota int = 1800
+param webAppPrincipalId string = ''
+param userObjectId string = ''
 
 var resourcePrefix = toLower(baseName)
 
@@ -41,7 +45,7 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-
   name: 'gpt-4o'
   sku: {
     name: 'GlobalStandard'
-    capacity: 1800
+    capacity: gpt4oQuota
   }
   properties: {
     model: {
@@ -51,6 +55,66 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-
     }
     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
     raiPolicyName: 'Microsoft.DefaultV2'
+  }
+}
+
+resource gptImage1Deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = if (deployImage) {
+  parent: aiHub
+  name: 'gpt-image-1'
+  dependsOn: [gpt4oDeployment]
+  sku: {
+    name: 'GlobalStandard'
+    capacity: 6
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-image-1'
+    }
+    raiPolicyName: 'Microsoft.DefaultV2'
+  }
+}
+
+var cognitiveServicesOpenAIUserRoleId = '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
+var cognitiveServicesUserRoleId = 'a97b65f3-24c7-4388-baec-2e87135dc908'
+
+resource webAppRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppPrincipalId)) {
+  name: guid(aiHub.id, webAppPrincipalId, cognitiveServicesOpenAIUserRoleId)
+  scope: aiHub
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesOpenAIUserRoleId)
+    principalId: webAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource userRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
+  name: guid(aiHub.id, userObjectId, cognitiveServicesOpenAIUserRoleId)
+  scope: aiHub
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesOpenAIUserRoleId)
+    principalId: userObjectId
+    principalType: 'User'
+  }
+}
+
+resource webAppCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(webAppPrincipalId)) {
+  name: guid(aiHub.id, webAppPrincipalId, cognitiveServicesUserRoleId)
+  scope: aiHub
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesUserRoleId)
+    principalId: webAppPrincipalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource userCogServicesUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(userObjectId)) {
+  name: guid(aiHub.id, userObjectId, cognitiveServicesUserRoleId)
+  scope: aiHub
+  properties: {
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', cognitiveServicesUserRoleId)
+    principalId: userObjectId
+    principalType: 'User'
   }
 }
 
