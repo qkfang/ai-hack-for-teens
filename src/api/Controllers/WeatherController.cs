@@ -9,19 +9,25 @@ namespace api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Produces("application/json")]
-public class WeatherController(AIHackDbContext db, IMemoryCache cache) : ControllerBase
+public class WeatherController(AIHackDbContext db, IMemoryCache cache, IConfiguration config) : ControllerBase
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
     private const string AllRecordsCacheKey = "weather:all";
+    private bool CacheEnabled => config.GetValue<bool>("DbCacheEnabled");
 
     private void InvalidateCache() => cache.Remove(AllRecordsCacheKey);
 
-    private Task<List<WeatherRecord>> GetAllCachedAsync() =>
-        cache.GetOrCreateAsync(AllRecordsCacheKey, async entry =>
+    private async Task<List<WeatherRecord>> GetAllCachedAsync()
+    {
+        if (!CacheEnabled)
+            return await db.WeatherRecords.OrderBy(w => w.City).ToListAsync();
+
+        return (await cache.GetOrCreateAsync(AllRecordsCacheKey, async entry =>
         {
             entry.AbsoluteExpirationRelativeToNow = CacheDuration;
             return await db.WeatherRecords.OrderBy(w => w.City).ToListAsync();
-        })!;
+        }))!;
+    }
 
     /// <summary>Get all weather records</summary>
     [HttpGet]
