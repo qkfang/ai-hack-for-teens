@@ -51,33 +51,61 @@ async function cleanupTempImages(): Promise<void> {
   } catch { /* ignore */ }
 }
 
-let client: CopilotClient | null = null;
-let session: CopilotSession | null = null;
+interface PoolEntry {
+  client: CopilotClient;
+  session: CopilotSession | null;
+}
+
+const clientPool: PoolEntry[] = [];
+let poolIndex = 0;
+let poolInitPromise: Promise<void> | null = null;
+
+async function initializePool(): Promise<void> {
+  const { CopilotClient: Client } = await loadSdk();
+  const tokens = (process.env.GH_TOKEN || "").split("|").map((t) => t.trim()).filter(Boolean);
+  if (tokens.length === 0) {
+    throw new Error("Not authenticated. Set GH_TOKEN environment variable.");
+  }
+  for (const token of tokens) {
+    process.env.GH_TOKEN = token;
+    const c = new Client();
+    await c.start();
+    const authStatus = await c.getAuthStatus();
+    if (!authStatus.isAuthenticated) {
+      console.warn(`[Copilot Pool] Token failed auth: ${authStatus.statusMessage}`);
+      continue;
+    }
+    clientPool.push({ client: c, session: null });
+  }
+  if (clientPool.length === 0) {
+    throw new Error("Not authenticated. Set GH_TOKEN environment variable.");
+  }
+}
 
 async function getSession(): Promise<CopilotSession> {
-  const { CopilotClient: Client, approveAll } = await loadSdk();
-  if (!client) {
-    client = new Client();
-    await client.start();
-    const authStatus = await client.getAuthStatus();
-    if (!authStatus.isAuthenticated) {
-      client = null;
-      throw new Error(authStatus.statusMessage || "Not authenticated. Set GH_TOKEN environment variable.");
-    }
+  const { approveAll } = await loadSdk();
+  if (!poolInitPromise) {
+    poolInitPromise = initializePool();
   }
-  if (!session) {
-    session = await client.createSession({
+  await poolInitPromise;
+
+  const idx = poolIndex;
+  poolIndex = (poolIndex + 1) % clientPool.length;
+  const entry = clientPool[idx];
+
+  if (!entry.session) {
+    entry.session = await entry.client.createSession({
       model: "claude-sonnet-4",
       streaming: true,
       onPermissionRequest: approveAll,
     });
-    session.on((event) => {
+    entry.session.on((event) => {
       if (event.type === "session.error") {
         console.error(`[Copilot SDK] Session error: ${event.data.message}`);
       }
     });
   }
-  return session;
+  return entry.session;
 }
 
 export async function POST(request: NextRequest) {
@@ -232,7 +260,9 @@ User request: ${lastUserMessage.content}`;
       },
     });
   } catch (error) {
-    session = null;
+    for (const entry of clientPool) {
+      entry.session = null;
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to get response from Copilot" },
       { status: 500 }
@@ -242,11 +272,13 @@ User request: ${lastUserMessage.content}`;
 
 export async function DELETE() {
   await cleanupTempImages();
-  try {
-    if (session) await session.destroy();
-  } catch (error) {
-    console.error("[Copilot API] Error destroying session:", error);
+  for (const entry of clientPool) {
+    try {
+      if (entry.session) await entry.session.destroy();
+    } catch (error) {
+      console.error("[Copilot API] Error destroying session:", error);
+    }
+    entry.session = null;
   }
-  session = null;
   return NextResponse.json({ success: true });
 }
