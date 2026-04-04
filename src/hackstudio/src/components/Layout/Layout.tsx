@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { NavLink, Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useUser } from '../../contexts/UserContext'
 import { useNavVisibility } from '../../contexts/NavVisibilityContext'
+import { useIdea } from '../../contexts/IdeaContext'
 import { API_BASE, WEBBUILDER_URL } from '../../config'
 import './Layout.css'
 
 export function Layout() {
   const { user, logout, updateEvent } = useUser()
   const { config } = useNavVisibility()
+  const { selectedIdeaId, selectedIdeaTitle } = useIdea()
   const navigate = useNavigate()
   const location = useLocation()
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | 'quiz' | null>(null)
@@ -54,7 +56,17 @@ export function Layout() {
 
   function openWebBuilder() {
     if (!user) return
-    const params = new URLSearchParams({ userId: String(user.id), userName: user.username })
+    if (!selectedIdeaId) {
+      navigate('/ideas')
+      closeMenu()
+      return
+    }
+    const params = new URLSearchParams({
+      userId: String(user.id),
+      userName: user.username,
+      ideaId: String(selectedIdeaId),
+      ...(selectedIdeaTitle ? { ideaTitle: selectedIdeaTitle } : {}),
+    })
     window.open(`${WEBBUILDER_URL}?${params.toString()}`, '_blank')
     closeMenu()
   }

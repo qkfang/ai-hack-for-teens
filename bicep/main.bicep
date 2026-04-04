@@ -16,12 +16,10 @@ param foundryLocations array = [
   { region: 'southindia', suffix: 'sin', image: false, gpt4oQuota: 1800 }
   { region: 'spaincentral', suffix: 'spc', image: false, gpt4oQuota: 1800 }
   { region: 'switzerlandnorth', suffix: 'swzn', image: false, gpt4oQuota: 1800 }
-  { region: 'switzerlandwest', suffix: 'swzw', image: false, gpt4oQuota: 1800 }
   { region: 'uksouth', suffix: 'uks', image: false, gpt4oQuota: 1800 }
   { region: 'westeurope', suffix: 'we', image: false, gpt4oQuota: 1800 }
-  { region: 'westus', suffix: 'wus', image: false, gpt4oQuota: 800 }
   
-  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 800 }
+  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 600 }
   { region: 'polandcentral', suffix: 'plc', image: true, gpt4oQuota: 1800 }
   { region: 'swedencentral', suffix: 'swc', image: true, gpt4oQuota: 1800 }
   { region: 'uaenorth', suffix: 'uaen', image: true, gpt4oQuota: 1800 }

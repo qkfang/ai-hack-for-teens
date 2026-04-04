@@ -28,12 +28,13 @@ export function IdeasListPage() {
     if (id !== null) {
       setNewTitle('')
       setCreating(false)
-      setSelectedIdeaId(id)
+      setSelectedIdeaId(id, t)
     }
   }
 
   async function handlePublishToggle(ideaId: number, currentlyPublished: boolean) {
-    setSelectedIdeaId(ideaId)
+    const idea = ideas.find(i => i.id === ideaId)
+    setSelectedIdeaId(ideaId, idea?.title)
     setPublishingId(ideaId)
     if (currentlyPublished) {
       await unpublishIdea(ideaId)
@@ -52,14 +53,15 @@ export function IdeasListPage() {
   }
 
   function openPage(ideaId: number, path: string) {
-    setSelectedIdeaId(ideaId)
+    const idea = ideas.find(i => i.id === ideaId)
+    setSelectedIdeaId(ideaId, idea?.title)
     navigate(path)
   }
 
   function openWebBuilder(ideaId: number) {
     if (!user) return
-    setSelectedIdeaId(ideaId)
     const idea = ideas.find(i => i.id === ideaId)
+    setSelectedIdeaId(ideaId, idea?.title)
     const params = new URLSearchParams({
       userId: String(user.id),
       userName: user.username,
@@ -123,8 +125,8 @@ export function IdeasListPage() {
               )}
               <div
                 className="idea-item-body"
-                onClick={() => setSelectedIdeaId(idea.id)}
-                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSelectedIdeaId(idea.id)}
+                onClick={() => setSelectedIdeaId(idea.id, idea.title)}
+                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && setSelectedIdeaId(idea.id, idea.title)}
                 role="button"
                 tabIndex={0}
                 style={{ cursor: 'pointer' }}
