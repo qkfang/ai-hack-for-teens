@@ -45,11 +45,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             setUser(data.user);
             localStorage.setItem(USER_STORAGE_KEY, data.user.id);
             setIsLockedUser(true);
-            if (urlIdeaId || urlIdeaTitle) {
+            if (urlUserName || urlIdeaId || urlIdeaTitle) {
               const patchRes = await fetch("/api/user", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: urlUserId, ideaId: urlIdeaId, ideaTitle: urlIdeaTitle }),
+                body: JSON.stringify({ userId: urlUserId, name: urlUserName || undefined, ideaId: urlIdeaId, ideaTitle: urlIdeaTitle }),
               });
               if (patchRes.ok) {
                 const patchData = await patchRes.json();
