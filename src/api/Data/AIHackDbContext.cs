@@ -9,6 +9,7 @@ public class AIHackDbContext : DbContext
 
     public DbSet<WeatherRecord> WeatherRecords => Set<WeatherRecord>();
     public DbSet<AppUser> AppUsers => Set<AppUser>();
+    public DbSet<Event> Events => Set<Event>();
     public DbSet<Comic> Comics => Set<Comic>();
     public DbSet<Story> Stories => Set<Story>();
     public DbSet<StartupIdea> StartupIdeas => Set<StartupIdea>();
