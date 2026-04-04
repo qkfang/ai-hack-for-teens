@@ -21,11 +21,12 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
         if (string.IsNullOrEmpty(username))
             return BadRequest(new { error = "username is required" });
 
-        var user = new AppUser { Username = username };
+        var eventName = request.EventName?.Trim() ?? "";
+        var user = new AppUser { Username = username, EventName = eventName };
         db.AppUsers.Add(user);
         await db.SaveChangesAsync();
         cache.Remove("users:all");
-        return StatusCode(201, new { id = user.Id, username = user.Username, createdAt = user.CreatedAt });
+        return StatusCode(201, new { id = user.Id, username = user.Username, eventName = user.EventName, createdAt = user.CreatedAt });
     }
 
     [HttpGet]
@@ -53,7 +54,7 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
 
         var user = await db.AppUsers.FindAsync(id);
         if (user == null) return NotFound(new { error = "User not found" });
-        cached = new { id = user.Id, username = user.Username, createdAt = user.CreatedAt };
+        cached = new { id = user.Id, username = user.Username, eventName = user.EventName, createdAt = user.CreatedAt };
 
         if (CacheEnabled)
             cache.Set(cacheKey, cached, DbCacheDuration);
@@ -147,6 +148,18 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
         return StatusCode(201, new { id = story.Id, title = story.Title, body = story.Body, coverImageUrl = story.CoverImageUrl, createdAt = story.CreatedAt });
     }
 
+    [HttpPatch("{id:int}/event")]
+    public async Task<IActionResult> UpdateUserEvent(int id, [FromBody] UpdateEventRequest request)
+    {
+        var user = await db.AppUsers.FindAsync(id);
+        if (user == null) return NotFound(new { error = "User not found" });
+        user.EventName = request.EventName?.Trim() ?? "";
+        await db.SaveChangesAsync();
+        cache.Remove($"users:{id}");
+        cache.Remove("users:all");
+        return Ok(new { id = user.Id, username = user.Username, eventName = user.EventName });
+    }
+
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
@@ -162,6 +175,7 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
     }
 }
 
-public record CreateUserRequest(string? Username);
+public record CreateUserRequest(string? Username, string? EventName);
+public record UpdateEventRequest(string? EventName);
 public record AddComicRequest(string? Description, string? ImageUrl);
 public record AddStoryRequest(string? Title, string? Body, string? CoverImageUrl);

@@ -1,18 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink, Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useUser } from '../../contexts/UserContext'
 import { useNavVisibility } from '../../contexts/NavVisibilityContext'
-import { WEBBUILDER_URL } from '../../config'
+import { API_BASE, WEBBUILDER_URL } from '../../config'
 import './Layout.css'
 
 export function Layout() {
-  const { user, logout } = useUser()
+  const { user, logout, updateEvent } = useUser()
   const { config } = useNavVisibility()
   const navigate = useNavigate()
   const location = useLocation()
   const [openMenu, setOpenMenu] = useState<'genai' | 'startup' | 'quiz' | null>(null)
   const [isMaxLayout, setIsMaxLayout] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [events, setEvents] = useState<string[]>([])
+  const [switchingEvent, setSwitchingEvent] = useState(false)
   const genAiPaths = ['/chat', '/translation', '/speech', '/realtime']
   const startupPaths = ['/ideas', '/typewriter', '/comic', '/agent']
   const quizPaths = ['/quiz', '/leaderboard']
@@ -27,6 +29,19 @@ export function Layout() {
     if (!window.confirm('Are you sure you want to log out?')) return
     logout()
     navigate('/login')
+  }
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/quiz/events`)
+      .then(r => r.json())
+      .then((data: string[]) => setEvents(data))
+      .catch(() => {})
+  }, [])
+
+  async function handleSwitchEvent(ev: string) {
+    setSwitchingEvent(true)
+    await updateEvent(ev)
+    setSwitchingEvent(false)
   }
 
   function toggleMenu(name: 'genai' | 'startup' | 'quiz') {
@@ -218,6 +233,22 @@ export function Layout() {
               {showUserMenu && (
                 <div className="user-dropdown">
                   <div className="user-dropdown-id">User ID: #{user.id}</div>
+                  <div className="user-dropdown-id">Event: {user.eventName || '—'}</div>
+                  {events.length > 0 && (
+                    <div className="user-dropdown-event">
+                      <select
+                        className="user-dropdown-event-select"
+                        value={user.eventName}
+                        onChange={e => handleSwitchEvent(e.target.value)}
+                        disabled={switchingEvent}
+                      >
+                        <option value="">— No event —</option>
+                        {events.map(ev => (
+                          <option key={ev} value={ev}>{ev}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <button className="user-dropdown-logout" onClick={handleLogout}>
                     ↩ Log out
                   </button>

@@ -21,6 +21,7 @@ interface LeaderboardEntry {
 
 export function QuizPage() {
   const { user } = useUser()
+  const eventName = user?.eventName ?? ''
   const [state, setState] = useState<QuizState | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
   const [result, setResult] = useState<boolean | null>(null)
@@ -28,7 +29,10 @@ export function QuizPage() {
 
   const fetchState = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/quiz/state?userId=${user?.id ?? ''}`)
+      const params = new URLSearchParams()
+      if (user?.id) params.set('userId', String(user.id))
+      if (eventName) params.set('eventName', eventName)
+      const res = await fetch(`${API_BASE}/api/quiz/state?${params}`)
       const data: QuizState = await res.json()
       setState(prev => {
         if (prev && prev.currentQuestion !== data.currentQuestion) {
@@ -40,17 +44,18 @@ export function QuizPage() {
     } catch {
       // ignore
     }
-  }, [user])
+  }, [user, eventName])
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/quiz/leaderboard`)
+      const params = eventName ? `?eventName=${encodeURIComponent(eventName)}` : ''
+      const res = await fetch(`${API_BASE}/api/quiz/leaderboard${params}`)
       const data: LeaderboardEntry[] = await res.json()
       setLeaderboard(data)
     } catch {
       // ignore
     }
-  }, [])
+  }, [eventName])
 
   useEffect(() => {
     fetchState()
@@ -69,7 +74,7 @@ export function QuizPage() {
       const res = await fetch(`${API_BASE}/api/quiz/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id, answer: index }),
+        body: JSON.stringify({ userId: user.id, answer: index, eventName }),
       })
       const data = await res.json()
       if (res.ok) setResult(data.correct)
@@ -82,13 +87,14 @@ export function QuizPage() {
 
   return (
     <div className="quiz-page">
-      <h1 className="quiz-title">🧠 AI Quiz</h1>
+      <h1 className="quiz-title">🧠 AI Quiz{eventName ? ` — ${eventName}` : ''}</h1>
 
       {state.status === 'waiting' && (
         <div className="quiz-waiting">
           <div className="quiz-waiting-icon">⏳</div>
           <h2>Waiting for admin to start the quiz…</h2>
           <p>Get ready! 10 questions on AI basics and Responsible AI.</p>
+          {!eventName && <p className="quiz-no-event">⚠️ You haven't joined an event yet. Update your event from the user menu.</p>}
         </div>
       )}
 

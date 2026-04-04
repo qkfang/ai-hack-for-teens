@@ -28,10 +28,16 @@ export function LandingPage() {
   const [lastUserId, setLastUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [events, setEvents] = useState<string[]>([])
+  const [selectedEvent, setSelectedEvent] = useState('')
 
   useEffect(() => {
     const saved = getLastUserIdCookie()
     if (saved) setLastUserId(saved)
+    fetch(`${API_BASE}/api/quiz/events`)
+      .then(r => r.json())
+      .then((data: string[]) => setEvents(data))
+      .catch(() => {})
   }, [])
 
   function handleContinueMode() {
@@ -55,14 +61,14 @@ export function LandingPage() {
       const res = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: name }),
+        body: JSON.stringify({ username: name, eventName: selectedEvent }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({})) as { error?: string }
         throw new Error(data.error ?? 'Failed to create user')
       }
-      const data = await res.json() as { id: number; username: string }
-      setUser({ id: data.id, username: data.username })
+      const data = await res.json() as { id: number; username: string; eventName: string }
+      setUser({ id: data.id, username: data.username, eventName: data.eventName ?? '' })
       saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
@@ -82,8 +88,8 @@ export function LandingPage() {
       const res = await fetch(`${API_BASE}/api/users/${id}`)
       if (res.status === 404) throw new Error(`No user found with ID ${id}`)
       if (!res.ok) throw new Error('Failed to fetch user')
-      const data = await res.json() as { id: number; username: string }
-      setUser({ id: data.id, username: data.username })
+      const data = await res.json() as { id: number; username: string; eventName: string }
+      setUser({ id: data.id, username: data.username, eventName: data.eventName ?? '' })
       saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
@@ -131,6 +137,22 @@ export function LandingPage() {
               maxLength={30}
               autoFocus
             />
+            {events.length > 0 && (
+              <>
+                <label className="form-label" htmlFor="event">Join an event</label>
+                <select
+                  id="event"
+                  className="form-input"
+                  value={selectedEvent}
+                  onChange={e => setSelectedEvent(e.target.value)}
+                >
+                  <option value="">— No event —</option>
+                  {events.map(ev => (
+                    <option key={ev} value={ev}>{ev}</option>
+                  ))}
+                </select>
+              </>
+            )}
             {error && <p className="form-error">{error}</p>}
             <button className="form-submit" type="submit" disabled={loading}>
               {loading ? 'Creating…' : 'Create Account →'}
