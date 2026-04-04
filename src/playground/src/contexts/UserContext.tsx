@@ -1,13 +1,16 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { API_BASE } from '../config'
 
 export interface UserInfo {
   id: number
   username: string
+  eventName: string
 }
 
 interface UserContextValue {
   user: UserInfo | null
   setUser: (user: UserInfo | null) => void
+  updateEvent: (eventName: string) => Promise<void>
   logout: () => void
 }
 
@@ -19,7 +22,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<UserInfo | null>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      return stored ? (JSON.parse(stored) as UserInfo) : null
+      if (!stored) return null
+      const parsed = JSON.parse(stored) as UserInfo
+      return { ...parsed, eventName: parsed.eventName ?? '' }
     } catch {
       return null
     }
@@ -37,11 +42,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUserState(u)
   }
 
+  async function updateEvent(eventName: string) {
+    if (!user) return
+    try {
+      const res = await fetch(`${API_BASE}/api/users/${user.id}/event`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventName }),
+      })
+      if (res.ok) {
+        setUser({ ...user, eventName })
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   function logout() {
     setUserState(null)
   }
 
-  return <UserContext.Provider value={{ user, setUser, logout }}>{children}</UserContext.Provider>
+  return <UserContext.Provider value={{ user, setUser, updateEvent, logout }}>{children}</UserContext.Provider>
 }
 
 // eslint-disable-next-line react-refresh/only-export-components

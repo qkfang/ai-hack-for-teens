@@ -182,109 +182,39 @@ public class QuizStore
         },
     ];
 
-    public enum QuizStatus { Waiting, InProgress, Finished }
+    private readonly object _eventsLock = new();
+    private readonly List<string> _eventNames = [];
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, EventQuizState> _eventStates = new(StringComparer.OrdinalIgnoreCase);
 
-    private readonly object _lock = new();
-    private QuizStatus _status = QuizStatus.Waiting;
-    private int _currentQuestion = 0;
-    private bool _showAnswer = false;
-    private readonly Dictionary<(int userId, int questionIndex), int> _answers = [];
+    public IReadOnlyList<string> GetEventNames() { lock (_eventsLock) return [.. _eventNames]; }
 
-    public QuizStatus Status { get { lock (_lock) return _status; } }
-    public int CurrentQuestion { get { lock (_lock) return _currentQuestion; } }
-    public bool IsShowingAnswer { get { lock (_lock) return _showAnswer; } }
-
-    public void Start()
+    public bool AddEvent(string name)
     {
-        lock (_lock)
+        var trimmed = name.Trim();
+        lock (_eventsLock)
         {
-            _status = QuizStatus.InProgress;
-            _currentQuestion = 0;
-        }
-    }
-
-    public void Next()
-    {
-        lock (_lock)
-        {
-            if (_status != QuizStatus.InProgress) return;
-            if (_currentQuestion < Questions.Length - 1)
-            {
-                _currentQuestion++;
-                _showAnswer = false;
-            }
-        }
-    }
-
-    public void Prev()
-    {
-        lock (_lock)
-        {
-            if (_status != QuizStatus.InProgress) return;
-            if (_currentQuestion > 0)
-            {
-                _currentQuestion--;
-                _showAnswer = false;
-            }
-        }
-    }
-
-    public void Finish()
-    {
-        lock (_lock) { _status = QuizStatus.Finished; }
-    }
-
-    public void Reset()
-    {
-        lock (_lock)
-        {
-            _status = QuizStatus.Waiting;
-            _currentQuestion = 0;
-            _showAnswer = false;
-            _answers.Clear();
-        }
-    }
-
-    public void ToggleShowAnswer()
-    {
-        lock (_lock) { _showAnswer = !_showAnswer; }
-    }
-
-    public bool SubmitAnswer(int userId, int questionIndex, int answerIndex)
-    {
-        lock (_lock)
-        {
-            if (_answers.ContainsKey((userId, questionIndex))) return false;
-            _answers[(userId, questionIndex)] = answerIndex;
+            if (_eventNames.Any(e => string.Equals(e, trimmed, StringComparison.OrdinalIgnoreCase))) return false;
+            _eventNames.Add(trimmed);
             return true;
         }
     }
 
-    public bool? GetAnswer(int userId, int questionIndex)
+    public bool RemoveEvent(string name)
     {
-        lock (_lock)
+        lock (_eventsLock)
         {
-            if (!_answers.TryGetValue((userId, questionIndex), out var answer)) return null;
-            return answer == Questions[questionIndex].CorrectIndex;
+            var existing = _eventNames.FirstOrDefault(e => string.Equals(e, name, StringComparison.OrdinalIgnoreCase));
+            if (existing == null) return false;
+            _eventNames.Remove(existing);
+            _eventStates.TryRemove(existing, out _);
+            return true;
         }
     }
 
-    public bool HasAnswered(int userId, int questionIndex)
+    public EventQuizState GetEvent(string eventName)
     {
-        lock (_lock) return _answers.ContainsKey((userId, questionIndex));
-    }
-
-    public int GetScore(int userId)
-    {
-        lock (_lock)
-        {
-            int score = 0;
-            for (int i = 0; i < Questions.Length; i++)
-            {
-                if (_answers.TryGetValue((userId, i), out var answer) && answer == Questions[i].CorrectIndex)
-                    score++;
-            }
-            return score;
-        }
+        const string DefaultEventKey = "default";
+        var key = string.IsNullOrWhiteSpace(eventName) ? DefaultEventKey : eventName.Trim();
+        return _eventStates.GetOrAdd(key, _ => new EventQuizState());
     }
 }

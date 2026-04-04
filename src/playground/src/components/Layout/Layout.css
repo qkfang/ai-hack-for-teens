@@ -228,6 +228,27 @@
   color: white;
 }
 
+.user-dropdown-event {
+  padding: 0.4rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.user-dropdown-event-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.user-dropdown-event-select option {
+  background: #112447;
+  color: white;
+}
+
 /* Max layout */
 .app-main {
   position: relative;

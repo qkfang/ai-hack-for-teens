@@ -335,3 +335,78 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.admin-event-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-event-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 20px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.admin-event-item:hover {
+  border-color: #0078d4;
+  background: #f0f7ff;
+}
+
+.admin-event-item.selected {
+  border-color: #0078d4;
+  background: #0078d4;
+  color: #fff;
+}
+
+.admin-event-item.selected .admin-btn.danger {
+  background: transparent;
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.4);
+}
+
+.admin-event-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-event-add {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-event-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.admin-event-input:focus {
+  border-color: #0078d4;
+}
+
+.admin-event-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-event-badge {
+  color: #0078d4;
+}
+
+.admin-btn.small {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.75rem;
+}
+
