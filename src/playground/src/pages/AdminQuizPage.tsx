@@ -143,6 +143,9 @@ export function AdminQuizPage() {
             <button className="admin-btn" onClick={() => control('prev')} disabled={status !== 'inprogress' || quizState?.currentQuestion === 0}>
               ◀ Prev
             </button>
+            <button className="admin-btn" onClick={() => control('showAnswer')} disabled={status !== 'inprogress'}>
+              {quizState?.showAnswer ? '🙈 Hide Answer' : '👁 Show Answer'}
+            </button>
             <button className="admin-btn" onClick={() => control('next')} disabled={status !== 'inprogress' || (quizState?.currentQuestion ?? 0) >= (quizState?.totalQuestions ?? 1) - 1}>
               Next ▶
             </button>
@@ -151,9 +154,6 @@ export function AdminQuizPage() {
             </button>
             <button className="admin-btn danger" onClick={() => control('reset')}>
               🔄 Reset
-            </button>
-            <button className="admin-btn" onClick={() => control('showAnswer')} disabled={status !== 'inprogress'}>
-              {quizState?.showAnswer ? '🙈 Hide Answer' : '👁 Show Answer'}
             </button>
           </div>
 

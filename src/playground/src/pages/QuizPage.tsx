@@ -89,6 +89,12 @@ export function QuizPage() {
     <div className="quiz-page">
       <h1 className="quiz-title">🧠 AI Quiz{eventName ? ` — ${eventName}` : ''}</h1>
 
+      {user && state.status !== 'waiting' && (
+        <div className="quiz-score-bar">
+          🏆 Your current score: <strong>{leaderboard.find(e => e.userId === user.id)?.score ?? 0}</strong>
+        </div>
+      )}
+
       {state.status === 'waiting' && (
         <div className="quiz-waiting">
           <div className="quiz-waiting-icon">⏳</div>
@@ -121,7 +127,7 @@ export function QuizPage() {
                   key={i}
                   className={cls}
                   onClick={() => handleAnswer(i)}
-                  disabled={state.hasAnswered || result !== null}
+                  disabled={state.hasAnswered || result !== null || state.showAnswer}
                 >
                   <span className="quiz-option-letter">{String.fromCharCode(65 + i)}</span>
                   {opt}

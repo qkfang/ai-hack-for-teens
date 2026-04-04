@@ -300,3 +300,18 @@
   border-color: #0078d4;
   color: #fff;
 }
+
+.quiz-score-bar {
+  text-align: center;
+  padding: 0.75rem 1.25rem;
+  background: var(--card-bg, #f9f9f9);
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #444;
+}
+
+.quiz-score-bar strong {
+  font-size: 1.3rem;
+  color: #0078d4;
+}
