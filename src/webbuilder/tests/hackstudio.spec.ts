@@ -1,13 +1,13 @@
 /**
- * End-to-end UI tests for the Vite React playground (src/playground).
+ * End-to-end UI tests for the Vite React hackstudio (src/hackstudio).
  *
- * Set PLAYGROUND_URL to point at a running instance, e.g.:
- *   PLAYGROUND_URL=http://localhost:5173 npx playwright test tests/playground.spec.ts
+ * Set HACKSTUDIO_URL to point at a running instance, e.g.:
+ *   HACKSTUDIO_URL=http://localhost:5173 npx playwright test tests/hackstudio.spec.ts
  */
 
 import { test, expect, Page } from "@playwright/test";
 
-const PLAYGROUND = process.env.PLAYGROUND_URL || "http://localhost:5173";
+const PLAYGROUND = process.env.HACKSTUDIO_URL || "http://localhost:5173";
 const INITIAL_LOAD_TIMEOUT = 10_000; // Vite dev server + React hydration can be slow
 
 // ── Landing / Login page ──────────────────────────────────────────────────────

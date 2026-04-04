@@ -104,9 +104,9 @@ export function AboutPage() {
             </div>
           </div>
           <p className="env-note">
-            💡 The playground frontend only needs one setting — the backend API URL — which
+            💡 The hackstudio frontend only needs one setting — the backend API URL — which
             is only relevant during local development. Create a <code>.env.local</code> file
-            in <code>src/playground</code>:
+            in <code>src/hackstudio</code>:
           </p>
           <div className="code-block">
             <pre>{`VITE_API_BASE_URL=http://localhost:5163`}</pre>

@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/playground/**"
+      - "src/hackstudio/**"
   workflow_dispatch:
 
 jobs:
@@ -19,19 +19,19 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install playground dependencies
-        working-directory: src/playground
+      - name: Install hackstudio dependencies
+        working-directory: src/hackstudio
         run: npm ci --legacy-peer-deps
 
       - name: Create .env file
-        working-directory: src/playground
+        working-directory: src/hackstudio
         run: |
           cp .env.example .env
           sed -i 's|^VITE_API_BASE_URL=.*|VITE_API_BASE_URL=${{ vars.VITE_API_BASE_URL }}|' .env
           sed -i 's|^VITE_WEBBUILDER_URL=.*|VITE_WEBBUILDER_URL=${{ vars.VITE_WEBBUILDER_URL }}|' .env
 
-      - name: Build playground
-        working-directory: src/playground
+      - name: Build hackstudio
+        working-directory: src/hackstudio
         run: npm run build
 
       - name: Deploy to Azure Static Web Apps
@@ -41,4 +41,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           skip_app_build: true
-          app_location: "src/playground/dist"
+          app_location: "src/hackstudio/dist"
