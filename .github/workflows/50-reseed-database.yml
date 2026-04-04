@@ -1,0 +1,36 @@
+name: 50 Reseed Database
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reseed-dev:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure CLI Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run seed script
+        env:
+          AZURE_CLIENT_ID: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          AZURE_CLIENT_SECRET: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+        run: |
+          echo "::add-mask::$AZURE_CLIENT_ID"
+          echo "::add-mask::$AZURE_CLIENT_SECRET"
+          SQLCMD=$(command -v sqlcmd || echo /opt/mssql-tools18/bin/sqlcmd)
+          "$SQLCMD" \
+            -S "aihack26-sql.database.windows.net,1433" \
+            -d "ai-hack-db-dev" \
+            -G \
+            -N \
+            -U "$AZURE_CLIENT_ID" \
+            -P "$AZURE_CLIENT_SECRET" \
+            -i db/seed.sql
