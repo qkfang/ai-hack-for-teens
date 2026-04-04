@@ -7,6 +7,115 @@ public class QuizQuestion
     public int CorrectIndex { get; set; }
 }
 
+public class EventQuizState
+{
+    public enum QuizStatus { Waiting, InProgress, Finished }
+
+    private readonly object _lock = new();
+    private QuizStatus _status = QuizStatus.Waiting;
+    private int _currentQuestion = 0;
+    private bool _showAnswer = false;
+    private readonly Dictionary<(int userId, int questionIndex), int> _answers = [];
+
+    public QuizStatus Status { get { lock (_lock) return _status; } }
+    public int CurrentQuestion { get { lock (_lock) return _currentQuestion; } }
+    public bool IsShowingAnswer { get { lock (_lock) return _showAnswer; } }
+
+    public void Start()
+    {
+        lock (_lock)
+        {
+            _status = QuizStatus.InProgress;
+            _currentQuestion = 0;
+        }
+    }
+
+    public void Next()
+    {
+        lock (_lock)
+        {
+            if (_status != QuizStatus.InProgress) return;
+            if (_currentQuestion < QuizStore.Questions.Length - 1)
+            {
+                _currentQuestion++;
+                _showAnswer = false;
+            }
+        }
+    }
+
+    public void Prev()
+    {
+        lock (_lock)
+        {
+            if (_status != QuizStatus.InProgress) return;
+            if (_currentQuestion > 0)
+            {
+                _currentQuestion--;
+                _showAnswer = false;
+            }
+        }
+    }
+
+    public void Finish()
+    {
+        lock (_lock) { _status = QuizStatus.Finished; }
+    }
+
+    public void Reset()
+    {
+        lock (_lock)
+        {
+            _status = QuizStatus.Waiting;
+            _currentQuestion = 0;
+            _showAnswer = false;
+            _answers.Clear();
+        }
+    }
+
+    public void ToggleShowAnswer()
+    {
+        lock (_lock) { _showAnswer = !_showAnswer; }
+    }
+
+    public bool SubmitAnswer(int userId, int questionIndex, int answerIndex)
+    {
+        lock (_lock)
+        {
+            if (_answers.ContainsKey((userId, questionIndex))) return false;
+            _answers[(userId, questionIndex)] = answerIndex;
+            return true;
+        }
+    }
+
+    public bool? GetAnswer(int userId, int questionIndex)
+    {
+        lock (_lock)
+        {
+            if (!_answers.TryGetValue((userId, questionIndex), out var answer)) return null;
+            return answer == QuizStore.Questions[questionIndex].CorrectIndex;
+        }
+    }
+
+    public bool HasAnswered(int userId, int questionIndex)
+    {
+        lock (_lock) return _answers.ContainsKey((userId, questionIndex));
+    }
+
+    public int GetScore(int userId)
+    {
+        lock (_lock)
+        {
+            int score = 0;
+            for (int i = 0; i < QuizStore.Questions.Length; i++)
+            {
+                if (_answers.TryGetValue((userId, i), out var answer) && answer == QuizStore.Questions[i].CorrectIndex)
+                    score++;
+            }
+            return score;
+        }
+    }
+}
+
 public class QuizStore
 {
     public static readonly QuizQuestion[] Questions =
