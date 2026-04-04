@@ -14,19 +14,15 @@ interface QuizState {
 export function AdminQuizPage() {
   const [events, setEvents] = useState<string[]>([])
   const [selectedEvent, setSelectedEvent] = useState('')
-  const [_eventsFetched, setEventsFetched] = useState(false)
-  const [newEventName, setNewEventName] = useState('')
   const [quizState, setQuizState] = useState<QuizState | null>(null)
 
   const fetchEvents = useCallback(async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/quiz/events`)
-      const data: string[] = await res.json()
-      setEvents(data)
-      setEventsFetched(prev => {
-        if (!prev && data.length > 0) setSelectedEvent(data[0])
-        return true
-      })
+      const res = await fetch(`${API_BASE}/api/events`)
+      const data: { id: number; name: string }[] = await res.json()
+      const names = data.map(e => e.name)
+      setEvents(names)
+      if (names.length > 0) setSelectedEvent(prev => prev || names[0])
     } catch { /* ignore */ }
   }, [])
 
@@ -61,39 +57,6 @@ export function AdminQuizPage() {
     } catch { /* ignore */ }
   }
 
-  async function addEvent() {
-    const name = newEventName.trim()
-    if (!name) return
-    try {
-      const res = await fetch(`${API_BASE}/api/quiz/admin/events`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Admin-Password': '9999' },
-        body: JSON.stringify({ name }),
-      })
-      if (res.ok) {
-        const data: string[] = await res.json()
-        setEvents(data)
-        setNewEventName('')
-        setSelectedEvent(name)
-      }
-    } catch { /* ignore */ }
-  }
-
-  async function removeEvent(name: string) {
-    if (!window.confirm(`Delete event "${name}"?`)) return
-    try {
-      const res = await fetch(`${API_BASE}/api/quiz/admin/events/${encodeURIComponent(name)}`, {
-        method: 'DELETE',
-        headers: { 'X-Admin-Password': '9999' },
-      })
-      if (res.ok) {
-          const data: string[] = await res.json()
-          setEvents(data)
-          if (selectedEvent === name) setSelectedEvent(data.length > 0 ? data[0] : '')
-        }
-    } catch { /* ignore */ }
-  }
-
   const status = quizState?.status ?? 'waiting'
 
   return (
@@ -102,29 +65,16 @@ export function AdminQuizPage() {
         <h1>🧠 Quiz Control</h1>
       </div>
 
-      {/* Event management */}
+      {/* Event selection */}
       <div className="admin-section">
         <h2 className="admin-section-title">📋 Events</h2>
         <div className="admin-event-list">
-          {events.length === 0 && <p className="admin-empty">No events yet. Add one below.</p>}
+          {events.length === 0 && <p className="admin-empty">No events found. Add events in the Events tab.</p>}
           {events.map(ev => (
             <div key={ev} className={`admin-event-item${ev === selectedEvent ? ' selected' : ''}`} onClick={() => setSelectedEvent(ev)}>
               <span className="admin-event-name">{ev}</span>
-              <button className="admin-btn danger small" onClick={e => { e.stopPropagation(); removeEvent(ev) }}>✕</button>
             </div>
           ))}
-        </div>
-        <div className="admin-event-add">
-          <input
-            className="admin-event-input"
-            type="text"
-            placeholder="Event name (e.g. Syd)"
-            value={newEventName}
-            onChange={e => setNewEventName(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && addEvent()}
-            maxLength={50}
-          />
-          <button className="admin-btn primary" onClick={addEvent}>+ Add Event</button>
         </div>
       </div>
 
