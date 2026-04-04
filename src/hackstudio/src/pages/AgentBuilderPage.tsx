@@ -661,12 +661,12 @@ export function AgentBuilderPage() {
               <Slider
                 label="Temperature"
                 min={0}
-                max={2}
+                max={1}
                 step={0.01}
                 value={config.temperature}
                 onChange={(v) => updateConfig({ temperature: v })}
                 leftLabel="Precise (0)"
-                rightLabel="Creative (2)"
+                rightLabel="Creative (1)"
               />
 
               <Slider
