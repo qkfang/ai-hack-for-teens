@@ -14,7 +14,7 @@ interface QuizState {
 export function AdminQuizPage() {
   const [events, setEvents] = useState<string[]>([])
   const [selectedEvent, setSelectedEvent] = useState('')
-  const [eventsFetched, setEventsFetched] = useState(false)
+  const [_eventsFetched, setEventsFetched] = useState(false)
   const [newEventName, setNewEventName] = useState('')
   const [quizState, setQuizState] = useState<QuizState | null>(null)
 
