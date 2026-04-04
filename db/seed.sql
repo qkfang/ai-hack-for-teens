@@ -22,8 +22,8 @@ DBCC CHECKIDENT ('Events',         RESEED, 1);
 
 -- ── Events ──────────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT Events ON;
-INSERT INTO Events (Id,Name,CreatedAt) VALUES (1, N'AI Hack 2026', '2026-04-04T00:00:00.000');
-INSERT INTO Events (Id,Name,CreatedAt) VALUES (2, N'Demo Day', '2026-04-04T00:00:00.000');
+INSERT INTO Events (Id,Name,CreatedAt) VALUES (1, N'Sydney', '2026-04-04T00:00:00.000');
+INSERT INTO Events (Id,Name,CreatedAt) VALUES (2, N'Melbourne', '2026-04-04T00:00:00.000');
 SET IDENTITY_INSERT Events OFF;
 
 -- ── WeatherRecords ────────────────────────────────────────────────────────────
