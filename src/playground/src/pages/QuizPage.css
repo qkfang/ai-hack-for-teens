@@ -241,6 +241,18 @@
 .quiz-lb-name {
   flex: 1;
   font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quiz-lb-event {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #0078d4;
+  background: #e8f3fc;
+  border-radius: 10px;
+  padding: 0.1rem 0.5rem;
 }
 
 .quiz-lb-score {
@@ -303,12 +315,13 @@
 
 .quiz-score-bar {
   text-align: center;
-  padding: 0.75rem 1.25rem;
+  padding: 0.4rem 1rem;
   background: var(--card-bg, #f9f9f9);
   border: 1px solid var(--border, #e0e0e0);
   border-radius: 10px;
   font-size: 1rem;
   color: #444;
+  margin-bottom: -0.75rem;
 }
 
 .quiz-score-bar strong {

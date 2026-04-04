@@ -33,11 +33,12 @@ INSERT INTO AppSettings ([Key], Value) VALUES (N'nav-config', N'{"genai":{"chat"
 -- ── AppUsers ──────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT AppUsers ON;
 INSERT INTO AppUsers (Id,Username,EventName,CreatedAt) VALUES (1, N'Daniel', N'', '2026-04-01T10:38:53.423');
+INSERT INTO AppUsers (Id,Username,EventName,CreatedAt) VALUES (2, N'Wendy', N'', '2026-04-01T10:38:53.423');
 SET IDENTITY_INSERT AppUsers OFF;
 
 -- ── StartupIdeas ──────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT StartupIdeas ON;
-INSERT INTO StartupIdeas (Id,UserId,Title,IdeaDescription,ProblemStatement,TargetAudience,BusinessModel,CoverImageUrl,CoverImagePrompt,AgentName,AgentSystemPrompt,AgentModel,AgentTemperature,WebsiteUrl,HasWebBuilder,IsPublished,CreatedAt,UpdatedAt) VALUES (5, 1, N'Choc Factory', N'### 1. **Adventure Concept**
+INSERT INTO StartupIdeas (Id,UserId,Title,IdeaDescription,ProblemStatement,TargetAudience,BusinessModel,CoverImageUrl,CoverImagePrompt,AgentName,AgentSystemPrompt,AgentModel,AgentTemperature,WebsiteUrl,HasWebBuilder,IsPublished,CreatedAt,UpdatedAt) VALUES (1, 1, N'Choc Factory', N'### 1. **Adventure Concept**
 A mysterious chocolate factory appears overnight in a small town. It''s said that whoever enters the factory is granted a wish—but at a cost. A group of kids ventures inside and discovers the truth behind the factory''s magic.
 
 ### 2. **Fantasy Twist**
@@ -47,7 +48,7 @@ The Choc Factory is not a chocolate factory at all; it''s a portal disguised as 
 The Choc Factory is the last remaining chocolate producer in a dystopian world where cocoa has become a rare resource. The factory''s owner holds dark secrets, and a young journalist infiltrates the company to expose the truth.', NULL, NULL, NULL, N'https://aihack26st.blob.core.windows.net/images/cc6d387b-2e7d-4c26-9037-b9707b7dbbe6.png', N'choc factory fun image', N'Choc Factory Agent', N'You are a helpful Choc Factory Agent.
 
 I know everything about chocolate', N'', 1.17, NULL, N'True', N'True', '2026-04-03T09:25:10.463', '2026-04-03T22:49:25.017');
-INSERT INTO StartupIdeas (Id,UserId,Title,IdeaDescription,ProblemStatement,TargetAudience,BusinessModel,CoverImageUrl,CoverImagePrompt,AgentName,AgentSystemPrompt,AgentModel,AgentTemperature,WebsiteUrl,HasWebBuilder,IsPublished,CreatedAt,UpdatedAt) VALUES (7, 1, N'Smile Generator', N'The world had forgotten how to smile.
+INSERT INTO StartupIdeas (Id,UserId,Title,IdeaDescription,ProblemStatement,TargetAudience,BusinessModel,CoverImageUrl,CoverImagePrompt,AgentName,AgentSystemPrompt,AgentModel,AgentTemperature,WebsiteUrl,HasWebBuilder,IsPublished,CreatedAt,UpdatedAt) VALUES (2, 2, N'Smile Generator', N'The world had forgotten how to smile.
 
 Years of conflict, climate collapse, and creeping isolation had drained humanity of its joy. Cities bustled with people, but their faces were blank slates—expressions of exhaustion, indifference, and quiet despair. Laughter had become a rare sound, so rare that when it echoed off the concrete buildings, people stopped in confusion, as if hearing a bird call they''d long forgotten.
 
@@ -70,8 +71,8 @@ SET IDENTITY_INSERT StartupIdeas OFF;
 
 -- ── Comics ────────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT Comics ON;
-INSERT INTO Comics (Id,UserId,Description,ImageUrl,CreatedAt) VALUES (17, 1, N'create smile generator imgae', N'https://aihack26st.blob.core.windows.net/images/2a743bbd-2051-4257-b3ae-e23e8999e3a5.png', '2026-04-03T22:43:46.614');
-INSERT INTO Comics (Id,UserId,Description,ImageUrl,CreatedAt) VALUES (18, 1, N'choc factory fun image', N'https://aihack26st.blob.core.windows.net/images/cc6d387b-2e7d-4c26-9037-b9707b7dbbe6.png', '2026-04-03T22:49:17.726');
+INSERT INTO Comics (Id,UserId,Description,ImageUrl,CreatedAt) VALUES (1, 1, N'create smile generator imgae', N'https://aihack26st.blob.core.windows.net/images/2a743bbd-2051-4257-b3ae-e23e8999e3a5.png', '2026-04-03T22:43:46.614');
+INSERT INTO Comics (Id,UserId,Description,ImageUrl,CreatedAt) VALUES (2, 2, N'choc factory fun image', N'https://aihack26st.blob.core.windows.net/images/cc6d387b-2e7d-4c26-9037-b9707b7dbbe6.png', '2026-04-03T22:49:17.726');
 SET IDENTITY_INSERT Comics OFF;
 
 PRINT 'Database reseeded successfully.';

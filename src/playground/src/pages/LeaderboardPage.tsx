@@ -7,6 +7,7 @@ interface LeaderboardEntry {
   userId: number
   username: string
   score: number
+  eventName?: string
 }
 
 export function LeaderboardPage() {
@@ -85,7 +86,10 @@ export function LeaderboardPage() {
             {leaderboard.map((entry, i) => (
               <li key={entry.userId} className={`quiz-lb-entry${user?.id === entry.userId ? ' me' : ''}`}>
                 <span className="quiz-lb-rank">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
-                <span className="quiz-lb-name">{entry.username}</span>
+                <span className="quiz-lb-name">
+                  {entry.username}
+                  {!selectedEvent && entry.eventName && <span className="quiz-lb-event">{entry.eventName}</span>}
+                </span>
                 <span className="quiz-lb-score">{entry.score} / {totalQuestions}</span>
               </li>
             ))}

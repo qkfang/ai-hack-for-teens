@@ -87,10 +87,10 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
             query = query.Where(u => u.EventName == eventName);
 
         var users = await query
-            .Select(u => new { userId = u.Id, username = u.Username })
+            .Select(u => new { userId = u.Id, username = u.Username, eventName = u.EventName })
             .ToListAsync();
         var board = users
-            .Select(u => new { u.userId, u.username, score = ev.GetScore(u.userId) })
+            .Select(u => new { u.userId, u.username, u.eventName, score = ev.GetScore(u.userId) })
             .OrderByDescending(x => x.score)
             .ToList();
         return Ok(board);
