@@ -18,6 +18,10 @@ build/
 # user data (stored on server)
 .user-data/
 
+# playwright
+playwright-report/
+test-results/
+
 # misc
 .DS_Store
 npm-debug.log*
