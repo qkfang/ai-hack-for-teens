@@ -13,6 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install sqlcmd
+        run: |
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          sudo add-apt-repository "$(curl -sSL https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list)"
+          sudo apt-get update -q
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18 unixodbc-dev
+
       - name: Azure CLI Login
         uses: azure/login@v1
         with:
@@ -25,8 +32,7 @@ jobs:
         run: |
           echo "::add-mask::$AZURE_CLIENT_ID"
           echo "::add-mask::$AZURE_CLIENT_SECRET"
-          SQLCMD=$(command -v sqlcmd || echo /opt/mssql-tools18/bin/sqlcmd)
-          "$SQLCMD" \
+          /opt/mssql-tools18/bin/sqlcmd \
             -S "aihack26-sql.database.windows.net,1433" \
             -d "ai-hack-db-dev" \
             -G \

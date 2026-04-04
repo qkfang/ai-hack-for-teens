@@ -272,6 +272,9 @@ export function Layout() {
       {!isMaxLayout && (
         <footer className="app-footer">
           <p>AI Hack Studio — Powered by Microsoft Foundry & GitHub Copilot & Love + Fun</p>
+          <NavLink to="/about" className={({ isActive }) => (isActive ? 'footer-nav-link active' : 'footer-nav-link')}>
+            ℹ️ About
+          </NavLink>
           <NavLink to="/admin" className={({ isActive }) => (isActive ? 'footer-nav-link active' : 'footer-nav-link')}>
             🎛️ Admin
           </NavLink>

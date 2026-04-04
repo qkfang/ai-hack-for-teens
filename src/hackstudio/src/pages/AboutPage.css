@@ -24,6 +24,46 @@
   line-height: 1.7;
 }
 
+.about-subtitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #00c8a0;
+  margin-bottom: 0.75rem !important;
+}
+
+.about-badges {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 1.25rem auto;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.badge-blue { background: #3b6ff5; }
+.badge-purple { background: #7c5cbf; }
+.badge-green { background: #2ecc71; }
+
+.about-format {
+  color: #888;
+  font-size: 1rem;
+  margin: 0.5rem auto !important;
+}
+
+.about-tagline {
+  font-weight: 700;
+  color: #1a1a2e;
+  font-size: 1.1rem;
+  margin-top: 0.75rem !important;
+}
+
 .about-content {
   display: flex;
   flex-direction: column;
