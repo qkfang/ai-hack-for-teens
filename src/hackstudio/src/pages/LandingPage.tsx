@@ -28,15 +28,16 @@ export function LandingPage() {
   const [lastUserId, setLastUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [events, setEvents] = useState<string[]>([])
+  const [events, setEvents] = useState<{id: number; name: string}[]>([])
   const [selectedEvent, setSelectedEvent] = useState('')
+  const [continueEvent, setContinueEvent] = useState('')
 
   useEffect(() => {
     const saved = getLastUserIdCookie()
     if (saved) setLastUserId(saved)
-    fetch(`${API_BASE}/api/quiz/events`)
+    fetch(`${API_BASE}/api/events`)
       .then(r => r.json())
-      .then((data: string[]) => setEvents(data))
+      .then((data: {id: number; name: string}[]) => setEvents(data))
       .catch(() => {})
   }, [])
 
@@ -89,7 +90,16 @@ export function LandingPage() {
       if (res.status === 404) throw new Error(`No user found with ID ${id}`)
       if (!res.ok) throw new Error('Failed to fetch user')
       const data = await res.json() as { id: number; username: string; eventName: string }
-      setUser({ id: data.id, username: data.username, eventName: data.eventName ?? '' })
+      let eventName = data.eventName ?? ''
+      if (continueEvent) {
+        await fetch(`${API_BASE}/api/users/${id}/event`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventName: continueEvent }),
+        })
+        eventName = continueEvent
+      }
+      setUser({ id: data.id, username: data.username, eventName })
       saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
@@ -148,7 +158,7 @@ export function LandingPage() {
                 >
                   <option value="">— No event —</option>
                   {events.map(ev => (
-                    <option key={ev} value={ev}>{ev}</option>
+                    <option key={ev.id} value={ev.name}>{ev.name}</option>
                   ))}
                 </select>
               </>
@@ -177,6 +187,22 @@ export function LandingPage() {
               onChange={e => setUserId(e.target.value)}
               autoFocus
             />
+            {events.length > 0 && (
+              <>
+                <label className="form-label" htmlFor="continue-event">Join an event (optional)</label>
+                <select
+                  id="continue-event"
+                  className="form-input"
+                  value={continueEvent}
+                  onChange={e => setContinueEvent(e.target.value)}
+                >
+                  <option value="">— Keep existing —</option>
+                  {events.map(ev => (
+                    <option key={ev.id} value={ev.name}>{ev.name}</option>
+                  ))}
+                </select>
+              </>
+            )}
             {error && <p className="form-error">{error}</p>}
             <button className="form-submit" type="submit" disabled={loading}>
               {loading ? 'Loading…' : 'Continue →'}
