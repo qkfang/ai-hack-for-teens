@@ -25,7 +25,8 @@ jobs:
         run: |
           echo "::add-mask::$AZURE_CLIENT_ID"
           echo "::add-mask::$AZURE_CLIENT_SECRET"
-          /opt/mssql-tools18/bin/sqlcmd \
+          SQLCMD=$(command -v sqlcmd || echo /opt/mssql-tools18/bin/sqlcmd)
+          "$SQLCMD" \
             -S "aihack26-sql.database.windows.net,1433" \
             -d "ai-hack-db-dev" \
             -G \
