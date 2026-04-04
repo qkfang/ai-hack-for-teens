@@ -40,8 +40,8 @@ INSERT INTO AppSettings ([Key], Value) VALUES (N'nav-config', N'{"genai":{"chat"
 
 -- ── AppUsers ──────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT AppUsers ON;
-INSERT INTO AppUsers (Id,Username,EventName,CreatedAt) VALUES (1, N'Daniel', N'', '2026-04-01T10:38:53.423');
-INSERT INTO AppUsers (Id,Username,EventName,CreatedAt) VALUES (2, N'Wendy', N'', '2026-04-01T10:38:53.423');
+INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, EventName) VALUES (1, N'Daniel', N'', '2026-04-01T10:38:53.423', 'Sydney');
+INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, EventName) VALUES (2, N'Wendy', N'', '2026-04-01T10:38:53.423', 'Melbourne');
 SET IDENTITY_INSERT AppUsers OFF;
 
 -- ── StartupIdeas ──────────────────────────────────────────────────────────────

@@ -52,6 +52,7 @@ export function AdminLayout() {
         <NavLink to="/leaderboard" className={({ isActive }) => `admin-subnav-link${isActive ? ' active' : ''}`}>🏆 Leaderboard</NavLink>
         <NavLink to="/admin/users" className={({ isActive }) => `admin-subnav-link${isActive ? ' active' : ''}`}>👤 Users</NavLink>
         <NavLink to="/admin/ideas" className={({ isActive }) => `admin-subnav-link${isActive ? ' active' : ''}`}>💡 Ideas</NavLink>
+        <NavLink to="/admin/events" className={({ isActive }) => `admin-subnav-link${isActive ? ' active' : ''}`}>🗓️ Events</NavLink>
       </nav>
       <Outlet />
     </div>

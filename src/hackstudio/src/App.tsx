@@ -17,6 +17,7 @@ import { AdminPage } from './pages/AdminPage'
 import { AdminQuizPage } from './pages/AdminQuizPage'
 import { AdminUsersPage } from './pages/AdminUsersPage'
 import { AdminIdeasPage } from './pages/AdminIdeasPage'
+import { AdminEventsPage } from './pages/AdminEventsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { UserProvider, useUser } from './contexts/UserContext'
 import { IdeaProvider } from './contexts/IdeaContext'
@@ -51,6 +52,7 @@ function AppRoutes() {
           <Route path="quiz" element={<AdminQuizPage />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="ideas" element={<AdminIdeasPage />} />
+          <Route path="events" element={<AdminEventsPage />} />
         </Route>
         <Route path="about" element={<AboutPage />} />
         <Route path="ideas" element={<IdeasListPage />} />
