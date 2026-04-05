@@ -10,7 +10,7 @@
  */
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5163";
-const CONCURRENCY = 10;
+const CONCURRENCY = 90;
 const REQUESTS_PER_USER = 1;
 
 interface Result {
@@ -20,14 +20,14 @@ interface Result {
   error?: string;
 }
 
-async function fetchOne(endpoint: string, body?: unknown): Promise<Result> {
+async function fetchOne(endpoint: string, body?: unknown, timeoutMs = 15_000): Promise<Result> {
   const start = Date.now();
   try {
     const res = await fetch(endpoint, {
       method: body ? "POST" : "GET",
       headers: body ? { "Content-Type": "application/json" } : undefined,
       body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(timeoutMs),
     });
     // drain the body (handles SSE/streaming responses)
     await res.text();
@@ -63,12 +63,12 @@ function printReport(label: string, results: Result[]) {
   }
 }
 
-async function runLoad(endpoint: string, body?: unknown): Promise<Result[]> {
+async function runLoad(endpoint: string, body?: unknown, timeoutMs = 15_000): Promise<Result[]> {
   const tasks: Promise<Result>[] = [];
   for (let i = 0; i < CONCURRENCY; i++) {
     for (let j = 0; j < REQUESTS_PER_USER; j++) {
       tasks.push(
-        fetchOne(endpoint, body).then((r) => {
+        fetchOne(endpoint, body, timeoutMs).then((r) => {
           console.log(`  [${r.status}] ${r.endpoint} — ${r.durationMs}ms${r.error ? ` (${r.error})` : ""}`);
           return r;
         })
@@ -111,7 +111,7 @@ async function loadDalle() {
     description: "A futuristic city on Mars with domed habitats, rovers, and a red sky at sunset",
   };
   console.log(`\n=== POST ${url} ===`);
-  printReport(url, await runLoad(url, body));
+  printReport(url, await runLoad(url, body, 120_000));
 }
 
 main().catch((err) => {
