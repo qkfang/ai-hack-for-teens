@@ -90,7 +90,7 @@ async function main() {
 async function loadChat() {
   const url = `${API_BASE_URL}/api/chat`;
   const body = {
-    messages: [{ role: "user", content: "Tell me a fun fact about space in one sentence." }],
+    messages: [{ role: "user", content: "Tell me a detailed and fascinating story about the history of space exploration, covering key milestones from Sputnik in 1957 through the Apollo moon landings, the Space Shuttle program, the International Space Station, and modern private spaceflight. Include interesting facts about the astronauts, the challenges they faced, scientific discoveries made, and how each era shaped the next. Please provide a thorough and engaging narrative that would inspire a young student to pursue a career in science or engineering." }],
     systemPrompt: "You are a helpful assistant.",
     model: "gpt-4o",
     temperature: 0.7,
