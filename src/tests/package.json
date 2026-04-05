@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "test:e2e": "playwright test",
-    "test:load": "ts-node load.ts"
+    "test:load:remote": "ts-node load-remote.ts",
+    "test:load:local": "ts-node load-local.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.1",

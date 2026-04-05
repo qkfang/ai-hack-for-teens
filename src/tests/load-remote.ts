@@ -9,8 +9,8 @@
  * Reports p50/p95/p99 latency and error rate per endpoint.
  */
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5163";
-const CONCURRENCY = 90;
+const API_BASE_URL = process.env.API_BASE_URL || "https://aihack26-app.azurewebsites.net";
+const CONCURRENCY = 120;
 const REQUESTS_PER_USER = 1;
 
 interface Result {
@@ -81,7 +81,7 @@ async function runLoad(endpoint: string, body?: unknown, timeoutMs = 15_000): Pr
 async function main() {
   console.log(`Load test — ${CONCURRENCY} concurrent users × ${REQUESTS_PER_USER} requests each`);
 
-  // await loadChat();
+  await loadChat();
   await loadDalle();
 
   console.log("\nLoad test complete.\n");
