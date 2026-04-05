@@ -10,7 +10,7 @@
  */
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5163";
-const CONCURRENCY = 20;
+const CONCURRENCY = 10;
 const REQUESTS_PER_USER = 1;
 
 interface Result {
@@ -81,7 +81,8 @@ async function runLoad(endpoint: string, body?: unknown): Promise<Result[]> {
 async function main() {
   console.log(`Load test — ${CONCURRENCY} concurrent users × ${REQUESTS_PER_USER} requests each`);
 
-  await loadChat();
+  // await loadChat();
+  await loadDalle();
 
   console.log("\nLoad test complete.\n");
 }
@@ -99,6 +100,15 @@ async function loadChat() {
     presencePenalty: 0.0,
     frequencyPenalty: 0.0,
     mcpTools: [],
+  };
+  console.log(`\n=== POST ${url} ===`);
+  printReport(url, await runLoad(url, body));
+}
+
+async function loadDalle() {
+  const url = `${API_BASE_URL}/api/dalle`;
+  const body = {
+    description: "A futuristic city on Mars with domed habitats, rovers, and a red sky at sunset",
   };
   console.log(`\n=== POST ${url} ===`);
   printReport(url, await runLoad(url, body));
