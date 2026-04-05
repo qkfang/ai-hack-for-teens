@@ -9,10 +9,9 @@
  * Reports p50/p95/p99 latency and error rate per endpoint.
  */
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3000";
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5163";
-const CONCURRENCY = 80;
-const REQUESTS_PER_USER = 3;
+const CONCURRENCY = 20;
+const REQUESTS_PER_USER = 1;
 
 interface Result {
   endpoint: string;
@@ -21,11 +20,17 @@ interface Result {
   error?: string;
 }
 
-async function fetchOne(endpoint: string): Promise<Result> {
-  const url = endpoint.startsWith("http") ? endpoint : `${BASE_URL}${endpoint}`;
+async function fetchOne(endpoint: string, body?: unknown): Promise<Result> {
   const start = Date.now();
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(10_000) });
+    const res = await fetch(endpoint, {
+      method: body ? "POST" : "GET",
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(15_000),
+    });
+    // drain the body (handles SSE/streaming responses)
+    await res.text();
     return { endpoint, status: res.status, durationMs: Date.now() - start };
   } catch (err) {
     return {
@@ -58,11 +63,16 @@ function printReport(label: string, results: Result[]) {
   }
 }
 
-async function runLoad(endpoint: string): Promise<Result[]> {
+async function runLoad(endpoint: string, body?: unknown): Promise<Result[]> {
   const tasks: Promise<Result>[] = [];
   for (let i = 0; i < CONCURRENCY; i++) {
     for (let j = 0; j < REQUESTS_PER_USER; j++) {
-      tasks.push(fetchOne(endpoint));
+      tasks.push(
+        fetchOne(endpoint, body).then((r) => {
+          console.log(`  [${r.status}] ${r.endpoint} — ${r.durationMs}ms${r.error ? ` (${r.error})` : ""}`);
+          return r;
+        })
+      );
     }
   }
   return Promise.all(tasks);
@@ -71,37 +81,27 @@ async function runLoad(endpoint: string): Promise<Result[]> {
 async function main() {
   console.log(`Load test — ${CONCURRENCY} concurrent users × ${REQUESTS_PER_USER} requests each`);
 
-  // ── Webbuilder (Next.js) endpoints ──────────────────────────────────────
-  console.log(`\n=== Webbuilder: ${BASE_URL} ===`);
-  const webbuilderEndpoints = [
-    "/api/schema",
-    "/api/user?list=true",
-    "/api/code?userId=load-test-user&all=true",
-    "/api/gallery",
-  ];
-  for (const ep of webbuilderEndpoints) {
-    const results = await runLoad(ep);
-    printReport(ep, results);
-  }
-
-  // ── Backend API (.NET) endpoints ─────────────────────────────────────────
-  console.log(`\n=== Backend API: ${API_BASE_URL} ===`);
-  const apiEndpoints = [
-    `${API_BASE_URL}/api/users`,
-    `${API_BASE_URL}/api/ideas`,
-    `${API_BASE_URL}/api/stories`,
-    `${API_BASE_URL}/api/comics`,
-    `${API_BASE_URL}/api/weather`,
-    `${API_BASE_URL}/api/weather/summary`,
-    `${API_BASE_URL}/api/quiz/state`,
-    `${API_BASE_URL}/api/quiz/leaderboard`,
-  ];
-  for (const ep of apiEndpoints) {
-    const results = await runLoad(ep);
-    printReport(ep, results);
-  }
+  await loadChat();
 
   console.log("\nLoad test complete.\n");
+}
+
+
+async function loadChat() {
+  const url = `${API_BASE_URL}/api/chat`;
+  const body = {
+    messages: [{ role: "user", content: "Tell me a fun fact about space in one sentence." }],
+    systemPrompt: "You are a helpful assistant.",
+    model: "gpt-4o",
+    temperature: 0.7,
+    maxTokens: 128,
+    topP: 1.0,
+    presencePenalty: 0.0,
+    frequencyPenalty: 0.0,
+    mcpTools: [],
+  };
+  console.log(`\n=== POST ${url} ===`);
+  printReport(url, await runLoad(url, body));
 }
 
 main().catch((err) => {
