@@ -67,8 +67,7 @@ async function initializePool(): Promise<void> {
     throw new Error("Not authenticated. Set GH_TOKEN environment variable.");
   }
   for (const token of tokens) {
-    process.env.GH_TOKEN = token;
-    const c = new Client();
+    const c = new Client({ githubToken: token });
     await c.start();
     const authStatus = await c.getAuthStatus();
     if (!authStatus.isAuthenticated) {
