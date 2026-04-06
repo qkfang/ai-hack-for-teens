@@ -183,9 +183,9 @@ export function ComicPage() {
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 rows={5}
-                maxLength={1000}
+                maxLength={450}
               />
-              <div className="comic-char-count">{description.length} / 1000</div>
+              <div className="comic-char-count">{description.length} / 450</div>
               {error && <div className="comic-error">{error}</div>}
               {isRateLimited && (
                 <div className="comic-rate-limit">⏳ Please wait <strong>{countdown}s</strong> before trying again.</div>
