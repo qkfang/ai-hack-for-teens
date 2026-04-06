@@ -28,5 +28,5 @@ jobs:
           az deployment group create \
             --name 'ai-hack-dev' \
             --resource-group 'rg-ai-hack-2026' \
-            --template-file './main.bicep' \
+            --template-file './main-sub1.bicep' \
             --parameters './main-sub1.parameters.dev.json'

@@ -9,21 +9,21 @@ param azureAIFoundryDeployment string = 'gpt-4o'
 param azureAIFoundryDalleDeployment string = 'gpt-image-1'
 param azureAIFoundryTenantId string = '9d2116ce-afe6-4ce8-8bc3-c7c7b69856c2'
 param foundryLocations array = [
-  { region: 'francecentral', suffix: 'frc', image: false, gpt4oQuota: 1800 }
-  { region: 'japaneast', suffix: 'jpe', image: false, gpt4oQuota: 1800 }
-  { region: 'southafricanorth', suffix: 'san', image: false, gpt4oQuota: 1800 }
-  { region: 'southcentralus', suffix: 'scus', image: false, gpt4oQuota: 1800 }
-  { region: 'southindia', suffix: 'sin', image: false, gpt4oQuota: 1800 }
-  { region: 'spaincentral', suffix: 'spc', image: false, gpt4oQuota: 1800 }
-  { region: 'switzerlandnorth', suffix: 'swzn', image: false, gpt4oQuota: 1800 }
-  { region: 'uksouth', suffix: 'uks', image: false, gpt4oQuota: 1800 }
-  { region: 'westeurope', suffix: 'we', image: false, gpt4oQuota: 1800 }
+  { region: 'francecentral', suffix: 'frc', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'japaneast', suffix: 'jpe', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'southafricanorth', suffix: 'san', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'southcentralus', suffix: 'scus', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'southindia', suffix: 'sin', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'spaincentral', suffix: 'spc', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'switzerlandnorth', suffix: 'swzn', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'uksouth', suffix: 'uks', image: false, gpt4oQuota: 1800, imageQuota: 0 }
+  { region: 'westeurope', suffix: 'we', image: false, gpt4oQuota: 1800, imageQuota: 0 }
   
-  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 600 }
-  { region: 'polandcentral', suffix: 'plc', image: true, gpt4oQuota: 1800 }
-  { region: 'swedencentral', suffix: 'swc', image: true, gpt4oQuota: 1800 }
-  { region: 'uaenorth', suffix: 'uaen', image: true, gpt4oQuota: 1800 }
-  { region: 'westus3', suffix: 'wus3', image: true, gpt4oQuota: 1800 }
+  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 600, imageQuota: 14 }
+  { region: 'polandcentral', suffix: 'plc', image: true, gpt4oQuota: 1800, imageQuota: 6 }
+  { region: 'swedencentral', suffix: 'swc', image: true, gpt4oQuota: 1800, imageQuota: 6 }
+  { region: 'uaenorth', suffix: 'uaen', image: true, gpt4oQuota: 1800, imageQuota: 6 }
+  { region: 'westus3', suffix: 'wus3', image: true, gpt4oQuota: 1800, imageQuota: 6 }
 ]
 
 @description('Azure AD admin login name (UPN) for SQL Server')
@@ -56,6 +56,7 @@ module azureFoundry 'modules/foundry.bicep' = [for foundryLocation in foundryLoc
     tags: commonTags
     deployImage: foundryLocation.image
     gpt4oQuota: foundryLocation.gpt4oQuota
+    imageQuota: foundryLocation.imageQuota
     webAppPrincipalId: webAppHack.outputs.principalId
     principals: principals
   }

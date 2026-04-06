@@ -3,6 +3,7 @@ param location string
 param tags object = {}
 param deployImage bool = true
 param gpt4oQuota int = 1800
+param imageQuota int = 6
 param webAppPrincipalId string = ''
 param principals array = []
 
@@ -64,7 +65,7 @@ resource gptImage1Deployment 'Microsoft.CognitiveServices/accounts/deployments@2
   dependsOn: [gpt4oDeployment]
   sku: {
     name: 'GlobalStandard'
-    capacity: 6
+    capacity: imageQuota
   }
   properties: {
     model: {
