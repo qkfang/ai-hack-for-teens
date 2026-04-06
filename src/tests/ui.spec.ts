@@ -6,6 +6,16 @@ async function waitForAppReady(page: Page) {
   await page.waitForSelector("header", { timeout: 15_000 });
 }
 
+async function openChatPanel(page: Page) {
+  const chatBtn = page.getByRole("button", { name: /Copilot/i });
+  if (await chatBtn.count() > 0) {
+    await chatBtn.first().click();
+  } else {
+    await page.locator("header button.bg-green-600").first().click();
+  }
+  await expect(page.getByRole("heading", { name: /Copilot Chat/i })).toBeVisible({ timeout: 5_000 });
+}
+
 test.describe("Home page", () => {
   test("loads and shows Web Builder header", async ({ page }) => {
     await page.goto(BASE);
@@ -127,23 +137,11 @@ test.describe("Copilot chat", () => {
   });
 
   test("opens Copilot chat panel", async ({ page }) => {
-    const chatBtn = page.getByRole("button", { name: /Copilot/i });
-    if (await chatBtn.count() > 0) {
-      await chatBtn.first().click();
-    } else {
-      await page.locator("header button.bg-green-600").first().click();
-    }
-    await expect(page.getByRole("heading", { name: /Copilot Chat/i })).toBeVisible({ timeout: 5_000 });
+    await openChatPanel(page);
   });
 
   test("closes Copilot chat panel", async ({ page }) => {
-    const chatBtn = page.getByRole("button", { name: /Copilot/i });
-    if (await chatBtn.count() > 0) {
-      await chatBtn.first().click();
-    } else {
-      await page.locator("header button.bg-green-600").first().click();
-    }
-    await expect(page.getByRole("heading", { name: /Copilot Chat/i })).toBeVisible({ timeout: 5_000 });
+    await openChatPanel(page);
     // Close via the same button (now toggled)
     const closeBtn = page.getByRole("button", { name: /Close Chat/i });
     if (await closeBtn.count() > 0) {

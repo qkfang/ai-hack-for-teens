@@ -195,50 +195,44 @@ test.describe("Hack Studio responsive — Landing page", () => {
   });
 });
 
+async function loginAndSkipIfRedirected(page: Page): Promise<boolean> {
+  await simulateLogin(page);
+  if (page.url().includes("/login")) return false;
+  return true;
+}
+
 test.describe("Hack Studio responsive — Home page", () => {
   test("home page has no horizontal overflow", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return; // auth redirect — acceptable
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await noHorizontalOverflow(page);
   });
 
   test("header fits viewport", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return;
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await elementFitsViewport(page, ".app-header");
   });
 
   test("feature cards grid fits viewport", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return;
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await elementFitsViewport(page, ".features-grid");
   });
 
   test("footer fits viewport", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return;
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await elementFitsViewport(page, ".app-footer");
   });
 });
 
 test.describe("Hack Studio responsive — Chat page", () => {
   test("chat page has no horizontal overflow", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return;
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await page.goto(`${HS_BASE}/chat`);
     await expect(page.locator(".chat-page")).toBeVisible({ timeout: 10_000 }).catch(() => {});
     await noHorizontalOverflow(page);
   });
 
   test("chat input bar fits viewport", async ({ page }) => {
-    await simulateLogin(page);
-    const url = page.url();
-    if (url.includes("/login")) return;
+    if (!(await loginAndSkipIfRedirected(page))) return;
     await page.goto(`${HS_BASE}/chat`);
     await expect(page.locator(".chat-input-bar")).toBeVisible({ timeout: 10_000 }).catch(() => {});
     await elementFitsViewport(page, ".chat-input-bar");
