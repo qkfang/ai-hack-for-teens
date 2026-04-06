@@ -28,7 +28,19 @@ public class AIHackDbContext : DbContext
             new WeatherRecord { Id = 5, City = "Paris", Condition = "Clear", TemperatureCelsius = 19.5, Humidity = 50, WindSpeedKmh = 12, RecordedAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
         );
 
-        modelBuilder.Entity<AppSetting>().Property(x => x.Value).HasColumnType("nvarchar(max)");
+        // nvarchar(max) column types are SQL Server-specific; skip for SQLite
+        if (!Database.IsSqlite())
+        {
+            modelBuilder.Entity<AppSetting>().Property(x => x.Value).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<Comic>().Property(x => x.ImageUrl).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<Story>().Property(x => x.Body).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<Story>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<StartupIdea>().Property(x => x.IdeaDescription).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<StartupIdea>().Property(x => x.ProblemStatement).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<StartupIdea>().Property(x => x.AgentSystemPrompt).HasColumnType("nvarchar(max)");
+            modelBuilder.Entity<StartupIdea>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
+        }
+
         modelBuilder.Entity<AppSetting>().HasData(
             new AppSetting
             {
@@ -36,14 +48,6 @@ public class AIHackDbContext : DbContext
                 Value = "{\"genai\":{\"chat\":false,\"translation\":false,\"speech\":false,\"realtime\":false},\"startup\":{\"ideas\":false,\"storybook\":false,\"comic\":false,\"agent\":false,\"webbuilder\":false},\"gallery\":true,\"quiz\":true}"
             }
         );
-
-        modelBuilder.Entity<Comic>().Property(x => x.ImageUrl).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<Story>().Property(x => x.Body).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<Story>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<StartupIdea>().Property(x => x.IdeaDescription).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<StartupIdea>().Property(x => x.ProblemStatement).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<StartupIdea>().Property(x => x.AgentSystemPrompt).HasColumnType("nvarchar(max)");
-        modelBuilder.Entity<StartupIdea>().Property(x => x.CoverImageUrl).HasColumnType("nvarchar(max)");
 
         modelBuilder.Entity<IdeaVote>().HasKey(v => new { v.IdeaId, v.UserId });
         modelBuilder.Entity<IdeaVote>()

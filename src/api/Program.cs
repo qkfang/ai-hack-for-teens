@@ -1,13 +1,28 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 using api.Data;
 using api.Mcp;
 using api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// EF Core SQL Server database
-builder.Services.AddDbContext<AIHackDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// EF Core database – use SQLite when USE_IN_MEMORY_DB is set (e.g. for E2E tests),
+// otherwise fall through to the production SQL Server connection string.
+SqliteConnection? sqliteKeepAlive = null;
+var useInMemoryDb = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DB");
+if (!string.IsNullOrEmpty(useInMemoryDb) && useInMemoryDb.Equals("true", StringComparison.OrdinalIgnoreCase))
+{
+    // Use a shared in-memory SQLite connection kept alive for the process lifetime
+    sqliteKeepAlive = new SqliteConnection("DataSource=:memory:");
+    sqliteKeepAlive.Open();
+    builder.Services.AddDbContext<AIHackDbContext>(options =>
+        options.UseSqlite(sqliteKeepAlive));
+}
+else
+{
+    builder.Services.AddDbContext<AIHackDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // In-memory quiz store (singleton so state persists across requests)
 builder.Services.AddSingleton<QuizStore>();
@@ -62,11 +77,19 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Apply pending database migrations on startup
+// Apply pending database migrations on startup (for SQL Server) or create schema (for SQLite in-memory)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AIHackDbContext>();
-    db.Database.Migrate();
+    if (db.Database.IsSqlite())
+    {
+        db.Database.OpenConnection();
+        db.Database.EnsureCreated();
+    }
+    else
+    {
+        db.Database.Migrate();
+    }
 }
 
 // Configure HTTP pipeline

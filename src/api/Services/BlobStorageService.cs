@@ -7,26 +7,34 @@ namespace api.Services;
 public class BlobStorageService
 {
     private const string ContainerName = "images";
-    private readonly BlobContainerClient _containerClient;
+    private readonly BlobContainerClient? _containerClient;
 
     public BlobStorageService(IConfiguration config)
     {
         var accountName = config["AzureStorage:AccountName"] ?? "";
         if (string.IsNullOrEmpty(accountName))
-            throw new InvalidOperationException("AzureStorage:AccountName is not configured.");
+            return; // No-op when Azure Storage is not configured
 
-        var tenantId = config["AzureStorage:TenantId"] ?? "";
-        var credentialOptions = new DefaultAzureCredentialOptions();
-        if (!string.IsNullOrEmpty(tenantId))
-            credentialOptions.TenantId = tenantId;
+        try
+        {
+            var tenantId = config["AzureStorage:TenantId"] ?? "";
+            var credentialOptions = new DefaultAzureCredentialOptions();
+            if (!string.IsNullOrEmpty(tenantId))
+                credentialOptions.TenantId = tenantId;
 
-        var serviceUri = new Uri($"https://{accountName}.blob.core.windows.net");
-        var serviceClient = new BlobServiceClient(serviceUri, new DefaultAzureCredential(credentialOptions));
-        _containerClient = serviceClient.GetBlobContainerClient(ContainerName);
+            var serviceUri = new Uri($"https://{accountName}.blob.core.windows.net");
+            var serviceClient = new BlobServiceClient(serviceUri, new DefaultAzureCredential(credentialOptions));
+            _containerClient = serviceClient.GetBlobContainerClient(ContainerName);
+        }
+        catch
+        {
+            // If credentials are unavailable, run in passthrough mode
+        }
     }
 
     public async Task<string> UploadImageAsync(byte[] imageBytes, string fileName)
     {
+        if (_containerClient == null) return $"blob://{fileName}";
         await _containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
         var blobClient = _containerClient.GetBlobClient(fileName);
@@ -39,6 +47,8 @@ public class BlobStorageService
     {
         if (string.IsNullOrEmpty(imageUrl) || !imageUrl.StartsWith("data:"))
             return imageUrl;
+
+        if (_containerClient == null) return imageUrl;
 
         var base64 = imageUrl[(imageUrl.IndexOf(',') + 1)..];
         var bytes = Convert.FromBase64String(base64);

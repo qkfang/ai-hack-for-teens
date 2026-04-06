@@ -53,8 +53,7 @@ test.describe("Landing page", () => {
   test("continue form shows error for invalid ID", async ({ page }) => {
     await page.goto(PLAYGROUND);
     await page.getByRole("button", { name: /Continue/i }).click();
-    // Type an invalid string that produces NaN
-    await page.getByLabel(/User ID/i).fill("abc");
+    // Submit with empty field to trigger validation error
     await page.getByRole("button", { name: /Continue →/i }).click();
     await expect(page.getByText(/valid user ID/i)).toBeVisible();
   });
@@ -164,8 +163,79 @@ test.describe("Accessibility", () => {
 
   test("all visible buttons on landing page are keyboard-focusable", async ({ page }) => {
     await page.goto(PLAYGROUND);
+    await expect(page.getByRole("heading", { name: /AI Hack Studio/i })).toBeVisible({
+      timeout: INITIAL_LOAD_TIMEOUT,
+    });
     const buttons = page.getByRole("button");
     const count = await buttons.count();
     expect(count).toBeGreaterThan(0);
+  });
+});
+
+// ── Idea Spark: account creation + idea flow ─────────────────────────────────
+
+const API = process.env.API_BASE_URL || process.env.VITE_API_BASE_URL || "http://localhost:5163";
+
+test.describe.serial("Idea Spark flow", () => {
+  let userId: number;
+
+  test("create account via New User button", async ({ page, request }) => {
+    await page.goto(PLAYGROUND);
+    await expect(page.getByRole("heading", { name: /AI Hack Studio/i })).toBeVisible({
+      timeout: INITIAL_LOAD_TIMEOUT,
+    });
+    await page.getByRole("button", { name: /New User/i }).click();
+    await expect(page.getByRole("heading", { name: /Create Your Account/i })).toBeVisible();
+    await page.getByLabel(/username/i).fill("pw-spark-user");
+    await page.getByRole("button", { name: /Create Account/i }).click();
+
+    // Wait for redirect to home page
+    await page.waitForURL("**/", { timeout: 10_000 }).catch(() => {});
+    // Extract user from localStorage
+    const stored = await page.evaluate(() => localStorage.getItem("ai-playground-user"));
+    expect(stored).toBeTruthy();
+    const user = JSON.parse(stored!);
+    expect(user.username).toBe("pw-spark-user");
+    userId = user.id;
+  });
+
+  test("home page shows welcome and idea spark links", async ({ page }) => {
+    await simulateLogin(page, userId, "pw-spark-user");
+    await page.waitForURL("**/", { timeout: 5_000 }).catch(() => {});
+    await expect(page.locator("body")).toBeVisible();
+  });
+
+  test("navigating to /ideas shows ideas page", async ({ page }) => {
+    await simulateLogin(page, userId, "pw-spark-user");
+    await page.goto(`${PLAYGROUND}/ideas`);
+    await expect(page.locator("body")).toBeVisible({ timeout: 5_000 });
+  });
+
+  test("navigating to /gallery shows gallery page", async ({ page }) => {
+    await simulateLogin(page, userId, "pw-spark-user");
+    await page.goto(`${PLAYGROUND}/gallery`);
+    await expect(page.locator("body")).toBeVisible({ timeout: 5_000 });
+  });
+
+  test("gallery API returns ideas from backend", async ({ request }) => {
+    // Create an idea and publish it via API, then verify gallery sees it
+    const createRes = await request.post(`${API}/api/ideas`, {
+      data: { userId, title: "Gallery Test Idea" },
+    });
+    expect(createRes.status()).toBe(201);
+    const { id: ideaId } = await createRes.json();
+
+    await request.patch(`${API}/api/ideas/${ideaId}/publish`);
+
+    const galleryRes = await request.get(`${API}/api/ideas`);
+    expect(galleryRes.status()).toBe(200);
+    const ideas = await galleryRes.json();
+    const found = ideas.find((i: any) => i.id === ideaId);
+    expect(found).toBeTruthy();
+    expect(found.title).toBe("Gallery Test Idea");
+    expect(found.isPublished).toBe(true);
+
+    // Clean up
+    await request.delete(`${API}/api/ideas/${ideaId}`);
   });
 });

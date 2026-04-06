@@ -115,6 +115,190 @@ test.describe("POST /api/ideas", () => {
   });
 });
 
+// ── Idea Spark: full lifecycle ────────────────────────────────────────────────
+
+test.describe.serial("Idea Spark lifecycle", () => {
+  let creatorId: number;
+  let voterId: number;
+  let ideaId: number;
+
+  test("create users for idea tests", async ({ request }) => {
+    const r1 = await request.post(`${API}/api/users`, {
+      data: { username: "spark-creator" },
+    });
+    expect(r1.status()).toBe(201);
+    creatorId = (await r1.json()).id;
+
+    const r2 = await request.post(`${API}/api/users`, {
+      data: { username: "spark-voter" },
+    });
+    expect(r2.status()).toBe(201);
+    voterId = (await r2.json()).id;
+  });
+
+  test("create an idea with title only", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas`, {
+      data: { userId: creatorId, title: "Spark Test Idea" },
+    });
+    expect(res.status()).toBe(201);
+    const body = await res.json();
+    expect(body).toHaveProperty("id");
+    ideaId = body.id;
+  });
+
+  test("returns 404 when creating idea for non-existent user", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas`, {
+      data: { userId: 999999, title: "Ghost Idea" },
+    });
+    expect(res.status()).toBe(404);
+  });
+
+  test("get idea returns full fields after creation", async ({ request }) => {
+    const res = await request.get(`${API}/api/ideas/${ideaId}`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.title).toBe("Spark Test Idea");
+    expect(body.userId).toBe(creatorId);
+    expect(body.isPublished).toBe(false);
+    expect(body.hasWebBuilder).toBe(false);
+    expect(body.votes).toBe(0);
+    expect(body.voters).toEqual([]);
+  });
+
+  test("update idea with agent config and description", async ({ request }) => {
+    const res = await request.put(`${API}/api/ideas/${ideaId}`, {
+      data: {
+        userId: creatorId,
+        title: "Spark Updated Idea",
+        ideaDescription: "An AI-powered testing assistant",
+        problemStatement: "E2E testing is hard",
+        targetAudience: "Developers",
+        businessModel: "SaaS subscription",
+        agentName: "SparkBot",
+        agentSystemPrompt: "You are a helpful test bot",
+        agentModel: "gpt-4o",
+        agentTemperature: 0.7,
+      },
+    });
+    expect(res.status()).toBe(200);
+    expect((await res.json()).id).toBe(ideaId);
+  });
+
+  test("get idea reflects updated agent config", async ({ request }) => {
+    const res = await request.get(`${API}/api/ideas/${ideaId}`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.title).toBe("Spark Updated Idea");
+    expect(body.ideaDescription).toBe("An AI-powered testing assistant");
+    expect(body.problemStatement).toBe("E2E testing is hard");
+    expect(body.targetAudience).toBe("Developers");
+    expect(body.businessModel).toBe("SaaS subscription");
+    expect(body.agentName).toBe("SparkBot");
+    expect(body.agentSystemPrompt).toBe("You are a helpful test bot");
+    expect(body.agentModel).toBe("gpt-4o");
+    expect(body.agentTemperature).toBe(0.7);
+  });
+
+  test("update returns 400 when title cleared", async ({ request }) => {
+    const res = await request.put(`${API}/api/ideas/${ideaId}`, {
+      data: { userId: creatorId, title: "" },
+    });
+    expect(res.status()).toBe(400);
+  });
+
+  test("publish idea", async ({ request }) => {
+    const res = await request.patch(`${API}/api/ideas/${ideaId}/publish`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.isPublished).toBe(true);
+  });
+
+  test("published idea appears in GET /api/ideas list", async ({ request }) => {
+    const res = await request.get(`${API}/api/ideas`);
+    expect(res.status()).toBe(200);
+    const ideas = await res.json();
+    const found = ideas.find((i: any) => i.id === ideaId);
+    expect(found).toBeTruthy();
+    expect(found.isPublished).toBe(true);
+    expect(found.username).toBe("spark-creator");
+  });
+
+  test("vote on idea toggles on", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas/${ideaId}/vote`, {
+      data: { userId: voterId },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.voted).toBe(true);
+    expect(body.votes).toBe(1);
+  });
+
+  test("idea shows vote count and voters after voting", async ({ request }) => {
+    const res = await request.get(`${API}/api/ideas/${ideaId}`);
+    const body = await res.json();
+    expect(body.votes).toBe(1);
+    expect(body.voters).toContain(voterId);
+  });
+
+  test("vote again toggles off", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas/${ideaId}/vote`, {
+      data: { userId: voterId },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.voted).toBe(false);
+    expect(body.votes).toBe(0);
+  });
+
+  test("vote returns 404 for non-existent idea", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas/999999/vote`, {
+      data: { userId: voterId },
+    });
+    expect(res.status()).toBe(404);
+  });
+
+  test("vote returns 404 for non-existent user", async ({ request }) => {
+    const res = await request.post(`${API}/api/ideas/${ideaId}/vote`, {
+      data: { userId: 999999 },
+    });
+    expect(res.status()).toBe(404);
+  });
+
+  test("unpublish idea", async ({ request }) => {
+    const res = await request.patch(`${API}/api/ideas/${ideaId}/unpublish`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.isPublished).toBe(false);
+  });
+
+  test("mark webbuilder", async ({ request }) => {
+    const res = await request.patch(`${API}/api/ideas/${ideaId}/webbuilder`);
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body.hasWebBuilder).toBe(true);
+  });
+
+  test("delete idea returns 204", async ({ request }) => {
+    const res = await request.delete(`${API}/api/ideas/${ideaId}`);
+    expect(res.status()).toBe(204);
+  });
+
+  test("deleted idea returns 404", async ({ request }) => {
+    const res = await request.get(`${API}/api/ideas/${ideaId}`);
+    expect(res.status()).toBe(404);
+  });
+
+  test("delete non-existent idea returns 404", async ({ request }) => {
+    const res = await request.delete(`${API}/api/ideas/999999`);
+    expect(res.status()).toBe(404);
+  });
+
+  test("publish non-existent idea returns 404", async ({ request }) => {
+    const res = await request.patch(`${API}/api/ideas/999999/publish`);
+    expect(res.status()).toBe(404);
+  });
+});
+
 // ── Weather ───────────────────────────────────────────────────────────────────
 
 test.describe("GET /api/weather", () => {
@@ -130,8 +314,8 @@ test.describe("GET /api/weather/summary", () => {
     const res = await request.get(`${API}/api/weather/summary`);
     expect(res.status()).toBe(200);
     const body = await res.json();
-    expect(body).toHaveProperty("TotalCities");
-    expect(body).toHaveProperty("AverageTemperatureCelsius");
+    expect(body).toHaveProperty("totalCities");
+    expect(body).toHaveProperty("averageTemperatureCelsius");
   });
 });
 
