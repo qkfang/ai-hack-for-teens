@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       "./node_modules/@github/copilot-sdk/**/*",
       "./node_modules/vscode-jsonrpc/**/*",
     ],
+    "/api/code": ["./samples/**/*"],
+    "/api/sync": ["./samples/**/*"],
   },
 };
 
