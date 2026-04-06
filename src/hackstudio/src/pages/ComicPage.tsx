@@ -204,7 +204,7 @@ export function ComicPage() {
               </button>
               {loading && (
                 <div className="comic-loading-msg">
-                  🖌️ GPT-Image is painting your scene… this may take a moment. Don't close this window.
+                  🖌️ GPT-Image is painting your scene… this may take 1-2 minutes. Don't close this window.
                 </div>
               )}
             </form>
@@ -236,7 +236,7 @@ export function ComicPage() {
               </button>
               {editLoading && (
                 <div className="comic-loading-msg">
-                  🖌️ GPT-Image is applying your changes… this may take a moment. Don't close this window.
+                  🖌️ GPT-Image is applying your changes… this may take 1-2 minutes. Don't close this window.
                 </div>
               )}
             </form>
