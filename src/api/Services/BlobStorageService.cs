@@ -28,7 +28,8 @@ public class BlobStorageService
         }
         catch
         {
-            // If credentials are unavailable, run in passthrough mode
+            // If Azure credentials are unavailable (e.g. local E2E testing), run in passthrough mode.
+            // Images will not be uploaded but the API will still function for testing other features.
         }
     }
 

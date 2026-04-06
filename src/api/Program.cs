@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // EF Core database – use SQLite when USE_IN_MEMORY_DB is set (e.g. for E2E tests),
 // otherwise fall through to the production SQL Server connection string.
+// The sqliteKeepAlive connection is kept open for the process lifetime so that the
+// in-memory database persists across scoped DbContext instances.
 SqliteConnection? sqliteKeepAlive = null;
 var useInMemoryDb = Environment.GetEnvironmentVariable("USE_IN_MEMORY_DB");
 if (!string.IsNullOrEmpty(useInMemoryDb) && useInMemoryDb.Equals("true", StringComparison.OrdinalIgnoreCase))
