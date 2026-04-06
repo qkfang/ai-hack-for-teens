@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
   } else {
     bundle = await storage.getDefaultTemplate();
     isDefault = true;
+    await storage.saveCodeBundle(storageKey, bundle);
   }
 
   if (returnAll) {

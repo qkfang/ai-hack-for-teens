@@ -21,7 +21,11 @@ export async function POST(request: NextRequest) {
   const bundle = await blobProvider.getCodeBundle(storageKey);
 
   if (!bundle || Object.keys(bundle.files).length === 0) {
-    return NextResponse.json({ synced: false, reason: "not-found" });
+    const localProvider = new FileSystemStorageProvider();
+    const template = await localProvider.getDefaultTemplate();
+    await blobProvider.saveCodeBundle(storageKey, template);
+    await localProvider.saveCodeBundle(storageKey, template);
+    return NextResponse.json({ synced: true, storageKey, initialized: true });
   }
 
   const localProvider = new FileSystemStorageProvider();
