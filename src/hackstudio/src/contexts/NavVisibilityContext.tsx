@@ -20,10 +20,10 @@ export interface NavConfig {
 }
 
 const DEFAULT_CONFIG: NavConfig = {
-  genai: { chat: false, translation: false, speech: false, realtime: false },
-  startup: { ideas: true, storybook: false, comic: false, agent: false, webbuilder: false },
-  gallery: false,
-  quiz: false,
+  genai: { chat: true, translation: true, speech: true, realtime: false },
+  startup: { ideas: true, storybook: true, comic: true, agent: true, webbuilder: true },
+  gallery: true,
+  quiz: true,
 }
 
 interface NavVisibilityContextValue {
