@@ -14,33 +14,37 @@ export function LeaderboardPage() {
   const { user } = useUser()
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [totalQuestions, setTotalQuestions] = useState(10)
-  const [selectedEvents, setSelectedEvents] = useState<string[]>([])
-  const [events, setEvents] = useState<string[]>(['Sydney', 'Melbourne'])
-
-  useEffect(() => {
-    if (user?.eventName) setSelectedEvents([user.eventName])
-  }, [user?.eventName])
+  const DEFAULT_EVENTS = ['Sydney', 'Melbourne']
+  const [selectedEvents, setSelectedEvents] = useState<string[]>(DEFAULT_EVENTS)
+  const [events, setEvents] = useState<string[]>(DEFAULT_EVENTS)
 
   useEffect(() => {
     fetch(`${API_BASE}/api/quiz/events`)
       .then(r => r.json())
-      .then((data: string[]) => { if (data.length > 0) setEvents(data) })
+      .then((data: string[]) => {
+        if (data.length > 0) {
+          setEvents(data)
+          setSelectedEvents(data)
+        }
+      })
       .catch(() => {})
   }, [])
 
   const fetchLeaderboard = useCallback(async () => {
     try {
-      const params = selectedEvents.length > 0
+      const allSelected = selectedEvents.length === 0 || selectedEvents.length === events.length
+      const params = !allSelected
         ? `?${selectedEvents.map(e => `eventName=${encodeURIComponent(e)}`).join('&')}`
         : ''
       const res = await fetch(`${API_BASE}/api/quiz/leaderboard${params}`)
       setLeaderboard(await res.json())
     } catch { /* ignore */ }
-  }, [selectedEvents])
+  }, [selectedEvents, events])
 
   const fetchState = useCallback(async () => {
     try {
-      const params = selectedEvents.length > 0
+      const allSelected = selectedEvents.length === 0 || selectedEvents.length === events.length
+      const params = !allSelected
         ? `?${selectedEvents.map(e => `eventName=${encodeURIComponent(e)}`).join('&')}`
         : ''
       const res = await fetch(`${API_BASE}/api/quiz/state${params}`)
@@ -60,10 +64,6 @@ export function LeaderboardPage() {
     )
   }
 
-  function toggleAll() {
-    setSelectedEvents([])
-  }
-
   return (
     <div className="quiz-page">
       <h1 className="quiz-title">🏆 Leaderboard</h1>
@@ -72,14 +72,6 @@ export function LeaderboardPage() {
         <div className="quiz-event-filter">
           <label className="quiz-event-filter-label">Event:</label>
           <div className="quiz-event-filter-btns">
-            <label className={`quiz-event-checkbox${selectedEvents.length === 0 ? ' active' : ''}`}>
-              <input
-                type="checkbox"
-                checked={selectedEvents.length === 0}
-                onChange={toggleAll}
-              />
-              All
-            </label>
             {events.map(ev => (
               <label key={ev} className={`quiz-event-checkbox${selectedEvents.includes(ev) ? ' active' : ''}`}>
                 <input
