@@ -165,28 +165,29 @@ User request: ${lastUserMessage.content}`;
         let messageId = "";
         let streamClosed = false;
 
-        const timeoutId = setTimeout(() => {
-          if (!streamClosed) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", message: "Request timed out" })}\n\n`));
-            streamClosed = true;
-            controller.close();
-          }
-        }, 120000);
+        const safeEnqueue = (data: Uint8Array) => {
+          if (streamClosed) return;
+          try { controller.enqueue(data); } catch { streamClosed = true; }
+        };
 
         const closeStream = () => {
-          if (!streamClosed) {
-            streamClosed = true;
-            clearTimeout(timeoutId);
-            controller.close();
-          }
+          if (streamClosed) return;
+          streamClosed = true;
+          clearTimeout(timeoutId);
+          try { controller.close(); } catch { /* already closed */ }
         };
+
+        const timeoutId = setTimeout(() => {
+          safeEnqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", message: "Request timed out" })}\n\n`));
+          closeStream();
+        }, 120000);
 
         const unsubscribe = currentSession.on((event) => {
           if (streamClosed) return;
           try {
             switch (event.type) {
               case "tool.execution_start":
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                   type: "tool.start",
                   toolId: event.data?.toolCallId || randomUUID(),
                   toolName: event.data?.toolName,
@@ -194,7 +195,7 @@ User request: ${lastUserMessage.content}`;
                 })}\n\n`));
                 break;
               case "tool.execution_complete":
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                   type: "tool.complete",
                   toolId: event.data?.toolCallId,
                   success: event.data?.success,
@@ -203,27 +204,27 @@ User request: ${lastUserMessage.content}`;
                 break;
               case "assistant.reasoning_delta":
                 if (event.data?.deltaContent) {
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                  safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                     type: "reasoning", content: event.data.deltaContent,
                   })}\n\n`));
                 }
                 break;
               case "assistant.message_delta":
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "working" })}\n\n`));
+                safeEnqueue(encoder.encode(`data: ${JSON.stringify({ type: "working" })}\n\n`));
                 break;
               case "assistant.message":
                 finalContent = event.data?.content || "";
                 messageId = event.data?.messageId || "";
                 break;
               case "session.idle":
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                   type: "done", content: finalContent, messageId,
                 })}\n\n`));
                 unsubscribe();
                 closeStream();
                 break;
               case "session.error":
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                safeEnqueue(encoder.encode(`data: ${JSON.stringify({
                   type: "error", message: event.data?.message || "Unknown error",
                 })}\n\n`));
                 unsubscribe();
@@ -241,7 +242,7 @@ User request: ${lastUserMessage.content}`;
             attachments: attachments.length > 0 ? attachments : undefined,
           });
         } catch (err) {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          safeEnqueue(encoder.encode(`data: ${JSON.stringify({
             type: "error",
             message: err instanceof Error ? err.message : "Failed to send message",
           })}\n\n`));
