@@ -63,7 +63,7 @@ export function QuizPage() {
     const id = setInterval(() => {
       fetchState()
       fetchLeaderboard()
-    }, 5000)
+    }, 3000)
     return () => clearInterval(id)
   }, [fetchState, fetchLeaderboard])
 

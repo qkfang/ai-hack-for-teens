@@ -313,6 +313,39 @@
   color: #fff;
 }
 
+.quiz-event-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  border: 2px solid #e0e0e0;
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.quiz-event-checkbox input[type="checkbox"] {
+  accent-color: #0078d4;
+}
+
+.quiz-event-checkbox:hover {
+  border-color: #0078d4;
+  color: #0078d4;
+}
+
+.quiz-event-checkbox.active {
+  background: #0078d4;
+  border-color: #0078d4;
+  color: #fff;
+}
+
+.quiz-event-checkbox.active input[type="checkbox"] {
+  accent-color: #fff;
+}
+
 .quiz-score-bar {
   text-align: center;
   padding: 0.4rem 1rem;
