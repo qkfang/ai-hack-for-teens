@@ -104,7 +104,7 @@ export function LeaderboardPage() {
                 <span className="quiz-lb-rank">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}</span>
                 <span className="quiz-lb-name">
                   {entry.username}
-                  {selectedEvents.length !== 1 && entry.eventName && <span className="quiz-lb-event">{entry.eventName}</span>}
+                  {entry.eventName && <span className="quiz-lb-event">{entry.eventName}</span>}
                 </span>
                 <span className="quiz-lb-score">{entry.score} / {totalQuestions}</span>
               </li>
