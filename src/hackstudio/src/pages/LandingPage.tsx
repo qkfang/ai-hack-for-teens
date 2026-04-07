@@ -28,7 +28,10 @@ export function LandingPage() {
   const [lastUserId, setLastUserId] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [events, setEvents] = useState<{id: number; name: string}[]>([])
+  const [events, setEvents] = useState<{id: number; name: string}[]>([
+    { id: 1, name: 'Sydney' },
+    { id: 2, name: 'Melbourne' },
+  ])
   const [selectedEvent, setSelectedEvent] = useState('')
   const [continueEvent, setContinueEvent] = useState('')
 
@@ -37,7 +40,7 @@ export function LandingPage() {
     if (saved) setLastUserId(saved)
     fetch(`${API_BASE}/api/events`)
       .then(r => r.json())
-      .then((data: {id: number; name: string}[]) => setEvents(data))
+      .then((data: {id: number; name: string}[]) => { if (data.length > 0) setEvents(data) })
       .catch(() => {})
   }, [])
 
