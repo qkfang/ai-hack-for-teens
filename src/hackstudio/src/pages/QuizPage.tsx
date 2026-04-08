@@ -26,7 +26,7 @@ export function QuizPage() {
   const [state, setState] = useState<QuizState | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
   const [result, setResult] = useState<boolean | null>(null)
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
+  const [_leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
 
   const fetchState = useCallback(async () => {
     try {
