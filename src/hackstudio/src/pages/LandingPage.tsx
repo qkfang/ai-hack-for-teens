@@ -32,15 +32,15 @@ export function LandingPage() {
     { id: 1, name: 'Sydney' },
     { id: 2, name: 'Melbourne' },
   ])
-  const [selectedEvent, setSelectedEvent] = useState('')
-  const [continueEvent, setContinueEvent] = useState('')
+  const [selectedEvent, setSelectedEvent] = useState('Sydney')
+  const [continueEvent, setContinueEvent] = useState('Sydney')
 
   useEffect(() => {
     const saved = getLastUserIdCookie()
     if (saved) setLastUserId(saved)
     fetch(`${API_BASE}/api/events`)
       .then(r => r.json())
-      .then((data: {id: number; name: string}[]) => { if (data.length > 0) setEvents(data) })
+      .then((data: {id: number; name: string}[]) => { if (data.length > 0) { setEvents(data); setSelectedEvent(data[0].name); setContinueEvent(data[0].name) } })
       .catch(() => {})
   }, [])
 
@@ -93,16 +93,12 @@ export function LandingPage() {
       if (res.status === 404) throw new Error(`No user found with ID ${id}`)
       if (!res.ok) throw new Error('Failed to fetch user')
       const data = await res.json() as { id: number; username: string; eventName: string }
-      let eventName = data.eventName ?? ''
-      if (continueEvent) {
-        await fetch(`${API_BASE}/api/users/${id}/event`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ eventName: continueEvent }),
-        })
-        eventName = continueEvent
-      }
-      setUser({ id: data.id, username: data.username, eventName })
+      await fetch(`${API_BASE}/api/users/${id}/event`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventName: continueEvent }),
+      })
+      setUser({ id: data.id, username: data.username, eventName: continueEvent })
       saveLastUserIdCookie(data.id)
       navigate('/')
     } catch (err) {
@@ -159,8 +155,7 @@ export function LandingPage() {
                   value={selectedEvent}
                   onChange={e => setSelectedEvent(e.target.value)}
                 >
-                  <option value="">— No event —</option>
-                  {events.map(ev => (
+                    {events.map(ev => (
                     <option key={ev.id} value={ev.name}>{ev.name}</option>
                   ))}
                 </select>
@@ -199,8 +194,7 @@ export function LandingPage() {
                   value={continueEvent}
                   onChange={e => setContinueEvent(e.target.value)}
                 >
-                  <option value="">— Keep existing —</option>
-                  {events.map(ev => (
+                    {events.map(ev => (
                     <option key={ev.id} value={ev.name}>{ev.name}</option>
                   ))}
                 </select>
