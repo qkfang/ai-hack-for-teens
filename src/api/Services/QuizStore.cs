@@ -1,220 +1,151 @@
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using api.Data;
+using api.Models;
+
 namespace api.Services;
 
-public class QuizQuestion
+public class QuizStore(AIHackDbContext db)
 {
-    public string Text { get; set; } = "";
-    public string[] Options { get; set; } = [];
-    public int CorrectIndex { get; set; }
-}
-
-public class EventQuizState
-{
-    public enum QuizStatus { Waiting, InProgress, Finished }
-
-    private readonly object _lock = new();
-    private QuizStatus _status = QuizStatus.Waiting;
-    private int _currentQuestion = 0;
-    private bool _showAnswer = false;
-    private readonly Dictionary<(int userId, int questionIndex), int> _answers = [];
-
-    public QuizStatus Status { get { lock (_lock) return _status; } }
-    public int CurrentQuestion { get { lock (_lock) return _currentQuestion; } }
-    public bool IsShowingAnswer { get { lock (_lock) return _showAnswer; } }
-
-    public void Start()
+    public async Task<List<QuizQuestion>> GetQuestionsAsync()
     {
-        lock (_lock)
-        {
-            _status = QuizStatus.InProgress;
-            _currentQuestion = 0;
-        }
+        return await db.QuizQuestions.OrderBy(q => q.DisplayOrder).ToListAsync();
     }
 
-    public void Next()
+    public string[] ParseOptions(QuizQuestion q)
     {
-        lock (_lock)
-        {
-            if (_status != QuizStatus.InProgress) return;
-            if (_currentQuestion < QuizStore.Questions.Length - 1)
-            {
-                _currentQuestion++;
-                _showAnswer = false;
-            }
-        }
+        return JsonSerializer.Deserialize<string[]>(q.OptionsJson) ?? [];
     }
 
-    public void Prev()
+    public async Task<List<string>> GetEventNamesAsync()
     {
-        lock (_lock)
-        {
-            if (_status != QuizStatus.InProgress) return;
-            if (_currentQuestion > 0)
-            {
-                _currentQuestion--;
-                _showAnswer = false;
-            }
-        }
+        return await db.QuizEventStates.Select(e => e.EventName).ToListAsync();
     }
 
-    public void Finish()
-    {
-        lock (_lock) { _status = QuizStatus.Finished; }
-    }
-
-    public void Reset()
-    {
-        lock (_lock)
-        {
-            _status = QuizStatus.Waiting;
-            _currentQuestion = 0;
-            _showAnswer = false;
-            _answers.Clear();
-        }
-    }
-
-    public void ToggleShowAnswer()
-    {
-        lock (_lock) { _showAnswer = !_showAnswer; }
-    }
-
-    public bool SubmitAnswer(int userId, int questionIndex, int answerIndex)
-    {
-        lock (_lock)
-        {
-            if (_answers.ContainsKey((userId, questionIndex))) return false;
-            _answers[(userId, questionIndex)] = answerIndex;
-            return true;
-        }
-    }
-
-    public bool? GetAnswer(int userId, int questionIndex)
-    {
-        lock (_lock)
-        {
-            if (!_answers.TryGetValue((userId, questionIndex), out var answer)) return null;
-            return answer == QuizStore.Questions[questionIndex].CorrectIndex;
-        }
-    }
-
-    public bool HasAnswered(int userId, int questionIndex)
-    {
-        lock (_lock) return _answers.ContainsKey((userId, questionIndex));
-    }
-
-    public int GetScore(int userId)
-    {
-        lock (_lock)
-        {
-            int score = 0;
-            for (int i = 0; i < QuizStore.Questions.Length; i++)
-            {
-                if (_answers.TryGetValue((userId, i), out var answer) && answer == QuizStore.Questions[i].CorrectIndex)
-                    score++;
-            }
-            return score;
-        }
-    }
-}
-
-public class QuizStore
-{
-    public static readonly QuizQuestion[] Questions =
-    [
-        new QuizQuestion
-        {
-            Text = "What does AI stand for?",
-            Options = ["Automated Intelligence", "Artificial Intelligence", "Advanced Integration", "Applied Information"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "Which Microsoft AI assistant is built into Windows 11 and Microsoft 365?",
-            Options = ["Siri", "Alexa", "Copilot", "Bixby"],
-            CorrectIndex = 2
-        },
-        new QuizQuestion
-        {
-            Text = "What is a Large Language Model (LLM)?",
-            Options = ["A very big dictionary", "An AI trained on text to understand and generate language", "A programming language for AI", "A type of database"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "Which of the following is one of Microsoft's 6 Responsible AI principles?",
-            Options = ["Speed", "Fairness", "Profitability", "Complexity"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "What is 'prompt engineering'?",
-            Options = ["Building hardware for AI chips", "Designing prompts to get better AI outputs", "Writing AI source code", "Training neural networks"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "In Microsoft's Responsible AI framework, which principle means AI should not disadvantage people based on race, gender, or other factors?",
-            Options = ["Reliability", "Privacy", "Fairness", "Accountability"],
-            CorrectIndex = 2
-        },
-        new QuizQuestion
-        {
-            Text = "What is Microsoft Foundry?",
-            Options = ["A cloud platform for building and deploying AI models and applications", "A robot manufacturing facility", "A Microsoft gaming service", "A programming language"],
-            CorrectIndex = 0
-        },
-        new QuizQuestion
-        {
-            Text = "What does 'AI bias' mean?",
-            Options = ["AI that prefers certain programming languages", "When AI produces unfair or skewed results due to flawed training data", "The speed difference between AI models", "AI that only works in one country"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "Which Microsoft Responsible AI principle ensures humans remain in control of AI decisions?",
-            Options = ["Transparency", "Human oversight and control (Accountability)", "Inclusiveness", "Reliability"],
-            CorrectIndex = 1
-        },
-        new QuizQuestion
-        {
-            Text = "What is 'machine learning'?",
-            Options = ["Teaching robots to walk", "A type of AI where systems learn patterns from data without being explicitly programmed", "Writing code that runs very fast", "A Microsoft Office feature"],
-            CorrectIndex = 1
-        },
-    ];
-
-    private readonly object _eventsLock = new();
-    private readonly List<string> _eventNames = [];
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, EventQuizState> _eventStates = new(StringComparer.OrdinalIgnoreCase);
-
-    public IReadOnlyList<string> GetEventNames() { lock (_eventsLock) return [.. _eventNames]; }
-
-    public bool AddEvent(string name)
+    public async Task<bool> AddEventAsync(string name)
     {
         var trimmed = name.Trim();
-        lock (_eventsLock)
+        if (await db.QuizEventStates.AnyAsync(e => e.EventName == trimmed)) return false;
+        db.QuizEventStates.Add(new QuizEventState { EventName = trimmed });
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveEventAsync(string name)
+    {
+        var state = await db.QuizEventStates.FirstOrDefaultAsync(e => e.EventName == name);
+        if (state == null) return false;
+        db.QuizAnswers.RemoveRange(db.QuizAnswers.Where(a => a.EventName == name));
+        db.QuizEventStates.Remove(state);
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<QuizEventState> GetOrCreateEventStateAsync(string? eventName)
+    {
+        var key = string.IsNullOrWhiteSpace(eventName) ? "default" : eventName.Trim();
+        var state = await db.QuizEventStates.FirstOrDefaultAsync(e => e.EventName == key);
+        if (state == null)
         {
-            if (_eventNames.Any(e => string.Equals(e, trimmed, StringComparison.OrdinalIgnoreCase))) return false;
-            _eventNames.Add(trimmed);
-            return true;
+            state = new QuizEventState { EventName = key };
+            db.QuizEventStates.Add(state);
+            await db.SaveChangesAsync();
+        }
+        return state;
+    }
+
+    public async Task StartAsync(string? eventName)
+    {
+        var state = await GetOrCreateEventStateAsync(eventName);
+        state.Status = 1;
+        state.CurrentQuestion = 0;
+        state.ShowAnswer = false;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task NextAsync(string? eventName)
+    {
+        var state = await GetOrCreateEventStateAsync(eventName);
+        if (state.Status != 1) return;
+        var totalQuestions = await db.QuizQuestions.CountAsync();
+        if (state.CurrentQuestion < totalQuestions - 1)
+        {
+            state.CurrentQuestion++;
+            state.ShowAnswer = false;
+            await db.SaveChangesAsync();
         }
     }
 
-    public bool RemoveEvent(string name)
+    public async Task PrevAsync(string? eventName)
     {
-        lock (_eventsLock)
+        var state = await GetOrCreateEventStateAsync(eventName);
+        if (state.Status != 1) return;
+        if (state.CurrentQuestion > 0)
         {
-            var existing = _eventNames.FirstOrDefault(e => string.Equals(e, name, StringComparison.OrdinalIgnoreCase));
-            if (existing == null) return false;
-            _eventNames.Remove(existing);
-            _eventStates.TryRemove(existing, out _);
-            return true;
+            state.CurrentQuestion--;
+            state.ShowAnswer = false;
+            await db.SaveChangesAsync();
         }
     }
 
-    public EventQuizState GetEvent(string eventName)
+    public async Task FinishAsync(string? eventName)
     {
-        const string DefaultEventKey = "default";
-        var key = string.IsNullOrWhiteSpace(eventName) ? DefaultEventKey : eventName.Trim();
-        return _eventStates.GetOrAdd(key, _ => new EventQuizState());
+        var state = await GetOrCreateEventStateAsync(eventName);
+        state.Status = 2;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ResetAsync(string? eventName)
+    {
+        var state = await GetOrCreateEventStateAsync(eventName);
+        state.Status = 0;
+        state.CurrentQuestion = 0;
+        state.ShowAnswer = false;
+        var key = string.IsNullOrWhiteSpace(eventName) ? "default" : eventName.Trim();
+        db.QuizAnswers.RemoveRange(db.QuizAnswers.Where(a => a.EventName == key));
+
+        var users = await db.AppUsers.Where(u => u.EventName == key).ToListAsync();
+        foreach (var u in users) u.Score = 0;
+
+        await db.SaveChangesAsync();
+    }
+
+    public async Task ToggleShowAnswerAsync(string? eventName)
+    {
+        var state = await GetOrCreateEventStateAsync(eventName);
+        state.ShowAnswer = !state.ShowAnswer;
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<bool> SubmitAnswerAsync(string? eventName, int userId, int questionId, int answerIndex)
+    {
+        var key = string.IsNullOrWhiteSpace(eventName) ? "default" : eventName.Trim();
+        if (await db.QuizAnswers.AnyAsync(a => a.EventName == key && a.UserId == userId && a.QuestionId == questionId))
+            return false;
+        db.QuizAnswers.Add(new QuizAnswer { EventName = key, UserId = userId, QuestionId = questionId, AnswerIndex = answerIndex });
+
+        var question = await db.QuizQuestions.FindAsync(questionId);
+        if (question != null && answerIndex == question.CorrectIndex)
+        {
+            var user = await db.AppUsers.FindAsync(userId);
+            if (user != null) user.Score++;
+        }
+
+        await db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> HasAnsweredAsync(string? eventName, int userId, int questionId)
+    {
+        var key = string.IsNullOrWhiteSpace(eventName) ? "default" : eventName.Trim();
+        return await db.QuizAnswers.AnyAsync(a => a.EventName == key && a.UserId == userId && a.QuestionId == questionId);
+    }
+
+    public async Task<int> GetScoreAsync(string? eventName, int userId)
+    {
+        var key = string.IsNullOrWhiteSpace(eventName) ? "default" : eventName.Trim();
+        var answers = await db.QuizAnswers.Where(a => a.EventName == key && a.UserId == userId).ToListAsync();
+        var questions = await db.QuizQuestions.ToDictionaryAsync(q => q.Id);
+        return answers.Count(a => questions.TryGetValue(a.QuestionId, out var q) && a.AnswerIndex == q.CorrectIndex);
     }
 }

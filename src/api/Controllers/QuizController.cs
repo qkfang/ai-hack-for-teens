@@ -14,109 +14,129 @@ public class QuizController(QuizStore quiz, AIHackDbContext db) : ControllerBase
     // ── Events management ────────────────────────────────────────────────────
 
     [HttpGet("events")]
-    public IActionResult GetEvents() => Ok(quiz.GetEventNames());
+    public async Task<IActionResult> GetEvents() => Ok(await quiz.GetEventNamesAsync());
 
     [HttpPost("admin/events")]
-    public IActionResult AddEvent([FromBody] EventRequest req, [FromHeader(Name = "X-Admin-Password")] string? password)
+    public async Task<IActionResult> AddEvent([FromBody] EventRequest req, [FromHeader(Name = "X-Admin-Password")] string? password)
     {
         if (password != AdminPassword) return Unauthorized(new { error = "Invalid admin password" });
         var name = req.Name?.Trim() ?? "";
         if (string.IsNullOrEmpty(name)) return BadRequest(new { error = "Event name is required" });
-        if (!quiz.AddEvent(name)) return Conflict(new { error = "Event already exists" });
-        return Ok(quiz.GetEventNames());
+        if (!await quiz.AddEventAsync(name)) return Conflict(new { error = "Event already exists" });
+        return Ok(await quiz.GetEventNamesAsync());
     }
 
     [HttpDelete("admin/events/{name}")]
-    public IActionResult RemoveEvent(string name, [FromHeader(Name = "X-Admin-Password")] string? password)
+    public async Task<IActionResult> RemoveEvent(string name, [FromHeader(Name = "X-Admin-Password")] string? password)
     {
         if (password != AdminPassword) return Unauthorized(new { error = "Invalid admin password" });
-        if (!quiz.RemoveEvent(name)) return NotFound(new { error = "Event not found" });
-        return Ok(quiz.GetEventNames());
+        if (!await quiz.RemoveEventAsync(name)) return NotFound(new { error = "Event not found" });
+        return Ok(await quiz.GetEventNamesAsync());
     }
 
     // ── Quiz state ───────────────────────────────────────────────────────────
 
     [HttpGet("state")]
-    public IActionResult GetState([FromQuery] int? userId, [FromQuery] string? eventName)
+    public async Task<IActionResult> GetState([FromQuery] int? userId, [FromQuery] string? eventName)
     {
-        var ev = quiz.GetEvent(eventName ?? "");
+        var ev = await quiz.GetOrCreateEventStateAsync(eventName);
+        var questions = await quiz.GetQuestionsAsync();
         var q = ev.CurrentQuestion;
-        var status = ev.Status;
-        var showAnswer = ev.IsShowingAnswer;
-        var question = status == EventQuizState.QuizStatus.InProgress
-            ? new
-            {
-                text = QuizStore.Questions[q].Text,
-                options = QuizStore.Questions[q].Options,
-            }
-            : (object?)null;
+        var statusText = ev.Status switch { 1 => "inprogress", 2 => "finished", _ => "waiting" };
+
+        object? question = null;
+        if (ev.Status == 1 && q < questions.Count)
+        {
+            var current = questions[q];
+            question = new { text = current.Text, options = quiz.ParseOptions(current) };
+        }
+
+        var hasAnswered = false;
+        int? correctIndex = null;
+        if (ev.Status == 1 && q < questions.Count)
+        {
+            if (userId.HasValue)
+                hasAnswered = await quiz.HasAnsweredAsync(eventName, userId.Value, questions[q].Id);
+            if (ev.ShowAnswer)
+                correctIndex = questions[q].CorrectIndex;
+        }
+
+        int score = 0;
+        if (userId.HasValue)
+        {
+            var appUser = await db.AppUsers.FindAsync(userId.Value);
+            if (appUser != null) score = appUser.Score;
+        }
 
         return Ok(new
         {
-            status = status.ToString().ToLower(),
+            status = statusText,
             currentQuestion = q,
-            totalQuestions = QuizStore.Questions.Length,
+            totalQuestions = questions.Count,
             question,
-            hasAnswered = userId.HasValue && ev.HasAnswered(userId.Value, q),
-            showAnswer,
-            correctIndex = (status == EventQuizState.QuizStatus.InProgress && ev.IsShowingAnswer) ? QuizStore.Questions[q].CorrectIndex : (int?)null,
+            hasAnswered,
+            showAnswer = ev.ShowAnswer,
+            correctIndex,
+            score,
         });
     }
 
     [HttpPost("answer")]
-    public IActionResult SubmitAnswer([FromBody] AnswerRequest req)
+    public async Task<IActionResult> SubmitAnswer([FromBody] AnswerRequest req)
     {
-        var ev = quiz.GetEvent(req.EventName ?? "");
-        if (ev.Status != EventQuizState.QuizStatus.InProgress)
+        var ev = await quiz.GetOrCreateEventStateAsync(req.EventName);
+        if (ev.Status != 1)
             return BadRequest(new { error = "Quiz is not in progress" });
 
+        var questions = await quiz.GetQuestionsAsync();
         var q = ev.CurrentQuestion;
-        if (!ev.SubmitAnswer(req.UserId, q, req.Answer))
+        if (q >= questions.Count) return BadRequest(new { error = "Invalid question" });
+
+        var current = questions[q];
+        if (!await quiz.SubmitAnswerAsync(req.EventName, req.UserId, current.Id, req.Answer))
             return BadRequest(new { error = "Already answered this question" });
 
-        bool correct = req.Answer == QuizStore.Questions[q].CorrectIndex;
+        bool correct = req.Answer == current.CorrectIndex;
         return Ok(new { correct });
     }
 
     [HttpGet("leaderboard")]
     public async Task<IActionResult> GetLeaderboard([FromQuery] string? eventName)
     {
-        var ev = quiz.GetEvent(eventName ?? "");
         IQueryable<api.Models.AppUser> query = db.AppUsers;
         if (!string.IsNullOrWhiteSpace(eventName))
             query = query.Where(u => u.EventName == eventName);
 
-        var users = await query
-            .Select(u => new { userId = u.Id, username = u.Username, eventName = u.EventName })
+        var scores = await query
+            .OrderByDescending(u => u.Score)
+            .Select(u => new { userId = u.Id, username = u.Username, eventName = u.EventName, score = u.Score })
             .ToListAsync();
-        var board = users
-            .Select(u => new { u.userId, u.username, u.eventName, score = ev.GetScore(u.userId) })
-            .OrderByDescending(x => x.score)
-            .ToList();
-        return Ok(board);
+
+        return Ok(scores);
     }
 
     // ── Admin controls ───────────────────────────────────────────────────────
 
     [HttpPost("admin/control")]
-    public IActionResult AdminControl([FromBody] AdminControlRequest req, [FromHeader(Name = "X-Admin-Password")] string? password)
+    public async Task<IActionResult> AdminControl([FromBody] AdminControlRequest req, [FromHeader(Name = "X-Admin-Password")] string? password)
     {
         if (password != AdminPassword)
             return Unauthorized(new { error = "Invalid admin password" });
 
-        var ev = quiz.GetEvent(req.EventName ?? "");
         switch (req.Action)
         {
-            case "start": ev.Start(); break;
-            case "next": ev.Next(); break;
-            case "prev": ev.Prev(); break;
-            case "finish": ev.Finish(); break;
-            case "reset": ev.Reset(); break;
-            case "showAnswer": ev.ToggleShowAnswer(); break;
+            case "start": await quiz.StartAsync(req.EventName); break;
+            case "next": await quiz.NextAsync(req.EventName); break;
+            case "prev": await quiz.PrevAsync(req.EventName); break;
+            case "finish": await quiz.FinishAsync(req.EventName); break;
+            case "reset": await quiz.ResetAsync(req.EventName); break;
+            case "showAnswer": await quiz.ToggleShowAnswerAsync(req.EventName); break;
             default: return BadRequest(new { error = "Unknown action" });
         }
 
-        return Ok(new { status = ev.Status.ToString().ToLower(), currentQuestion = ev.CurrentQuestion, showAnswer = ev.IsShowingAnswer });
+        var ev = await quiz.GetOrCreateEventStateAsync(req.EventName);
+        var statusText = ev.Status switch { 1 => "inprogress", 2 => "finished", _ => "waiting" };
+        return Ok(new { status = statusText, currentQuestion = ev.CurrentQuestion, showAnswer = ev.ShowAnswer });
     }
 }
 

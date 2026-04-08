@@ -11,6 +11,7 @@ interface QuizState {
   hasAnswered: boolean
   showAnswer: boolean
   correctIndex: number | null
+  score: number
 }
 
 interface LeaderboardEntry {
@@ -91,7 +92,7 @@ export function QuizPage() {
 
       {user && state.status !== 'waiting' && (
         <div className="quiz-score-bar">
-          🏆 Your current score: <strong>{leaderboard.find(e => e.userId === user.id)?.score ?? 0}</strong>
+          🏆 Your current score: <strong>{state.score}</strong>
         </div>
       )}
 
@@ -146,7 +147,7 @@ export function QuizPage() {
           <h2>🎉 Quiz Complete!</h2>
           {user && (
             <p className="quiz-my-score">
-              Your score: <strong>{leaderboard.find(e => e.userId === user.id)?.score ?? 0}</strong> / {state.totalQuestions}
+              Your score: <strong>{state.score}</strong> / {state.totalQuestions}
             </p>
           )}
         </div>

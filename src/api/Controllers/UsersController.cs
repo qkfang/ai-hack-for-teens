@@ -154,6 +154,7 @@ public class UsersController(AIHackDbContext db, IMemoryCache cache, BlobStorage
         var user = await db.AppUsers.FindAsync(id);
         if (user == null) return NotFound(new { error = "User not found" });
         user.EventName = request.EventName?.Trim() ?? "";
+        user.Score = 0;
         await db.SaveChangesAsync();
         cache.Remove($"users:{id}");
         cache.Remove("users:all");

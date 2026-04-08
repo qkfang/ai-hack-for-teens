@@ -14,17 +14,17 @@ export function LeaderboardPage() {
   const { user } = useUser()
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [totalQuestions, setTotalQuestions] = useState(10)
-  const DEFAULT_EVENTS = ['Sydney', 'Melbourne']
-  const [selectedEvents, setSelectedEvents] = useState<string[]>(DEFAULT_EVENTS)
-  const [events, setEvents] = useState<string[]>(DEFAULT_EVENTS)
+  const [selectedEvents, setSelectedEvents] = useState<string[]>([])
+  const [events, setEvents] = useState<string[]>([])
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/quiz/events`)
+    fetch(`${API_BASE}/api/events`)
       .then(r => r.json())
-      .then((data: string[]) => {
-        if (data.length > 0) {
-          setEvents(data)
-          setSelectedEvents(data)
+      .then((data: { id: number; name: string }[]) => {
+        const names = data.map(e => e.name)
+        if (names.length > 0) {
+          setEvents(names)
+          setSelectedEvents(names)
         }
       })
       .catch(() => {})
