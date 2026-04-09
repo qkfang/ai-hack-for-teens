@@ -86,10 +86,12 @@ export function IdeasListPage() {
             className="ideas-create-input"
             placeholder="Idea name (e.g. Chocolate Factory)…"
             value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
+            onChange={e => setNewTitle(e.target.value.slice(0, 50))}
             onKeyDown={e => e.key === 'Enter' && handleCreate()}
+            maxLength={50}
             autoFocus
           />
+          <span className="ideas-create-charcount">{newTitle.length}/50</span>
           <button
             className="ideas-create-confirm-btn"
             onClick={handleCreate}
