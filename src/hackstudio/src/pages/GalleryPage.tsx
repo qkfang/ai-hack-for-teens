@@ -163,16 +163,7 @@ export function GalleryPage() {
   }
 
   const openAgentView= (idea: StartupIdeaEntry) => {
-    navigate('/agent', {
-      state: {
-        ideaAgentConfig: {
-          name: idea.agentName,
-          systemPrompt: idea.agentSystemPrompt,
-          model: idea.agentModel,
-          temperature: idea.agentTemperature,
-        },
-      },
-    })
+    navigate(`/agent?ideaId=${idea.id}`)
   }
 
   const PAGE_SIZE = 15

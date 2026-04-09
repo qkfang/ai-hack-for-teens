@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { API_BASE } from '../config'
 import { useUser } from '../contexts/UserContext'
 import { useIdea } from '../contexts/IdeaContext'
@@ -292,6 +292,8 @@ export function AgentBuilderPage() {
   const { user } = useUser()
   const location = useLocation()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const queryIdeaId = searchParams.get('ideaId') ? Number(searchParams.get('ideaId')) : null
   const { selectedIdeaId } = useIdea()
   const { ideas, loaded, updateIdea } = useIdeas(user?.id)
   const [activeTab, setActiveTab] = useState<'builder' | 'use'>('builder')
@@ -303,19 +305,47 @@ export function AgentBuilderPage() {
   const [showTemplates, setShowTemplates] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [queryIdea, setQueryIdea] = useState<{ id: number; userId: number; title?: string; agentName?: string; agentSystemPrompt?: string; agentModel?: string; agentTemperature?: number } | null>(null)
 
-  const currentIdea = ideas.find(i => i.id === selectedIdeaId)
-  const isCreator = !!currentIdea && !!user && currentIdea.userId === user.id
+  const isQueryMode = queryIdeaId !== null
+  const currentIdea = isQueryMode ? queryIdea : ideas.find(i => i.id === selectedIdeaId)
+  const isCreator = !isQueryMode && !!currentIdea && !!user && currentIdea.userId === user.id
+
+  // Fetch idea by query ideaId
+  useEffect(() => {
+    if (!queryIdeaId) { setQueryIdea(null); return }
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/ideas`)
+        if (!res.ok) return
+        const all = await res.json() as { id: number; userId: number; title?: string; agentName?: string; agentSystemPrompt?: string; agentModel?: string; agentTemperature?: number }[]
+        const found = all.find(i => i.id === queryIdeaId) ?? null
+        setQueryIdea(found)
+        if (found) {
+          setConfig(prev => ({
+            ...prev,
+            ...(found.agentName != null && { name: found.agentName }),
+            ...(found.agentSystemPrompt != null && { systemPrompt: found.agentSystemPrompt }),
+            ...(found.agentModel != null && { model: found.agentModel }),
+            ...(found.agentTemperature != null && { temperature: found.agentTemperature }),
+          }))
+          setActiveTab('use')
+        }
+      } catch { /* ignore */ }
+    })()
+  }, [queryIdeaId])
 
   // Redirect to ideas list if no idea is selected after load
   useEffect(() => {
+    if (isQueryMode) return
     if (loaded && !currentIdea && !(location.state as { ideaAgentConfig?: unknown } | null)?.ideaAgentConfig) navigate('/ideas')
-  }, [loaded, currentIdea, location.state, navigate])
+  }, [loaded, currentIdea, location.state, navigate, isQueryMode])
 
   // Switch to 'use' tab when the user is not the creator
   useEffect(() => {
+    if (isQueryMode) return
     if (loaded && currentIdea && !isCreator) setActiveTab('use')
-  }, [loaded, currentIdea, isCreator])
+  }, [loaded, currentIdea, isCreator, isQueryMode])
 
   // Auto-load agent config from the selected idea
   useEffect(() => {
