@@ -81,9 +81,9 @@ resource autoscale 'Microsoft.Insights/autoscalesettings@2022-10-01' = {
       {
         name: 'defaultProfile'
         capacity: {
-          minimum: '3'
+          minimum: '1'
           maximum: '10'
-          default: '3'
+          default: '1'
         }
         rules: [
           {
