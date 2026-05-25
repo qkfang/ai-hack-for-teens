@@ -6,6 +6,10 @@ on:
     paths:
       - "bicep/**"
   workflow_dispatch:
+  schedule:
+    # Sydney 6am and 2pm (AEST UTC+10). Cron is in UTC.
+    - cron: "0 20 * * *"
+    - cron: "0 4 * * *"
 
 jobs:
   deploy-dev:
