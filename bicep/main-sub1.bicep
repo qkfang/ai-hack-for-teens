@@ -19,11 +19,11 @@ param foundryLocations array = [
   { region: 'uksouth', suffix: 'uks', image: false, gpt4oQuota: 1800, imageQuota: 0 }
   { region: 'westeurope', suffix: 'we', image: false, gpt4oQuota: 1800, imageQuota: 0 }
   
-  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 600, imageQuota: 14 }
-  { region: 'polandcentral', suffix: 'plc', image: true, gpt4oQuota: 1800, imageQuota: 6 }
-  { region: 'swedencentral', suffix: 'swc', image: true, gpt4oQuota: 1800, imageQuota: 6 }
-  { region: 'uaenorth', suffix: 'uaen', image: true, gpt4oQuota: 1800, imageQuota: 6 }
-  { region: 'westus3', suffix: 'wus3', image: true, gpt4oQuota: 1800, imageQuota: 6 }
+  { region: 'eastus2', suffix: 'eus2', image: true, gpt4oQuota: 600, imageQuota: 4 }
+  { region: 'polandcentral', suffix: 'plc', image: true, gpt4oQuota: 1800, imageQuota: 4 }
+  { region: 'swedencentral', suffix: 'swc', image: true, gpt4oQuota: 1800, imageQuota: 4 }
+  { region: 'uaenorth', suffix: 'uaen', image: true, gpt4oQuota: 1800, imageQuota: 4 }
+  { region: 'westus3', suffix: 'wus3', image: true, gpt4oQuota: 1800, imageQuota: 4 }
 ]
 
 @description('Azure AD admin login name (UPN) for SQL Server')

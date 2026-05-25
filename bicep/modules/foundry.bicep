@@ -59,23 +59,22 @@ resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-
   }
 }
 
-// model expired but still works for existing deployment.
-// resource gptImage1Deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = if (deployImage) {
-//   parent: aiHub
-//   name: 'gpt-image-1'
-//   dependsOn: [gpt4oDeployment]
-//   sku: {
-//     name: 'GlobalStandard'
-//     capacity: imageQuota
-//   }
-//   properties: {
-//     model: {
-//       format: 'OpenAI'
-//       name: 'gpt-image-1'
-//     }
-//     raiPolicyName: 'Microsoft.DefaultV2'
-//   }
-// }
+resource gptImage2Deployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = if (deployImage) {
+  parent: aiHub
+  name: 'gpt-image-2'
+  dependsOn: [gpt4oDeployment]
+  sku: {
+    name: 'GlobalStandard'
+    capacity: imageQuota
+  }
+  properties: {
+    model: {
+      format: 'OpenAI'
+      name: 'gpt-image-2'
+    }
+    raiPolicyName: 'Microsoft.DefaultV2'
+  }
+}
 
 var cognitiveServicesOpenAIUserRoleId = '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd'
 var cognitiveServicesUserRoleId = 'a97b65f3-24c7-4388-baec-2e87135dc908'
