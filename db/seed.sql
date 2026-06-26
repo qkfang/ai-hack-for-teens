@@ -28,8 +28,8 @@ DBCC CHECKIDENT ('QuizAnswers',     RESEED, 1);
 
 -- ── Events ──────────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT Events ON;
-INSERT INTO Events (Id,Name,CreatedAt) VALUES (1, N'Sydney', '2026-04-04T00:00:00.000');
-INSERT INTO Events (Id,Name,CreatedAt) VALUES (2, N'Melbourne', '2026-04-04T00:00:00.000');
+INSERT INTO Events (Id,Name,CreatedAt) VALUES (1, N'Brisbane', '2026-04-04T00:00:00.000');
+-- INSERT INTO Events (Id,Name,CreatedAt) VALUES (2, N'Melbourne', '2026-04-04T00:00:00.000');
 SET IDENTITY_INSERT Events OFF;
 
 -- ── WeatherRecords ────────────────────────────────────────────────────────────
@@ -42,12 +42,12 @@ INSERT INTO WeatherRecords (Id,City,Condition,TemperatureCelsius,Humidity,WindSp
 SET IDENTITY_INSERT WeatherRecords OFF;
 
 -- ── AppSettings ───────────────────────────────────────────────────────────────
-INSERT INTO AppSettings ([Key], Value) VALUES (N'nav-config', N'{"genai":{"chat":false,"translation":false,"speech":false,"realtime":false},"startup":{"ideas":false,"storybook":false,"comic":false,"agent":false,"webbuilder":false},"gallery":true,"quiz":true}');
+INSERT INTO AppSettings ([Key], Value) VALUES (N'nav-config', N'{"genai":{"chat":true,"translation":true,"speech":true,"realtime":false},"startup":{"ideas":true,"storybook":true,"comic":true,"agent":true,"webbuilder":true},"gallery":true,"quiz":true}');
 
 -- ── AppUsers ──────────────────────────────────────────────────────────────────
 SET IDENTITY_INSERT AppUsers ON;
-INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, EventName, Score) VALUES (1, N'Daniel', N'', '2026-04-01T10:38:53.423', 'Sydney', 0);
-INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, EventName, Score) VALUES (2, N'Wendy', N'', '2026-04-01T10:38:53.423', 'Melbourne', 0);
+INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, Score) VALUES (1, N'Daniel', N'Brisbane', '2026-04-01T10:38:53.423', 0);
+INSERT INTO AppUsers (Id,Username,EventName,CreatedAt, Score) VALUES (2, N'Wendy', N'Brisbane', '2026-04-01T10:38:53.423', 0);
 SET IDENTITY_INSERT AppUsers OFF;
 
 -- ── StartupIdeas ──────────────────────────────────────────────────────────────

@@ -29,11 +29,10 @@ export function LandingPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [events, setEvents] = useState<{id: number; name: string}[]>([
-    { id: 1, name: 'Sydney' },
-    { id: 2, name: 'Melbourne' },
+    { id: 1, name: 'Brisbane' }
   ])
-  const [selectedEvent, setSelectedEvent] = useState('Sydney')
-  const [continueEvent, setContinueEvent] = useState('Sydney')
+  const [selectedEvent, setSelectedEvent] = useState('Brisbane')
+  const [continueEvent, setContinueEvent] = useState('Brisbane')
 
   useEffect(() => {
     const saved = getLastUserIdCookie()
