@@ -26,7 +26,17 @@ jobs:
     #   - name: Create Resource Group
     #     run: az group create --name 'rg-ai-hack-2026' --location 'eastus2'
 
-      - name: Deploy Tags
+      - name: Deploy Tags (first attempt)
+        continue-on-error: true
+        working-directory: bicep
+        run: |
+          az deployment group create \
+            --name 'ai-hack-dev-tag' \
+            --resource-group 'rg-ai-hack-2026' \
+            --template-file './main-tag.bicep' \
+            --parameters './main-tag.parameters.dev.json'
+
+      - name: Deploy Tags (second attempt)
         working-directory: bicep
         run: |
           az deployment group create \
